@@ -1,0 +1,87 @@
+<svg width="640" height="640" viewBox="0 0 640 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bubbleBlue" x1="84" y1="66" x2="467" y2="376" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#41C7FF"/>
+      <stop offset="0.52" stop-color="#0E67EE"/>
+      <stop offset="1" stop-color="#072A88"/>
+    </linearGradient>
+    <linearGradient id="bubbleGreen" x1="388" y1="70" x2="562" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E7FF37"/>
+      <stop offset="0.48" stop-color="#77E218"/>
+      <stop offset="1" stop-color="#178E23"/>
+    </linearGradient>
+    <linearGradient id="plateBlue" x1="86" y1="454" x2="562" y2="592" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0E71F6"/>
+      <stop offset="0.5" stop-color="#0A3BC2"/>
+      <stop offset="1" stop-color="#05206A"/>
+    </linearGradient>
+    <linearGradient id="plateGlow" x1="131" y1="529" x2="509" y2="563" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8CFF1B"/>
+      <stop offset="0.5" stop-color="#3ADF13"/>
+      <stop offset="1" stop-color="#A7FF1B"/>
+    </linearGradient>
+    <linearGradient id="micBody" x1="310" y1="276" x2="310" y2="502" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2A3547"/>
+      <stop offset="0.36" stop-color="#0A1221"/>
+      <stop offset="1" stop-color="#01040A"/>
+    </linearGradient>
+    <linearGradient id="paperFill" x1="393" y1="143" x2="556" y2="352" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDFDFD"/>
+      <stop offset="1" stop-color="#D9E0EB"/>
+    </linearGradient>
+    <filter id="shadow" x="34" y="30" width="572" height="582" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="14"/>
+      <feGaussianBlur stdDeviation="18"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.00784314 0 0 0 0 0.0470588 0 0 0 0 0.152941 0 0 0 0.38 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <path d="M98 180C98 103.785 159.785 42 236 42H408C484.215 42 546 103.785 546 180V279C546 355.215 484.215 417 408 417H222L110 505L131 417C112.775 405.102 98 383.503 98 358V180Z" fill="#0A1234"/>
+    <path d="M103 182C103 109.196 162.196 50 235 50H402C433.737 50 461.102 61.3727 481.682 81.4762L421 231L480 413.784C457.681 425.306 432.355 432 405 432H220L118 513L136 432C116.267 422.557 103 401.472 103 377V182Z" fill="url(#bubbleBlue)"/>
+    <path d="M421 50H402C432.355 50 457.681 56.6942 480 68.2159C518.424 88.0524 544 128.12 544 174V289C544 364.111 475.111 425 400 425H380L421 50Z" fill="url(#bubbleGreen)" fill-opacity="0.96"/>
+    <path d="M101 268H166L183 242L208 315L249 148L285 312L312 230L332 271L356 150L386 265L415 234L462 261" stroke="#FCFCFE" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <path d="M372 156C372 141.641 383.641 130 398 130H522C536.359 130 548 141.641 548 156V326C548 340.359 536.359 352 522 352H398C383.641 352 372 340.359 372 326V156Z" fill="url(#paperFill)"/>
+    <rect x="402" y="166" width="108" height="18" rx="9" fill="#0A54DA"/>
+    <rect x="394" y="198" width="136" height="18" rx="9" fill="#0F67E8"/>
+    <rect x="442" y="248" width="82" height="18" rx="9" fill="#19A629"/>
+    <rect x="441" y="300" width="94" height="18" rx="9" fill="#148F27"/>
+
+    <path d="M274 281C274 246.206 302.206 218 337 218H344C378.794 218 407 246.206 407 281V337C407 371.794 378.794 400 344 400H337C302.206 400 274 371.794 274 337V281Z" fill="#F6F7FB"/>
+    <path d="M284 283C284 253.729 307.729 230 337 230H344C373.271 230 397 253.729 397 283V337C397 366.271 373.271 390 344 390H337C307.729 390 284 366.271 284 337V283Z" fill="url(#micBody)"/>
+    <path d="M304 259C304 245.193 315.193 234 329 234H350C363.807 234 375 245.193 375 259V295C375 308.807 363.807 320 350 320H329C315.193 320 304 308.807 304 295V259Z" fill="#AEB5C0"/>
+    <g fill="#2C313A">
+      <rect x="312" y="245" width="8" height="8" rx="2"/>
+      <rect x="329" y="245" width="8" height="8" rx="2"/>
+      <rect x="346" y="245" width="8" height="8" rx="2"/>
+      <rect x="363" y="245" width="8" height="8" rx="2"/>
+      <rect x="312" y="261" width="8" height="8" rx="2"/>
+      <rect x="329" y="261" width="8" height="8" rx="2"/>
+      <rect x="346" y="261" width="8" height="8" rx="2"/>
+      <rect x="363" y="261" width="8" height="8" rx="2"/>
+      <rect x="312" y="277" width="8" height="8" rx="2"/>
+      <rect x="329" y="277" width="8" height="8" rx="2"/>
+      <rect x="346" y="277" width="8" height="8" rx="2"/>
+      <rect x="363" y="277" width="8" height="8" rx="2"/>
+    </g>
+    <path d="M256 312C256 296.536 268.536 284 284 284H291V360H284C268.536 360 256 347.464 256 332V312Z" fill="#DDE5F1"/>
+    <path d="M391 284H398C413.464 284 426 296.536 426 312V332C426 347.464 413.464 360 398 360H391V284Z" fill="#DDE5F1"/>
+    <path d="M274 361C286.93 380.334 307.566 392 340 392C372.434 392 393.07 380.334 406 361" stroke="#F4F4F8" stroke-width="9" stroke-linecap="round"/>
+    <rect x="305" y="332" width="70" height="24" rx="12" fill="#042B73"/>
+    <rect x="313" y="338" width="16" height="12" rx="6" fill="#7DFE15"/>
+    <rect x="334" y="338" width="30" height="12" rx="6" fill="#CBFF2E"/>
+    <path d="M339 397V436" stroke="#27262B" stroke-width="12" stroke-linecap="round"/>
+    <ellipse cx="339" cy="452" rx="64" ry="18" fill="#09090B"/>
+    <rect x="286" y="436" width="106" height="22" rx="11" fill="#1A1A20"/>
+
+    <path d="M88 455C88 437.327 102.327 423 120 423H520C537.673 423 552 437.327 552 455V538C552 555.673 537.673 570 520 570H120C102.327 570 88 555.673 88 538V455Z" fill="#041335"/>
+    <path d="M96 457C96 443.745 106.745 433 120 433H520C533.255 433 544 443.745 544 457V534C544 547.255 533.255 558 520 558H120C106.745 558 96 547.255 96 534V457Z" fill="url(#plateBlue)"/>
+    <rect x="114" y="513" width="412" height="19" rx="9.5" fill="url(#plateGlow)"/>
+    <text x="320" y="525" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="112" font-weight="700" text-anchor="middle">SayIt!</text>
+  </g>
+</svg>
