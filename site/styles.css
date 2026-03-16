@@ -1,7 +1,6 @@
 :root {
-  --bg: #edf2f8;
-  --surface: #f8fbff;
-  --surface-elevated: rgba(248, 251, 255, 0.96);
+  --bg: #f5efe4;
+  --surface: transparent;
   --input-bg: #ffffff;
   --text: #0f2348;
   --muted: #63799f;
@@ -70,100 +69,26 @@ button:disabled {
   width: min(100%, 430px);
   min-height: 100vh;
   margin: 0 auto;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
   background: var(--surface);
 }
 
 .preview-app-mobile body {
-  background: #e7edf5;
+  background: #f0e7d9;
 }
 
 .preview-app-mobile .shell {
-  border-left: 1px solid var(--line);
-  border-right: 1px solid var(--line);
-}
-
-.app-bar {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 1rem 1rem 0.9rem;
-  background: var(--surface-elevated);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--line);
-}
-
-.app-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  min-width: 0;
-}
-
-.app-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 0.9rem;
-  background: #ffffff;
-  border: 1px solid var(--line);
-}
-
-.app-brand-icon {
-  width: 2.15rem;
-  height: 2.15rem;
-  object-fit: contain;
-}
-
-.app-brand-copy {
-  min-width: 0;
-}
-
-.app-brand-kicker {
-  margin: 0 0 0.1rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--accent);
-}
-
-.app-brand-copy h1 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-}
-
-.app-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.toolbar-button {
-  border: 0;
-  background: transparent;
-  color: var(--accent);
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 0.35rem 0.45rem;
+  border-left: 1px solid rgba(184, 170, 146, 0.2);
+  border-right: 1px solid rgba(184, 170, 146, 0.2);
 }
 
 .app-surface {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  min-height: 0;
+  min-height: 100vh;
 }
 
 .intake-form {
   display: grid;
   gap: 0;
-  padding: 0 1rem;
+  padding: 0 1rem 2rem;
 }
 
 .app-section {
@@ -245,6 +170,10 @@ button:disabled {
 
 .voice-section {
   gap: 0.85rem;
+}
+
+.voice-section .section-label {
+  display: none;
 }
 
 .voice-status {
@@ -334,18 +263,18 @@ button:disabled {
 }
 
 .sayit-button {
-  width: 3.5rem;
-  min-width: 3.5rem;
-  height: 3.5rem;
+  width: auto;
+  min-width: 0;
+  height: auto;
   padding: 0;
-  border-radius: 1.1rem;
-  background: #ffffff;
-  border-color: var(--line);
+  border-radius: 0;
+  background: transparent;
+  border-color: transparent;
 }
 
 .sayit-button img {
-  width: 2.35rem;
-  height: 2.35rem;
+  width: 3.15rem;
+  height: 3.15rem;
   object-fit: contain;
 }
 
@@ -359,18 +288,6 @@ button:disabled {
   color: var(--accent-strong);
 }
 
-.app-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 4;
-  display: grid;
-  gap: 0.9rem;
-  padding: 0.95rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
-  background: var(--surface-elevated);
-  backdrop-filter: blur(16px);
-  border-top: 1px solid var(--line);
-}
-
 .delivery-copy {
   display: grid;
   gap: 0.28rem;
@@ -382,13 +299,17 @@ button:disabled {
   line-height: 1.5;
 }
 
-.footer-actions {
-  display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr);
-  gap: 0.7rem;
+.action-section {
+  gap: 1rem;
 }
 
-.footer-button {
+.form-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.form-actions > button {
   width: 100%;
 }
 
@@ -546,19 +467,13 @@ body.teleprompter-open {
 }
 
 @media (max-width: 720px) {
-  .app-bar {
-    padding-left: 0.9rem;
-    padding-right: 0.9rem;
-  }
-
   .intake-form,
-  .app-footer,
   .teleprompter-modal {
     padding-left: 0.9rem;
     padding-right: 0.9rem;
   }
 
-  .footer-actions {
+  .form-actions {
     grid-template-columns: 1fr;
   }
 
@@ -576,5 +491,9 @@ body.teleprompter-open {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .voice-actions {
+    justify-content: flex-start;
   }
 }

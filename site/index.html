@@ -24,22 +24,6 @@
   </head>
   <body>
     <main class="shell">
-      <header class="app-bar">
-        <div class="app-brand">
-          <div class="app-brand-mark">
-            <img class="app-brand-icon" src="./assets/sayit-app-icon.png" alt="SayIt app icon" />
-          </div>
-          <div class="app-brand-copy">
-            <p class="app-brand-kicker">SayIt</p>
-            <h1>Communication translator</h1>
-          </div>
-        </div>
-        <div class="app-toolbar">
-          <button type="button" id="load-sample" class="toolbar-button">Sample</button>
-          <button type="button" id="reset-form" class="toolbar-button">Reset</button>
-        </div>
-      </header>
-
       <section class="app-surface">
         <form id="intake-form" class="intake-form">
           <section class="app-section">
@@ -86,11 +70,10 @@
 
           <section class="app-section voice-section">
             <div class="section-heading">
-              <p class="section-label">Voice</p>
               <h2>Talk to me. I've got your back.</h2>
             </div>
             <p id="voice-status" class="voice-status">
-              When you're ready, tap the icon and speak naturally.
+              When you're ready, talk to SayIt! and get your message across, and we'll clean it up.
             </p>
             <p id="voice-preview" class="voice-preview">Your spoken draft will show up here as you talk.</p>
             <div class="voice-actions">
@@ -177,27 +160,29 @@
                 <option>Confident</option>
                 <option>Funny</option>
                 <option>Easy to understand</option>
-              </select>
-            </label>
-          </section>
-        </form>
+                </select>
+              </label>
+            </section>
 
-        <footer class="app-footer">
-          <div class="delivery-copy">
-            <p class="section-label">Teleprompter</p>
-            <p id="teleprompter-summary" class="teleprompter-summary">
-              Generate a translated message to unlock teleprompter mode.
-            </p>
-          </div>
-          <div class="footer-actions">
-            <button id="open-teleprompter" type="button" class="ghost-button footer-button" disabled>
-              Open teleprompter
-            </button>
-            <button id="translate-action" type="submit" form="intake-form" class="primary-button footer-button">
-              Let's do this
-            </button>
-          </div>
-        </footer>
+            <section class="app-section action-section">
+              <div class="form-actions">
+                <button type="button" id="load-sample" class="ghost-button">
+                  Load sample
+                </button>
+                <button type="button" id="reset-form" class="ghost-button">
+                  Reset all
+                </button>
+                <button id="translate-action" type="submit" class="primary-button">
+                  Let's do this
+                </button>
+              </div>
+              <div class="delivery-copy">
+                <p id="teleprompter-summary" class="teleprompter-summary">
+                  Once you commit, teleprompter will open. You can either copy and paste it or read directly from it.
+                </p>
+              </div>
+            </section>
+        </form>
       </section>
     </main>
 

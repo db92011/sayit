@@ -23,7 +23,6 @@ const form = document.querySelector("#intake-form");
 const toneGroup = document.querySelector("#tone-group");
 const voicePreview = document.querySelector("#voice-preview");
 const copyMessageButton = document.querySelector("#copy-message");
-const openTeleprompterButton = document.querySelector("#open-teleprompter");
 const closeTeleprompterButton = document.querySelector("#close-teleprompter");
 const teleprompterOverlay = document.querySelector("#teleprompter-overlay");
 const teleprompterSummary = document.querySelector("#teleprompter-summary");
@@ -55,7 +54,7 @@ function updateVoicePreview(text = "") {
 
 function setTeleprompterSummary(text = "") {
   teleprompterSummary.textContent =
-    text || "Generate a translated message to unlock teleprompter mode.";
+    text || "Once you commit, teleprompter will open. You can either copy and paste it or read directly from it.";
 }
 
 function setCopyButtonLabel(label) {
@@ -122,7 +121,6 @@ function collectData() {
 function clearOutputs() {
   closeTeleprompter();
   latestMessageText = "";
-  openTeleprompterButton.disabled = true;
   copyMessageButton.disabled = true;
   setCopyButtonLabel("Copy message");
   setTeleprompterSummary("");
@@ -131,10 +129,9 @@ function clearOutputs() {
 
 function updateOutputs(translation) {
   latestMessageText = translation?.primary || "";
-  openTeleprompterButton.disabled = !latestMessageText;
   copyMessageButton.disabled = !latestMessageText;
   setCopyButtonLabel("Copy message");
-  setTeleprompterSummary(translation?.concise || translation?.primary || "");
+  setTeleprompterSummary("Once you commit, teleprompter will open. You can either copy and paste it or read directly from it.");
   teleprompter.setLines(translation?.teleprompterLines || []);
 }
 
@@ -249,7 +246,6 @@ form.addEventListener("change", () => {
 
 document.querySelector("#load-sample").addEventListener("click", applySample);
 document.querySelector("#reset-form").addEventListener("click", resetForm);
-openTeleprompterButton.addEventListener("click", openTeleprompter);
 closeTeleprompterButton.addEventListener("click", closeTeleprompter);
 
 teleprompterOverlay.addEventListener("click", (event) => {
