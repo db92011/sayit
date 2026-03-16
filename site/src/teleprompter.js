@@ -101,11 +101,15 @@ export class TeleprompterController {
 
   updateHighlight() {
     if (!this.highlightToggle.checked) {
-      this.lines.forEach((line) => line.classList.remove("is-active"));
+      this.lines.forEach((line) => {
+        line.classList.remove("is-active", "is-near", "is-far");
+      });
       return;
     }
 
     const midpoint = this.script.scrollTop + this.script.clientHeight / 2;
+    const nearThreshold = this.script.clientHeight * 0.18;
+    const farThreshold = this.script.clientHeight * 0.34;
     let activeLine = null;
     let smallestDistance = Number.POSITIVE_INFINITY;
 
@@ -118,6 +122,12 @@ export class TeleprompterController {
       }
     }
 
-    this.lines.forEach((line) => line.classList.toggle("is-active", line === activeLine));
+    this.lines.forEach((line) => {
+      const lineMidpoint = line.offsetTop + line.offsetHeight / 2;
+      const distance = Math.abs(midpoint - lineMidpoint);
+      line.classList.toggle("is-active", line === activeLine);
+      line.classList.toggle("is-near", line !== activeLine && distance <= nearThreshold);
+      line.classList.toggle("is-far", distance > nearThreshold && distance <= farThreshold);
+    });
   }
 }
