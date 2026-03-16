@@ -3,6 +3,9 @@ import { TeleprompterController } from "./teleprompter.js";
 import { requestTranslation } from "./translation-service.js";
 
 const STORAGE_KEY = "sayit-draft-v2";
+const SAYIT_PRO_ACTIVE_KEY = "sayit_pro_active";
+const SAYIT_PRO_EMAIL_KEY = "sayit_pro_email";
+const SAYIT_PRO_URL = "https://circle2people.com/sayit/";
 
 const form = document.querySelector("#intake-form");
 const voicePreview = document.querySelector("#voice-preview");
@@ -11,6 +14,13 @@ const closeTeleprompterButton = document.querySelector("#close-teleprompter");
 const teleprompterOverlay = document.querySelector("#teleprompter-overlay");
 const teleprompterSummary = document.querySelector("#teleprompter-summary");
 const submitButton = document.querySelector("#translate-action");
+const plusButton = document.querySelector("#plusBtn");
+const plusModal = document.querySelector("#plusModal");
+const plusModalCard = document.querySelector("#plusModal .modalCard");
+const plusEmailInput = document.querySelector("#plusEmail");
+const plusCancelButton = document.querySelector("#plusCancelBtn");
+const plusContinueButton = document.querySelector("#plusContinueBtn");
+const counterText = document.querySelector("#counterText");
 
 const fields = {
   recipient: document.querySelector("#recipient"),
@@ -28,6 +38,95 @@ const teleprompter = new TeleprompterController({
 });
 
 let latestMessageText = "";
+
+function isSayItProActive() {
+  return window.localStorage.getItem(SAYIT_PRO_ACTIVE_KEY) === "true";
+}
+
+function getSayItProEmail() {
+  return String(window.localStorage.getItem(SAYIT_PRO_EMAIL_KEY) || "").trim().toLowerCase();
+}
+
+function setSayItProActive(email = "") {
+  window.localStorage.setItem(SAYIT_PRO_ACTIVE_KEY, "true");
+  if (email) {
+    window.localStorage.setItem(SAYIT_PRO_EMAIL_KEY, email);
+  }
+  refreshPlusUi();
+}
+
+function refreshPlusUi() {
+  if (!counterText || !plusButton) {
+    return;
+  }
+
+  counterText.textContent = isSayItProActive() ? "SayIt! Pro active" : "Start SayIt! Pro";
+  plusButton.textContent = "SayIt!+";
+}
+
+function showPlusModal() {
+  if (!plusModal) {
+    return;
+  }
+
+  plusModal.hidden = false;
+  plusModal.removeAttribute("hidden");
+  plusModal.style.display = "flex";
+  document.documentElement.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
+
+  const saved = getSayItProEmail();
+  if (plusEmailInput && saved && !plusEmailInput.value) {
+    plusEmailInput.value = saved;
+  }
+
+  window.setTimeout(() => {
+    plusEmailInput?.focus();
+  }, 30);
+}
+
+function hidePlusModal() {
+  if (!plusModal) {
+    return;
+  }
+
+  plusModal.hidden = true;
+  plusModal.setAttribute("hidden", "");
+  plusModal.style.display = "none";
+  document.documentElement.style.overflow = "";
+  document.body.style.overflow = "";
+}
+
+function handlePlusContinue() {
+  const email = String(plusEmailInput?.value || "").trim().toLowerCase();
+
+  if (email) {
+    window.localStorage.setItem(SAYIT_PRO_EMAIL_KEY, email);
+  }
+
+  if (isSayItProActive()) {
+    hidePlusModal();
+    refreshPlusUi();
+    return;
+  }
+
+  const url = new URL(SAYIT_PRO_URL);
+  if (email) {
+    url.searchParams.set("email", email);
+  }
+  url.searchParams.set("source", "sayit-app");
+  window.location.href = url.toString();
+}
+
+function syncPlusStateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const state = params.get("sayit_pro") || params.get("subscription") || params.get("signup");
+  const email = String(params.get("email") || "").trim().toLowerCase();
+
+  if (state === "active" || state === "success") {
+    setSayItProActive(email);
+  }
+}
 
 function updateVoicePreview(text = "") {
   voicePreview.textContent = text || "Your spoken draft will show up here as you talk.";
@@ -164,6 +263,8 @@ function resetForm() {
 }
 
 clearOutputs();
+syncPlusStateFromUrl();
+refreshPlusUi();
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -181,6 +282,16 @@ form.addEventListener("change", () => {
 
 document.querySelector("#reset-form").addEventListener("click", resetForm);
 closeTeleprompterButton.addEventListener("click", closeTeleprompter);
+plusButton?.addEventListener("click", (event) => {
+  event.preventDefault();
+  showPlusModal();
+});
+plusCancelButton?.addEventListener("click", () => {
+  hidePlusModal();
+});
+plusContinueButton?.addEventListener("click", () => {
+  handlePlusContinue();
+});
 
 teleprompterOverlay.addEventListener("click", (event) => {
   if (event.target === teleprompterOverlay) {
@@ -188,7 +299,26 @@ teleprompterOverlay.addEventListener("click", (event) => {
   }
 });
 
+plusModal?.addEventListener("click", (event) => {
+  if (event.target === plusModal || (plusModalCard && !plusModalCard.contains(event.target))) {
+    hidePlusModal();
+  }
+});
+
 document.addEventListener("keydown", (event) => {
+  if (plusModal && !plusModal.hidden) {
+    if (event.key === "Escape") {
+      hidePlusModal();
+      return;
+    }
+
+    if (event.key === "Enter" && event.target === plusEmailInput) {
+      event.preventDefault();
+      handlePlusContinue();
+      return;
+    }
+  }
+
   if (event.key === "Escape" && !teleprompterOverlay.hidden) {
     closeTeleprompter();
   }

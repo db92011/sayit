@@ -22,131 +22,182 @@
     </script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body>
-    <main class="shell">
-      <section class="app-surface">
-        <form id="intake-form" class="intake-form">
-          <section class="brand-section">
-            <img
-              class="brand-logo"
-              src="./assets/SayIt-hero.png"
-              alt="SayIt!"
-            />
-          </section>
-
-          <section class="app-section voice-section voice-section-top">
-            <div class="section-heading">
-              <h2>Talk to me. I've got your back.</h2>
+  <body class="app">
+    <div class="page">
+      <div class="shell">
+        <header class="header">
+          <div class="brand">
+            <img class="brand-icon" src="./assets/sayit-app-icon.png" alt="SayIt!" />
+            <div class="brandText">
+              <h1>SayIt!</h1>
+              <p>Say the hard thing clearly, calmly, and in your own voice.</p>
             </div>
-            <p id="voice-status" class="voice-status">
-              When you're ready, just say it, even if you're mad. Get your message across, and we'll clean it up for you.
-            </p>
-            <p id="voice-preview" class="voice-preview">Your spoken draft will show up here as you talk.</p>
-            <div class="voice-actions">
-              <button
-                type="button"
-                id="voice-start"
-                class="secondary-button compact-button"
-              >
-                Record
-              </button>
-              <button type="button" id="voice-stop" class="secondary-button compact-button">
-                Stop
-              </button>
-              <button type="button" id="reset-form" class="ghost-button compact-button">
-                Reset
-              </button>
-            </div>
-          </section>
+          </div>
 
-          <section class="app-section">
-            <label class="field field-short">
-              <span>Who are you talking to?</span>
-              <input
-                id="recipient"
-                name="recipient"
-                type="text"
-                placeholder="Name"
-              />
-            </label>
+          <div class="headerActions">
+            <button type="button" id="reset-form" class="ghost-button header-button">Clear</button>
+          </div>
+        </header>
 
-            <label class="field">
-              <span>Relationship dynamic</span>
-              <select id="relationship" name="relationship">
-                <option value="">Select a dynamic</option>
-                <option>Spouse or partner</option>
-                <option>Child or teenager</option>
-                <option>Friend</option>
-                <option>Coworker</option>
-                <option>Boss or supervisor</option>
-                <option>Employee or subordinate</option>
-                <option>Customer</option>
-                <option>Client</option>
-                <option>Stranger</option>
-                <option>Online conversation</option>
-                <option>Social media comment</option>
-              </select>
-            </label>
-
-            <input id="message" name="message" type="hidden" />
-
-            <label class="field">
-              <span>Core intent</span>
-              <select id="intent" name="intent">
-                <option value="auto">Auto-detect from your message</option>
-                <option value="explain">Explain a problem</option>
-                <option value="boundary">Set a boundary</option>
-                <option value="criticism">Respond to criticism</option>
-                <option value="correction">Correct someone</option>
-                <option value="frustration">Express frustration</option>
-                <option value="help">Ask for help</option>
-                <option value="clarify">Clarify something</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span>How do I want this message to come across?</span>
-              <select id="after-state" name="afterState">
-                <option value="">Select how I want it to come across</option>
-                <option>Clear</option>
-                <option>Respectful</option>
-                <option>Calm</option>
-                <option>Smart</option>
-                <option>Short</option>
-                <option>Confident</option>
-                <option>Funny</option>
-                <option>Easy to understand</option>
-              </select>
-            </label>
-          </section>
-
-          <section class="app-section context-section">
-            <label class="field field-large">
-              <span>Add context to this</span>
-              <textarea
-                id="situation"
-                name="situation"
-                rows="5"
-                placeholder="What is this conversation about? Give me the main context."
-              ></textarea>
-            </label>
-          </section>
-
-          <section class="app-section action-section">
-            <div class="form-actions">
-              <button id="translate-action" type="submit" class="primary-button">
-                Let's do this
-              </button>
-            </div>
-            <div class="delivery-copy">
-              <p id="teleprompter-summary" class="teleprompter-summary">
-                Once you push Let's do this, teleprompter will pop up. You can read from it directly by saying, "I want to read from some notes," or "This was important, so I wrote some notes." Or you can copy and paste it into a message or email.
+        <main class="main">
+          <form id="intake-form" class="intake-form">
+            <section class="panel app-section voice-section voice-section-top">
+              <div class="section-heading">
+                <h2>Talk to me. I've got your back.</h2>
+              </div>
+              <p id="voice-status" class="voice-status">
+                When you're ready, just say it, even if you're mad. Get your message across, and we'll clean it up for you.
               </p>
+              <p id="voice-preview" class="voice-preview">Your spoken draft will show up here as you talk.</p>
+              <div class="voice-actions">
+                <button
+                  type="button"
+                  id="voice-start"
+                  class="secondary-button compact-button"
+                >
+                  Record
+                </button>
+                <button type="button" id="voice-stop" class="secondary-button compact-button">
+                  Stop
+                </button>
+                <button type="submit" id="translate-action" class="primary-button compact-button">
+                  Let's do this
+                </button>
+              </div>
+            </section>
+
+            <section class="panel app-section">
+              <label class="field field-short">
+                <span>Who are you talking to?</span>
+                <input
+                  id="recipient"
+                  name="recipient"
+                  type="text"
+                  placeholder="Name"
+                />
+              </label>
+
+              <div class="row2">
+                <label class="field">
+                  <span>Relationship dynamic</span>
+                  <select id="relationship" name="relationship">
+                    <option value="">Select a dynamic</option>
+                    <option>Spouse or partner</option>
+                    <option>Child or teenager</option>
+                    <option>Friend</option>
+                    <option>Coworker</option>
+                    <option>Boss or supervisor</option>
+                    <option>Employee or subordinate</option>
+                    <option>Customer</option>
+                    <option>Client</option>
+                    <option>Stranger</option>
+                    <option>Online conversation</option>
+                    <option>Social media comment</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>Core intent</span>
+                  <select id="intent" name="intent">
+                    <option value="auto">Auto-detect from your message</option>
+                    <option value="explain">Explain a problem</option>
+                    <option value="boundary">Set a boundary</option>
+                    <option value="criticism">Respond to criticism</option>
+                    <option value="correction">Correct someone</option>
+                    <option value="frustration">Express frustration</option>
+                    <option value="help">Ask for help</option>
+                    <option value="clarify">Clarify something</option>
+                  </select>
+                </label>
+              </div>
+
+              <input id="message" name="message" type="hidden" />
+
+              <label class="field">
+                <span>How do I want this message to come across?</span>
+                <select id="after-state" name="afterState">
+                  <option value="">Select how I want it to come across</option>
+                  <option>Clear</option>
+                  <option>Respectful</option>
+                  <option>Calm</option>
+                  <option>Smart</option>
+                  <option>Short</option>
+                  <option>Confident</option>
+                  <option>Funny</option>
+                  <option>Easy to understand</option>
+                </select>
+              </label>
+            </section>
+
+            <section class="panel app-section context-section">
+              <label class="field field-large">
+                <span>Add context to this</span>
+                <textarea
+                  id="situation"
+                  name="situation"
+                  rows="5"
+                  placeholder="What is this conversation about? Give me the main context."
+                ></textarea>
+              </label>
+
+              <div class="delivery-copy">
+                <p id="teleprompter-summary" class="teleprompter-summary">
+                  Once you push Let's do this, teleprompter will pop up. You can read from it directly by saying, "I want to read from some notes," or "This was important, so I wrote some notes." Or you can copy and paste it into a message or email.
+                </p>
+              </div>
+            </section>
+          </form>
+        </main>
+      </div>
+    </div>
+
+    <div class="counterBar" aria-live="polite">
+      <span id="counterText">Start SayIt! Pro</span>
+      <a id="plusBtn" class="counterBtn" href="#" rel="noopener noreferrer">SayIt!+</a>
+    </div>
+
+    <div id="plusModal" class="modalOverlay" hidden>
+      <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="plusTitle">
+        <div class="modalBanner">
+          <div class="modalBannerInner">
+            <div class="modalLogo">
+              <img class="modalLogoImg" src="./assets/sayit-app-icon.png" alt="SayIt!" />
             </div>
-          </section>
-        </form>
-      </section>
-    </main>
+            <div>
+              <div id="plusTitle" class="modalTitle">Start here</div>
+              <div class="modalSub">
+                One-time setup. After this, SayIt! just works.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modalBody">
+          <ul class="modalList">
+            <li><strong>Already paying?</strong> This unlocks SayIt! Pro on this device.</li>
+            <li><strong>Not paying yet?</strong> You’ll go to Stripe to subscribe.</li>
+          </ul>
+
+          <div class="modalFine">
+            $2/month · Stripe handles billing
+          </div>
+
+          <label class="modalLabel" for="plusEmail">Email</label>
+          <input
+            id="plusEmail"
+            class="modalInput"
+            type="email"
+            placeholder="Email address"
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="modalActions">
+          <button id="plusCancelBtn" type="button" class="ghost-button">Cancel</button>
+          <button id="plusContinueBtn" type="button" class="primary-button">Continue</button>
+        </div>
+      </div>
+    </div>
 
     <div id="teleprompter-overlay" class="teleprompter-overlay" hidden aria-hidden="true">
       <section
