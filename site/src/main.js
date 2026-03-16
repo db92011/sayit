@@ -494,6 +494,10 @@ function setGeneratingState(isGenerating) {
 }
 
 async function generateTranslation({ openTeleprompterOnComplete = false } = {}) {
+  if (speechController?.isListening?.()) {
+    await speechController.stop();
+  }
+
   const payload = collectData();
 
   if (!payload.message) {
@@ -564,10 +568,10 @@ syncPlusStateFromUrl();
 refreshPlusUi();
 syncPlusFromServer();
 
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
   persistDraft();
-  generateTranslation({ openTeleprompterOnComplete: true });
+  await generateTranslation({ openTeleprompterOnComplete: true });
 });
 
 form.addEventListener("input", () => {
@@ -642,7 +646,7 @@ const speechController = createSpeechController({
   textarea: fields.message,
   statusNode: document.querySelector("#voice-status"),
   startButton: document.querySelector("#voice-start"),
-  stopButton: document.querySelector("#voice-stop"),
+  stopButton: null,
   onTranscript(nextValue) {
     updateVoicePreview(nextValue);
     persistDraft();
@@ -651,10 +655,6 @@ const speechController = createSpeechController({
 
 document.querySelector("#voice-start").addEventListener("click", () => {
   void speechController?.start();
-});
-
-document.querySelector("#voice-stop").addEventListener("click", () => {
-  void speechController?.stop();
 });
 
 document.querySelector("#highlight-toggle").addEventListener("change", () => {

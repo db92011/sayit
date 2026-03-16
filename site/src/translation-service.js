@@ -1,7 +1,7 @@
 import { buildTranslation } from "./rewrite-engine.js";
 
 const API_ENDPOINT = "/api/translate";
-const API_TIMEOUT_MS = 4000;
+const API_TIMEOUT_MS = 15000;
 
 function buildFallback(payload, reason) {
   return {

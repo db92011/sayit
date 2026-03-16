@@ -20,7 +20,9 @@ function createNativeSpeechController({ textarea, statusNode, startButton, stopB
 
   const syncButtons = () => {
     startButton.disabled = listening;
-    stopButton.disabled = !listening;
+    if (stopButton) {
+      stopButton.disabled = !listening;
+    }
   };
 
   const setTranscript = (transcript) => {
@@ -114,7 +116,7 @@ function createNativeSpeechController({ textarea, statusNode, startButton, stopB
             }
 
             if (status === "stopped") {
-              await finishListening("I've got it. Hit Let's do this when you're ready.");
+              await finishListening("I've got it. Hit Generate when you're ready.");
             }
           });
         }
@@ -153,7 +155,11 @@ function createNativeSpeechController({ textarea, statusNode, startButton, stopB
         }
       } catch {}
 
-      await finishListening("I've got it. Hit Let's do this when you're ready.");
+      await finishListening("I've got it. Hit Generate when you're ready.");
+    },
+
+    isListening() {
+      return listening;
     }
   };
 }
@@ -169,7 +175,9 @@ function createBrowserSpeechController({ textarea, statusNode, startButton, stop
 
   const syncButtons = () => {
     startButton.disabled = listening;
-    stopButton.disabled = !listening;
+    if (stopButton) {
+      stopButton.disabled = !listening;
+    }
   };
 
   recognition.onstart = () => {
@@ -181,7 +189,7 @@ function createBrowserSpeechController({ textarea, statusNode, startButton, stop
 
   recognition.onend = () => {
     listening = false;
-    statusNode.textContent = "I've got it. Hit Let's do this when you're ready.";
+    statusNode.textContent = "I've got it. Hit Generate when you're ready.";
     syncButtons();
   };
 
@@ -212,6 +220,9 @@ function createBrowserSpeechController({ textarea, statusNode, startButton, stop
     },
     async stop() {
       recognition.stop();
+    },
+    isListening() {
+      return listening;
     }
   };
 }
@@ -244,6 +255,8 @@ export function createSpeechController({ textarea, statusNode, startButton, stop
 
   statusNode.textContent = "Voice capture is not supported on this device yet.";
   startButton.disabled = true;
-  stopButton.disabled = true;
+  if (stopButton) {
+    stopButton.disabled = true;
+  }
   return null;
 }
