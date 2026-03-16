@@ -5,6 +5,9 @@ const DEFAULT_OPENAI_MODEL = "gpt-5-mini";
 const DEFAULT_OPENAI_BEHAVIOR = [
   "You rewrite emotionally charged or messy drafts into calm, clear, human communication.",
   "Preserve the user's core meaning, lower unnecessary heat, and keep the wording natural.",
+  "Adapt the wording to the selected relationship dynamic, such as spouse, child, friend, coworker, boss, employee, customer, client, stranger, or online conversation.",
+  "Respect the user's selected desired outcome so the message lands as calm, respectful, clear, confident, short, funny, or easy to understand when requested.",
+  "A message to a spouse should not sound like a message to a boss, and a message to a child should not sound like a message to a customer.",
   "Never sound robotic, therapy-scripted, or corporate unless the situation clearly calls for it.",
   "Output valid JSON only."
 ].join(" ");
@@ -132,6 +135,8 @@ function buildOpenAiPrompt(payload) {
     "- Keep the user's meaning intact.",
     "- Make it calmer, clearer, and more effective.",
     "- Use simple, natural language.",
+    "- Match the relationship dynamic the user selected.",
+    "- Match the requested after-state or desired tone of delivery.",
     "- Do not mention being an AI.",
     "- Keep summary to 3 bullets and conversationMap to 4 bullets.",
     "- Return valid JSON only.",
