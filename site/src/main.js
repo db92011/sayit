@@ -634,6 +634,10 @@ document.querySelector("#voice-stop").addEventListener("click", () => {
 });
 
 document.querySelector("#highlight-toggle").addEventListener("change", () => {
+  document.querySelector(".teleprompter-toggle")?.classList.toggle(
+    "is-active",
+    document.querySelector("#highlight-toggle")?.checked === true
+  );
   teleprompter.updateHighlight();
 });
 
@@ -660,6 +664,11 @@ document.querySelector("#teleprompter-pause").addEventListener("click", () => {
 document.querySelector("#teleprompter-reset").addEventListener("click", () => {
   teleprompter.reset();
 });
+
+document.querySelector(".teleprompter-toggle")?.classList.toggle(
+  "is-active",
+  document.querySelector("#highlight-toggle")?.checked === true
+);
 
 if (!hydrateDraft()) {
   resetForm();

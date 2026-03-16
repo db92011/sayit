@@ -214,53 +214,53 @@
         aria-modal="true"
         aria-labelledby="teleprompter-overlay-title"
       >
-        <header class="teleprompter-overlay-header">
-          <h2 id="teleprompter-overlay-title">Your message</h2>
-          <div class="teleprompter-overlay-actions">
-            <button id="copy-message" type="button" class="secondary-button">Copy</button>
-            <button id="close-teleprompter" type="button" class="ghost-button">Close</button>
-          </div>
-        </header>
+        <h2 id="teleprompter-overlay-title" class="visually-hidden">Your message</h2>
 
-        <section class="teleprompter-card teleprompter-panel">
-          <div class="teleprompter-controls teleprompter-controls-top">
-            <button id="teleprompter-start" type="button" class="secondary-button">
-              Start
-            </button>
-            <button id="teleprompter-pause" type="button" class="ghost-button">
-              Pause
-            </button>
-            <button id="teleprompter-reset" type="button" class="ghost-button">
-              Reset
-            </button>
-          </div>
-
-          <div id="teleprompter" class="teleprompter">
-            <div class="teleprompter-highlight-guide" aria-hidden="true"></div>
-            <div id="teleprompter-script" class="teleprompter-script">
-              <p class="teleprompter-placeholder">
-                Generate a translated message to load teleprompter mode.
-              </p>
+        <section class="teleprompter-layout">
+          <aside class="teleprompter-sidebar" aria-label="Teleprompter controls">
+            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-top">
+              <button id="copy-message" type="button" class="teleprompter-rail-button">Copy</button>
             </div>
-          </div>
 
-          <div class="teleprompter-controls teleprompter-controls-bottom">
-            <label class="toggle">
-              <input id="highlight-toggle" type="checkbox" checked />
-              <span>Highlight line</span>
-            </label>
-            <div class="speed-group" id="speed-group">
-              <button type="button" data-speed="slow" class="speed-button is-active">
-                Slow
-              </button>
-              <button type="button" data-speed="medium" class="speed-button">
-                Medium
-              </button>
-              <button type="button" data-speed="fast" class="speed-button">
-                Fast
-              </button>
+            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-middle">
+              <button id="teleprompter-start" type="button" class="teleprompter-rail-button">Start</button>
+              <button id="teleprompter-pause" type="button" class="teleprompter-rail-button">Pause</button>
+              <button id="teleprompter-reset" type="button" class="teleprompter-rail-button">Reset</button>
             </div>
-          </div>
+
+            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-bottom">
+              <label class="teleprompter-rail-button teleprompter-toggle" for="highlight-toggle">
+                <input id="highlight-toggle" type="checkbox" checked />
+                <span>Highlight</span>
+              </label>
+              <div class="teleprompter-speed-list" id="speed-group">
+                <button type="button" data-speed="slow" class="teleprompter-rail-button speed-button is-active">
+                  Slow
+                </button>
+                <button type="button" data-speed="medium" class="teleprompter-rail-button speed-button">
+                  Medium
+                </button>
+                <button type="button" data-speed="fast" class="teleprompter-rail-button speed-button">
+                  Fast
+                </button>
+              </div>
+            </div>
+
+            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-close">
+              <button id="close-teleprompter" type="button" class="teleprompter-rail-button">Close</button>
+            </div>
+          </aside>
+
+          <section class="teleprompter-card teleprompter-panel teleprompter-reader">
+            <div id="teleprompter" class="teleprompter">
+              <div class="teleprompter-highlight-guide" aria-hidden="true"></div>
+              <div id="teleprompter-script" class="teleprompter-script">
+                <p class="teleprompter-placeholder">
+                  Generate a translated message to load teleprompter mode.
+                </p>
+              </div>
+            </div>
+          </section>
         </section>
       </section>
     </div>

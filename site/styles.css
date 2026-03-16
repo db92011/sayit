@@ -646,82 +646,96 @@ body.teleprompter-open {
 .teleprompter-modal {
   width: 100%;
   height: 100%;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 0;
-  padding: 0;
   background: var(--teleprompter-bg);
 }
 
-.teleprompter-overlay-header {
+.teleprompter-layout {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: clamp(88px, 14vw, 132px) minmax(0, 1fr);
+}
+
+.teleprompter-sidebar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  color: #ffffff;
-  padding: max(16px, env(safe-area-inset-top, 0px)) 18px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-direction: column;
+  gap: 1.1rem;
+  min-height: 0;
+  padding: max(18px, env(safe-area-inset-top, 0px)) 10px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: #02060f;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.teleprompter-overlay-header h2 {
-  margin: 0;
-  font-size: clamp(1.35rem, 3vw, 1.7rem);
-  font-weight: 750;
-  letter-spacing: -0.03em;
+.teleprompter-sidebar-group {
+  display: grid;
+  gap: 0.2rem;
 }
 
-.teleprompter-overlay-actions {
-  display: flex;
-  gap: 0.6rem;
+.teleprompter-sidebar-group-top {
+  padding-top: 0.3rem;
 }
 
-.teleprompter-overlay .secondary-button,
-.teleprompter-overlay .ghost-button,
-.teleprompter-overlay .speed-button {
+.teleprompter-sidebar-group-middle {
+  gap: 0.45rem;
+}
+
+.teleprompter-sidebar-group-bottom {
+  margin-top: auto;
+  gap: 0.45rem;
+}
+
+.teleprompter-sidebar-group-close {
+  margin-top: 0.45rem;
+}
+
+.teleprompter-speed-list {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.teleprompter-rail-button {
+  display: block;
+  width: 100%;
+  padding: 14px 8px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.94);
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  border-radius: 14px;
+}
+
+.teleprompter-rail-button:hover,
+.teleprompter-rail-button:focus-visible {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  outline: none;
 }
 
-.teleprompter-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 14px 18px;
+.teleprompter-rail-button.speed-button.is-active,
+.teleprompter-toggle.is-active {
+  color: rgba(174, 235, 133, 0.96);
 }
 
-.teleprompter-controls-top {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+.teleprompter-toggle {
+  cursor: pointer;
 }
 
-.teleprompter-controls-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
-}
-
-.toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 0.95rem;
-}
-
-.toggle input {
-  accent-color: var(--accent);
-}
-
-.speed-group {
-  display: inline-flex;
-  gap: 0.45rem;
+.teleprompter-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .teleprompter-card,
 .teleprompter-panel {
   min-height: 0;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.teleprompter-reader {
+  min-width: 0;
 }
 
 .teleprompter {
@@ -831,16 +845,18 @@ body.teleprompter-open {
     flex-wrap: wrap;
   }
 
-  .teleprompter-controls {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.55rem;
+  .teleprompter-layout {
+    grid-template-columns: clamp(92px, 20vw, 112px) minmax(0, 1fr);
   }
 
-  .speed-group {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .teleprompter-sidebar {
+    gap: 0.9rem;
+    padding-inline: 8px;
+  }
+
+  .teleprompter-rail-button {
+    padding: 12px 6px;
+    font-size: 0.94rem;
   }
 
   .voice-actions {
