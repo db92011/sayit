@@ -6,6 +6,7 @@ SayIt! is a first-build communication translator that turns a messy draft into a
 
 - Full intake flow for audience, relationship, situation, outcome, barrier, tone, before state, after state, and proof of success
 - Browser voice capture using `SpeechRecognition` / `webkitSpeechRecognition` when available
+- Native-first voice capture support when the app is wrapped with Capacitor and the speech plugin is installed
 - Translation output with a primary rewrite, short version, conversation map, tone translation map, delivery notes, and a full-screen teleprompter overlay
 - Local draft persistence with `localStorage`
 - A Cloudflare Pages Function at `/api/translate` that creates a real backend boundary for future OpenAI integration
@@ -27,6 +28,22 @@ npm test
 ```
 
 `npm run dev` serves the static site at `http://127.0.0.1:4173`.
+
+To turn SayIt into an iPhone app with native microphone permissions instead of Safari-managed permissions:
+
+```bash
+npm install
+npm run cap:add:ios
+npm run cap:sync
+npm run cap:open:ios
+```
+
+Inside Xcode, add these usage descriptions to `ios/App/App/Info.plist` before running on a device:
+
+- `NSMicrophoneUsageDescription`: `SayIt uses your microphone so you can speak your draft out loud.`
+- `NSSpeechRecognitionUsageDescription`: `SayIt uses speech recognition to turn your spoken draft into text.`
+
+Once the native shell is in place, the Record button will prefer the Capacitor speech plugin and only fall back to browser speech recognition on the web.
 
 For the mobile app-style review inside VS Code Simple Browser, use:
 
@@ -51,6 +68,7 @@ Copy `.dev.vars.example` to `.dev.vars` for local Pages-style development or set
 
 - The app stays usable without OpenAI because the existing rule-based translator remains as the fallback path.
 - The frontend calls `/api/translate` first and falls back to the local engine if the API route is not present.
+- Voice capture now prefers a native Capacitor bridge when available and falls back to browser speech recognition on the web.
 - The SayIt! Pro in-app modal now expects Circle the People API endpoints plus a `SAYIT_DB` D1 binding on the Circle site for two-device seat tracking.
 - Billing, subscription enforcement, email validation, and persistent accounts are not implemented in this build.
 

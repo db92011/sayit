@@ -399,13 +399,15 @@ function syncPlusStateFromUrl() {
 }
 
 function updateVoicePreview(text = "") {
-  voicePreview.textContent = text || "Your spoken draft will show up here as you talk.";
+  const nextText = String(text || "").trim();
+  voicePreview.textContent = nextText;
+  voicePreview.classList.toggle("has-content", Boolean(nextText));
 }
 
 function setTeleprompterSummary(text = "") {
   teleprompterSummary.textContent =
     text ||
-    "Once you push Let's do this, teleprompter will pop up. You can read from it directly by saying, \"I want to read from some notes,\" or \"This was important, so I wrote some notes.\" Or you can copy and paste it into a message or email.";
+    "Once you push Generate, teleprompter will pop up. You can read from it directly by saying, \"I want to read from some notes,\" or \"This was important, so I wrote some notes.\" Or you can copy and paste it into a message or email.";
 }
 
 function setCopyButtonLabel(label) {
@@ -432,6 +434,7 @@ function closeTeleprompter() {
 function collectData() {
   const transcript = fields.message.value.trim();
   const situation = fields.situation.value.trim();
+  const afterState = fields.afterState.value;
 
   return {
     recipient: fields.recipient.value.trim(),
@@ -439,8 +442,8 @@ function collectData() {
     situation,
     message: transcript || situation,
     intent: fields.intent.value,
-    outcome: fields.afterState.value,
-    afterState: fields.afterState.value
+    outcome: "",
+    afterState
   };
 }
 
@@ -448,7 +451,7 @@ function clearOutputs() {
   closeTeleprompter();
   latestMessageText = "";
   copyMessageButton.disabled = true;
-  setCopyButtonLabel("Copy message");
+  setCopyButtonLabel("Copy");
   setTeleprompterSummary("");
   teleprompter.setLines([]);
 }
@@ -456,14 +459,14 @@ function clearOutputs() {
 function updateOutputs(translation) {
   latestMessageText = translation?.primary || "";
   copyMessageButton.disabled = !latestMessageText;
-  setCopyButtonLabel("Copy message");
+  setCopyButtonLabel("Copy");
   setTeleprompterSummary();
   teleprompter.setLines(translation?.teleprompterLines || []);
 }
 
 function setGeneratingState(isGenerating) {
   submitButton.disabled = isGenerating;
-  submitButton.textContent = isGenerating ? "Working..." : "Let's do this";
+  submitButton.textContent = isGenerating ? "Working..." : "Generate";
 }
 
 async function generateTranslation({ openTeleprompterOnComplete = false } = {}) {
@@ -604,7 +607,7 @@ copyMessageButton.addEventListener("click", async () => {
     await navigator.clipboard.writeText(latestMessageText);
     setCopyButtonLabel("Copied");
     window.setTimeout(() => {
-      setCopyButtonLabel("Copy message");
+      setCopyButtonLabel("Copy");
     }, 1200);
   } catch {
     setCopyButtonLabel("Copy failed");
@@ -623,11 +626,11 @@ const speechController = createSpeechController({
 });
 
 document.querySelector("#voice-start").addEventListener("click", () => {
-  speechController?.start();
+  void speechController?.start();
 });
 
 document.querySelector("#voice-stop").addEventListener("click", () => {
-  speechController?.stop();
+  void speechController?.stop();
 });
 
 document.querySelector("#highlight-toggle").addEventListener("change", () => {

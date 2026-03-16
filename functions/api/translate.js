@@ -31,6 +31,29 @@ function normalizePayload(payload) {
   return payload && typeof payload === "object" ? payload : {};
 }
 
+function normalizeCategoryValue(value, fallback = "Not provided") {
+  const cleaned = String(value || "").trim();
+  return cleaned || fallback;
+}
+
+function buildPromptContext(payload) {
+  const data = normalizePayload(payload);
+
+  return {
+    categories: {
+      recipient: normalizeCategoryValue(data.recipient),
+      relationship: normalizeCategoryValue(data.relationship),
+      intent: normalizeCategoryValue(data.intent === "auto" ? "" : data.intent, "Auto-detect from message"),
+      outcome: normalizeCategoryValue(data.outcome),
+      afterState: normalizeCategoryValue(data.afterState)
+    },
+    userDraft: {
+      message: normalizeCategoryValue(data.message),
+      situation: normalizeCategoryValue(data.situation)
+    }
+  };
+}
+
 function getOpenAiBehavior(env) {
   const behavior = String(env?.OPENAI_BEHAVIOR || "").trim();
   return behavior || DEFAULT_OPENAI_BEHAVIOR;
@@ -79,9 +102,46 @@ function parseJsonObject(text) {
   }
 }
 
+function normalizeStringList(list, fallback) {
+  if (!Array.isArray(list)) {
+    return fallback;
+  }
+
+  const normalized = list.map((entry) => String(entry || "").trim()).filter(Boolean);
+  return normalized.length > 0 ? normalized : fallback;
+}
+
+function normalizeCardList(list, fallback, keys) {
+  if (!Array.isArray(list)) {
+    return fallback;
+  }
+
+  const normalized = list
+    .map((entry) => {
+      const next = {};
+      for (const key of keys) {
+        next[key] = String(entry?.[key] || "").trim();
+      }
+      return next;
+    })
+    .filter((entry) => keys.every((key) => entry[key]));
+
+  return normalized.length > 0 ? normalized : fallback;
+}
+
 function mergeOpenAiTranslation(base, candidate) {
   const translation = candidate && typeof candidate === "object" ? candidate : {};
   const primary = String(translation.primary || "").trim();
+  const detectedIntent =
+    translation.detectedIntent &&
+    typeof translation.detectedIntent === "object" &&
+    String(translation.detectedIntent.id || "").trim() &&
+    String(translation.detectedIntent.label || "").trim()
+      ? {
+          id: String(translation.detectedIntent.id).trim(),
+          label: String(translation.detectedIntent.label).trim()
+        }
+      : base.detectedIntent;
 
   if (!primary) {
     throw new Error("OpenAI translation was missing a primary draft.");
@@ -90,31 +150,21 @@ function mergeOpenAiTranslation(base, candidate) {
   return {
     ...base,
     ...translation,
+    detectedIntent,
+    intentLabel: String(translation.intentLabel || detectedIntent.label || base.intentLabel || "").trim(),
     primary,
     concise: String(translation.concise || base.concise || primary).trim(),
-    teleprompterLines:
-      Array.isArray(translation.teleprompterLines) && translation.teleprompterLines.length
-        ? translation.teleprompterLines.map((line) => String(line).trim()).filter(Boolean)
-        : base.teleprompterLines,
-    summary:
-      Array.isArray(translation.summary) && translation.summary.length
-        ? translation.summary.map((line) => String(line).trim()).filter(Boolean)
-        : base.summary,
-    conversationMap:
-      Array.isArray(translation.conversationMap) && translation.conversationMap.length
-        ? translation.conversationMap.map((line) => String(line).trim()).filter(Boolean)
-        : base.conversationMap,
-    toneMap:
-      Array.isArray(translation.toneMap) && translation.toneMap.length
-        ? translation.toneMap.map((entry) => ({
-            label: String(entry?.label || "").trim(),
-            action: String(entry?.action || "").trim()
-          }))
-        : base.toneMap,
-    deliveryNotes:
-      Array.isArray(translation.deliveryNotes) && translation.deliveryNotes.length
-        ? translation.deliveryNotes.map((line) => String(line).trim()).filter(Boolean)
-        : base.deliveryNotes,
+    proof: String(translation.proof || base.proof || "").trim(),
+    notes: normalizeStringList(translation.notes, base.notes),
+    tones: normalizeStringList(translation.tones, base.tones),
+    teleprompterLines: normalizeStringList(translation.teleprompterLines, base.teleprompterLines),
+    summary: normalizeCardList(translation.summary, base.summary, ["label", "title", "body"]),
+    conversationMap: normalizeCardList(translation.conversationMap, base.conversationMap, [
+      "label",
+      "value",
+      "detail"
+    ]),
+    toneMap: normalizeCardList(translation.toneMap, base.toneMap, ["tone", "label", "action"]),
     diagnostics: {
       ...base.diagnostics,
       source: "openai"
@@ -123,30 +173,37 @@ function mergeOpenAiTranslation(base, candidate) {
 }
 
 function buildOpenAiPrompt(payload) {
-  const data = normalizePayload(payload);
+  const context = buildPromptContext(payload);
   return [
     "Create a translation payload for SayIt! using this exact JSON shape:",
     "{",
+    '  "detectedIntent": { "id": "string", "label": "string" },',
+    '  "intentLabel": "string",',
+    '  "summary": [{ "label": "string", "title": "string", "body": "string" }],',
     '  "primary": "string",',
     '  "concise": "string",',
-    '  "summary": ["string", "string", "string"],',
-    '  "conversationMap": ["string", "string", "string", "string"],',
-    '  "toneMap": [{"label":"string","action":"string"}],',
-    '  "deliveryNotes": ["string", "string", "string"],',
+    '  "proof": "string",',
+    '  "notes": ["string", "string", "string"],',
+    '  "tones": ["string", "string"],',
+    '  "toneMap": [{ "tone": "string", "label": "string", "action": "string" }],',
+    '  "conversationMap": [{ "label": "string", "value": "string", "detail": "string" }],',
     '  "teleprompterLines": ["string", "string"]',
     "}",
     "Requirements:",
     "- Keep the user's meaning intact.",
     "- Make it calmer, clearer, and more effective.",
     "- Use simple, natural language.",
-    "- Match the relationship dynamic the user selected.",
-    "- Match the requested after-state or desired tone of delivery.",
+    "- Match the selected categories closely, especially relationship, intent, outcome, and after-state.",
+    "- detectedIntent.id must be one of: explain, boundary, criticism, correction, frustration, help, clarify.",
+    "- summary must contain exactly 3 cards.",
+    "- conversationMap must contain exactly 4 cards.",
+    "- notes should be practical delivery guidance, not generic therapy advice.",
+    "- teleprompterLines should be short enough to read comfortably out loud.",
     "- Do not mention being an AI.",
-    "- Keep summary to 3 bullets and conversationMap to 4 bullets.",
     "- Return valid JSON only.",
     "",
-    "User context:",
-    JSON.stringify(data, null, 2)
+    "SayIt categories and user draft:",
+    JSON.stringify(context, null, 2)
   ].join("\n");
 }
 

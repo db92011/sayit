@@ -40,32 +40,11 @@
 
         <main class="main">
           <form id="intake-form" class="intake-form">
-            <section class="panel app-section voice-section voice-section-top">
-              <div class="section-heading">
+            <section class="panel app-section intake-card">
+              <div class="section-heading intake-heading">
                 <h2>Talk to me. I've got your back.</h2>
               </div>
-              <p id="voice-status" class="voice-status">
-                When you're ready, just say it, even if you're mad. Get your message across, and we'll clean it up for you.
-              </p>
-              <p id="voice-preview" class="voice-preview">Your spoken draft will show up here as you talk.</p>
-              <div class="voice-actions">
-                <button
-                  type="button"
-                  id="voice-start"
-                  class="secondary-button compact-button"
-                >
-                  Record
-                </button>
-                <button type="button" id="voice-stop" class="secondary-button compact-button">
-                  Stop
-                </button>
-                <button type="submit" id="translate-action" class="primary-button compact-button">
-                  Let's do this
-                </button>
-              </div>
-            </section>
 
-            <section class="panel app-section">
               <label class="field field-short">
                 <span>Who are you talking to?</span>
                 <input
@@ -126,9 +105,7 @@
                   <option>Easy to understand</option>
                 </select>
               </label>
-            </section>
 
-            <section class="panel app-section context-section">
               <label class="field field-large">
                 <span>Add context to this</span>
                 <textarea
@@ -139,9 +116,30 @@
                 ></textarea>
               </label>
 
+              <p id="voice-preview" class="voice-preview"></p>
+              <p id="voice-status" class="voice-status">
+                When you're ready, just say it, even if you're mad. Get your message across, and we'll clean it up for you.
+              </p>
+
+              <div class="voice-actions">
+                <button
+                  type="button"
+                  id="voice-start"
+                  class="secondary-button compact-button"
+                >
+                  Record
+                </button>
+                <button type="button" id="voice-stop" class="secondary-button compact-button">
+                  Stop
+                </button>
+                <button type="submit" id="translate-action" class="secondary-button compact-button">
+                  Generate
+                </button>
+              </div>
+
               <div class="delivery-copy">
                 <p id="teleprompter-summary" class="teleprompter-summary">
-                  Once you push Let's do this, teleprompter will pop up. You can read from it directly by saying, "I want to read from some notes," or "This was important, so I wrote some notes." Or you can copy and paste it into a message or email.
+                  Once you push Generate, teleprompter will pop up. You can read from it directly by saying, "I want to read from some notes," or "This was important, so I wrote some notes." Or you can copy and paste it into a message or email.
                 </p>
               </div>
             </section>
@@ -217,18 +215,36 @@
         aria-labelledby="teleprompter-overlay-title"
       >
         <header class="teleprompter-overlay-header">
-          <div>
-            <p class="section-label">Teleprompter</p>
-            <h2 id="teleprompter-overlay-title">Your message</h2>
-          </div>
+          <h2 id="teleprompter-overlay-title">Your message</h2>
           <div class="teleprompter-overlay-actions">
-            <button id="copy-message" type="button" class="secondary-button">Copy message</button>
+            <button id="copy-message" type="button" class="secondary-button">Copy</button>
             <button id="close-teleprompter" type="button" class="ghost-button">Close</button>
           </div>
         </header>
 
         <section class="teleprompter-card teleprompter-panel">
-          <div class="teleprompter-controls">
+          <div class="teleprompter-controls teleprompter-controls-top">
+            <button id="teleprompter-start" type="button" class="secondary-button">
+              Start
+            </button>
+            <button id="teleprompter-pause" type="button" class="ghost-button">
+              Pause
+            </button>
+            <button id="teleprompter-reset" type="button" class="ghost-button">
+              Reset
+            </button>
+          </div>
+
+          <div id="teleprompter" class="teleprompter">
+            <div class="teleprompter-highlight-guide" aria-hidden="true"></div>
+            <div id="teleprompter-script" class="teleprompter-script">
+              <p class="teleprompter-placeholder">
+                Generate a translated message to load teleprompter mode.
+              </p>
+            </div>
+          </div>
+
+          <div class="teleprompter-controls teleprompter-controls-bottom">
             <label class="toggle">
               <input id="highlight-toggle" type="checkbox" checked />
               <span>Highlight line</span>
@@ -243,23 +259,6 @@
               <button type="button" data-speed="fast" class="speed-button">
                 Fast
               </button>
-            </div>
-            <button id="teleprompter-start" type="button" class="secondary-button">
-              Start
-            </button>
-            <button id="teleprompter-pause" type="button" class="ghost-button">
-              Pause
-            </button>
-            <button id="teleprompter-reset" type="button" class="ghost-button">
-              Reset
-            </button>
-          </div>
-
-          <div id="teleprompter" class="teleprompter">
-            <div id="teleprompter-script" class="teleprompter-script">
-              <p class="teleprompter-placeholder">
-                Generate a translated message to load teleprompter mode.
-              </p>
             </div>
           </div>
         </section>

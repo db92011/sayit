@@ -317,7 +317,7 @@ function buildToneLead(tones, relationship) {
 }
 
 function buildOutcomeCloser(outcome = "", afterState = "") {
-  const normalized = outcome.toLowerCase();
+  const normalized = String(outcome || "").toLowerCase();
 
   if (normalized.includes("argument") || normalized.includes("defuse")) {
     return "I want us to stay with the point instead of letting this turn into a fight.";
@@ -505,8 +505,11 @@ function splitTeleprompterLines(text) {
     .split(/(?<=[.!?])\s+/)
     .map((part) => part.trim())
     .filter(Boolean);
+  const deduped = parts.filter((part, index) => {
+    return index === 0 || part.toLowerCase() !== parts[index - 1].toLowerCase();
+  });
 
-  return parts.length > 0 ? parts : ["Add a message to generate teleprompter mode."];
+  return deduped.length > 0 ? deduped : ["Add a message to generate teleprompter mode."];
 }
 
 export function buildTranslation(input) {
