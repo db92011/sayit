@@ -12,6 +12,10 @@ const DEFAULT_OPENAI_BEHAVIOR = [
   "Output valid JSON only."
 ].join(" ");
 
+function getOpenAiApiKey(env) {
+  return String(env?.OPENAI_API_KEY || env?.OpenAi_SayIt_Secret_Key || "").trim();
+}
+
 function json(data, init = {}) {
   const headers = new Headers(init.headers);
   headers.set("content-type", "application/json; charset=utf-8");
@@ -147,7 +151,7 @@ function buildOpenAiPrompt(payload) {
 }
 
 async function requestOpenAiTranslation(payload, env) {
-  const apiKey = String(env?.OPENAI_API_KEY || "").trim();
+  const apiKey = getOpenAiApiKey(env);
   if (!apiKey) {
     throw new Error("OpenAI API key not configured.");
   }
@@ -179,7 +183,7 @@ async function translate(payload, env) {
   const fallbackTranslation = buildTranslation(normalizedPayload);
 
   try {
-    if (!env?.OPENAI_API_KEY) {
+    if (!getOpenAiApiKey(env)) {
       throw new Error("OpenAI API key not configured.");
     }
 
@@ -211,7 +215,7 @@ async function translate(payload, env) {
       meta: {
         runtime: "cloudflare-pages-function",
         mode: "rule-based",
-        providerConfigured: Boolean(env?.OPENAI_API_KEY),
+        providerConfigured: Boolean(getOpenAiApiKey(env)),
         behaviorConfigured: Boolean(String(env?.OPENAI_BEHAVIOR || "").trim()),
         fallbackReason: reason
       }
@@ -223,9 +227,9 @@ export function onRequestGet({ env }) {
   return json({
     ok: true,
     name: "SayIt! Translate API",
-    mode: Boolean(env?.OPENAI_API_KEY) ? "openai-or-rule-based-fallback" : "rule-based",
+    mode: Boolean(getOpenAiApiKey(env)) ? "openai-or-rule-based-fallback" : "rule-based",
     runtime: "cloudflare-pages-function",
-    providerConfigured: Boolean(env?.OPENAI_API_KEY),
+    providerConfigured: Boolean(getOpenAiApiKey(env)),
     behaviorConfigured: Boolean(String(env?.OPENAI_BEHAVIOR || "").trim()),
     model: String(env?.OPENAI_MODEL || DEFAULT_OPENAI_MODEL).trim() || DEFAULT_OPENAI_MODEL
   });

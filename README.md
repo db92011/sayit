@@ -43,6 +43,7 @@ wrangler pages dev site
 Copy `.dev.vars.example` to `.dev.vars` for local Pages-style development or set the same values in Cloudflare Pages:
 
 - `OPENAI_API_KEY`
+- `OpenAi_SayIt_Secret_Key` also works if that is the secret name already stored in Cloudflare
 - `OPENAI_MODEL` default: `gpt-5-mini`
 - `OPENAI_BEHAVIOR` optional system behavior override
 
