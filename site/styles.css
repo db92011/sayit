@@ -1,11 +1,11 @@
 :root {
-  --bg: #f5efe4;
+  --bg: #fcf8f1;
   --surface: transparent;
   --input-bg: #ffffff;
   --text: #0f2348;
   --muted: #63799f;
-  --line: #d8e2ef;
-  --line-strong: #c7d4e6;
+  --line: #dee6f1;
+  --line-strong: #d2dbe8;
   --accent: #0a66ff;
   --accent-strong: #004fd4;
   --accent-soft: rgba(10, 102, 255, 0.1);
@@ -73,12 +73,12 @@ button:disabled {
 }
 
 .preview-app-mobile body {
-  background: #f0e7d9;
+  background: var(--bg);
 }
 
 .preview-app-mobile .shell {
-  border-left: 1px solid rgba(184, 170, 146, 0.2);
-  border-right: 1px solid rgba(184, 170, 146, 0.2);
+  border-left: 1px solid rgba(210, 198, 175, 0.15);
+  border-right: 1px solid rgba(210, 198, 175, 0.15);
 }
 
 .app-surface {
@@ -87,15 +87,26 @@ button:disabled {
 
 .intake-form {
   display: grid;
-  gap: 0;
-  padding: 0 1rem 2rem;
+  gap: 1.1rem;
+  padding: 1.35rem 1rem 2rem;
 }
 
 .app-section {
   display: grid;
   gap: 1rem;
-  padding: 1.15rem 0;
-  border-bottom: 1px solid var(--line);
+  padding: 0;
+}
+
+.brand-section {
+  display: grid;
+  justify-items: center;
+  padding-top: 0.15rem;
+}
+
+.brand-logo {
+  width: 5.6rem;
+  height: 5.6rem;
+  object-fit: contain;
 }
 
 .section-heading {
@@ -145,6 +156,7 @@ button:disabled {
   background: var(--input-bg);
   color: var(--text);
   padding: 0.95rem 1rem;
+  min-height: 3.9rem;
   transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
   -webkit-appearance: none;
   appearance: none;
@@ -152,7 +164,12 @@ button:disabled {
 
 .field textarea {
   resize: vertical;
-  min-height: 7rem;
+  min-height: 8rem;
+  padding-top: 1rem;
+}
+
+.field-large textarea {
+  min-height: 10rem;
 }
 
 .field input::placeholder,
@@ -172,10 +189,6 @@ button:disabled {
   gap: 0.85rem;
 }
 
-.voice-section .section-label {
-  display: none;
-}
-
 .voice-status {
   margin: 0;
   color: var(--muted);
@@ -184,9 +197,9 @@ button:disabled {
 
 .voice-preview {
   margin: 0;
-  min-height: 5.75rem;
-  padding: 0.95rem 1rem;
-  border: 1px solid var(--line);
+  min-height: 8.75rem;
+  padding: 1rem;
+  border: 1px solid var(--line-strong);
   border-radius: 1rem;
   background: #ffffff;
   color: var(--text);
@@ -195,8 +208,8 @@ button:disabled {
 }
 
 .voice-actions {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
@@ -221,7 +234,6 @@ button:disabled {
 .primary-button:hover,
 .secondary-button:hover,
 .ghost-button:hover,
-.sayit-button:hover,
 .toolbar-button:hover {
   opacity: 0.92;
 }
@@ -235,8 +247,7 @@ button:disabled {
 .primary-button,
 .secondary-button,
 .ghost-button,
-.speed-button,
-.sayit-button {
+.speed-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -262,24 +273,9 @@ button:disabled {
   color: var(--text);
 }
 
-.sayit-button {
-  width: auto;
-  min-width: 0;
-  height: auto;
-  padding: 0;
-  border-radius: 0;
-  background: transparent;
-  border-color: transparent;
-}
-
-.sayit-button img {
-  width: 3.15rem;
-  height: 3.15rem;
-  object-fit: contain;
-}
-
 .compact-button {
-  min-width: 6rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .speed-button.is-active {
@@ -300,7 +296,7 @@ button:disabled {
 }
 
 .action-section {
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .form-actions {
@@ -494,6 +490,6 @@ body.teleprompter-open {
   }
 
   .voice-actions {
-    justify-content: flex-start;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

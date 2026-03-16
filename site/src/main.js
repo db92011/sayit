@@ -6,19 +6,6 @@ const STORAGE_KEY = "sayit-draft-v2";
 const DEFAULT_TONES = [];
 const TONES = ["calm", "friendly", "professional", "direct", "confident", "funny", "gentle", "clear"];
 
-const SAMPLE_DATA = {
-  recipient: "My manager",
-  relationship: "Boss or supervisor",
-  situation: "Feedback got tense in a meeting and I want to reset without sounding defensive.",
-  message:
-    "I felt like you threw me under the bus in front of everybody and now I am really annoyed because it made me look careless when I had already flagged the issue earlier.",
-  intent: "auto",
-  outcome: "Be taken seriously",
-  barrier: "Work",
-  afterState: "Respectful",
-  tones: ["calm", "professional", "clear"]
-};
-
 const form = document.querySelector("#intake-form");
 const toneGroup = document.querySelector("#tone-group");
 const voicePreview = document.querySelector("#voice-preview");
@@ -203,21 +190,8 @@ function hydrateDraft() {
   }
 }
 
-function applySample() {
-  for (const [key, field] of Object.entries(fields)) {
-    if (field && key in SAMPLE_DATA) {
-      field.value = SAMPLE_DATA[key];
-    }
-  }
-
-  selectedTones = [...SAMPLE_DATA.tones];
-  renderToneButtons();
-  updateVoicePreview(fields.message.value);
-  persistDraft();
-  generateTranslation();
-}
-
 function resetForm() {
+  speechController?.stop();
   form.reset();
   fields.message.value = "";
   selectedTones = [...DEFAULT_TONES];
@@ -244,7 +218,6 @@ form.addEventListener("change", () => {
   persistDraft();
 });
 
-document.querySelector("#load-sample").addEventListener("click", applySample);
 document.querySelector("#reset-form").addEventListener("click", resetForm);
 closeTeleprompterButton.addEventListener("click", closeTeleprompter);
 

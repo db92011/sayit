@@ -26,6 +26,14 @@
     <main class="shell">
       <section class="app-surface">
         <form id="intake-form" class="intake-form">
+          <section class="brand-section">
+            <img
+              class="brand-logo"
+              src="./assets/sayit-app-icon.png"
+              alt="SayIt!"
+            />
+          </section>
+
           <section class="app-section">
             <label class="field">
               <span>Who are you talking to?</span>
@@ -55,45 +63,8 @@
               </select>
             </label>
 
-            <label class="field">
-              <span>Add context to this</span>
-              <textarea
-                id="situation"
-                name="situation"
-                rows="4"
-                placeholder="What is this conversation about? Give me the main context."
-              ></textarea>
-            </label>
-
             <input id="message" name="message" type="hidden" />
-          </section>
-
-          <section class="app-section voice-section">
-            <div class="section-heading">
-              <h2>Talk to me. I've got your back.</h2>
-            </div>
-            <p id="voice-status" class="voice-status">
-              When you're ready, talk to SayIt! and get your message across, and we'll clean it up.
-            </p>
-            <p id="voice-preview" class="voice-preview">Your spoken draft will show up here as you talk.</p>
-            <div class="voice-actions">
-              <button
-                type="button"
-                id="voice-start"
-                class="sayit-button"
-                aria-label="Start voice capture"
-                title="Start voice capture"
-              >
-                <img src="./assets/sayit-app-icon.png" alt="" />
-                <span class="visually-hidden">Start voice capture</span>
-              </button>
-              <button type="button" id="voice-stop" class="secondary-button compact-button">
-                Stop
-              </button>
-            </div>
-          </section>
-
-          <section class="app-section">
+        
             <label class="field">
               <span>Core intent</span>
               <select id="intent" name="intent">
@@ -162,26 +133,57 @@
                 <option>Easy to understand</option>
                 </select>
               </label>
-            </section>
+          </section>
 
-            <section class="app-section action-section">
-              <div class="form-actions">
-                <button type="button" id="load-sample" class="ghost-button">
-                  Load sample
-                </button>
-                <button type="button" id="reset-form" class="ghost-button">
-                  Reset all
-                </button>
-                <button id="translate-action" type="submit" class="primary-button">
-                  Let's do this
-                </button>
-              </div>
-              <div class="delivery-copy">
-                <p id="teleprompter-summary" class="teleprompter-summary">
-                  Once you commit, teleprompter will open. You can either copy and paste it or read directly from it.
-                </p>
-              </div>
-            </section>
+          <section class="app-section context-section">
+            <label class="field field-large">
+              <span>Add context to this</span>
+              <textarea
+                id="situation"
+                name="situation"
+                rows="5"
+                placeholder="What is this conversation about? Give me the main context."
+              ></textarea>
+            </label>
+          </section>
+
+          <section class="app-section voice-section">
+            <div class="section-heading">
+              <h2>Talk to me. I've got your back.</h2>
+            </div>
+            <p id="voice-status" class="voice-status">
+              When you're ready, talk to SayIt! and get your message across, and we'll clean it up.
+            </p>
+            <p id="voice-preview" class="voice-preview">Your spoken draft will show up here as you talk.</p>
+            <div class="voice-actions">
+              <button
+                type="button"
+                id="voice-start"
+                class="secondary-button compact-button"
+              >
+                Record
+              </button>
+              <button type="button" id="voice-stop" class="secondary-button compact-button">
+                Stop
+              </button>
+              <button type="button" id="reset-form" class="ghost-button compact-button">
+                Reset
+              </button>
+            </div>
+          </section>
+
+          <section class="app-section action-section">
+            <div class="form-actions">
+              <button id="translate-action" type="submit" class="primary-button">
+                Let's do this
+              </button>
+            </div>
+            <div class="delivery-copy">
+              <p id="teleprompter-summary" class="teleprompter-summary">
+                Once you commit, teleprompter will open. You can either copy and paste it or read directly from it.
+              </p>
+            </div>
+          </section>
         </form>
       </section>
     </main>
