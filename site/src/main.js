@@ -35,7 +35,8 @@ function updateVoicePreview(text = "") {
 
 function setTeleprompterSummary(text = "") {
   teleprompterSummary.textContent =
-    text || "Once you commit, teleprompter will open. You can either copy and paste it or read directly from it.";
+    text ||
+    "Once you push Let's do this, teleprompter will pop up. You can read from it directly by saying, \"I want to read from some notes,\" or \"This was important, so I wrote some notes.\" Or you can copy and paste it into a message or email.";
 }
 
 function setCopyButtonLabel(label) {
@@ -87,7 +88,7 @@ function updateOutputs(translation) {
   latestMessageText = translation?.primary || "";
   copyMessageButton.disabled = !latestMessageText;
   setCopyButtonLabel("Copy message");
-  setTeleprompterSummary("Once you commit, teleprompter will open. You can either copy and paste it or read directly from it.");
+  setTeleprompterSummary();
   teleprompter.setLines(translation?.teleprompterLines || []);
 }
 

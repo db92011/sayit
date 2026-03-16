@@ -175,11 +175,6 @@ button:disabled {
   min-height: 10rem;
 }
 
-.field-short input {
-  width: min(100%, 12rem);
-  margin: 0 auto;
-}
-
 .field input::placeholder,
 .field textarea::placeholder {
   color: #7a8fb3;
