@@ -2,7 +2,7 @@ export function createSpeechController({ textarea, statusNode, startButton, stop
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!Recognition) {
-    statusNode.textContent = "Speech capture is not supported in this browser. Typing still works.";
+    statusNode.textContent = "Voice capture is not supported in this browser yet.";
     startButton.disabled = true;
     stopButton.disabled = true;
     return null;
@@ -24,19 +24,19 @@ export function createSpeechController({ textarea, statusNode, startButton, stop
   recognition.onstart = () => {
     listening = true;
     baseValue = textarea.value.trim();
-    statusNode.textContent = "Listening. Speak naturally and your words will be appended to the draft.";
+    statusNode.textContent = "I'm listening. Say it naturally.";
     syncButtons();
   };
 
   recognition.onend = () => {
     listening = false;
-    statusNode.textContent = "Voice capture stopped.";
+    statusNode.textContent = "I've got it. Hit Let's do this when you're ready.";
     syncButtons();
   };
 
   recognition.onerror = (event) => {
     listening = false;
-    statusNode.textContent = `Voice capture error: ${event.error}.`;
+    statusNode.textContent = `I hit a voice capture snag: ${event.error}.`;
     syncButtons();
   };
 

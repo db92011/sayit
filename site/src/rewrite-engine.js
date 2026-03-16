@@ -185,7 +185,7 @@ function chooseTones(tones = []) {
     return ["clear", "calm"];
   }
 
-  return tones.slice(0, 3);
+  return tones;
 }
 
 function buildToneLead(tones, relationship) {

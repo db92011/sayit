@@ -8,6 +8,18 @@
       name="description"
       content="Translate the message in your head into something the other person can actually hear."
     />
+    <script>
+      (function () {
+        var previewMode = new URLSearchParams(window.location.search).get("preview") || "";
+        previewMode = previewMode.trim();
+        window.__SAYIT_PREVIEW_MODE__ = previewMode;
+        if (!previewMode) return;
+        document.documentElement.dataset.previewMode = previewMode;
+        if (previewMode === "app-mobile") {
+          document.documentElement.classList.add("preview-app-mobile");
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -18,45 +30,22 @@
         <div class="hero-copy">
           <div class="hero-brand">
             <div class="hero-logo-shell">
-              <img class="hero-logo" src="./assets/sayit-logo.svg" alt="SayIt logo" />
+              <img class="hero-logo" src="./assets/sayit-app-icon.png" alt="SayIt app icon" />
             </div>
             <div class="hero-copy-stack">
               <p class="eyebrow">Communication translator + teleprompter</p>
               <h1>Say what you mean so it lands.</h1>
             </div>
           </div>
-          <p class="hero-lead">Tap the microphone and tell me what's going on.</p>
-          <p class="hero-text">
-            Give a little context and get support turning it into clear words.
-          </p>
-        </div>
-        <div class="hero-cards">
-          <article class="hero-card">
-            <span class="hero-kicker">Talk It Out</span>
-            <strong>Voice-first when emotions are moving fast.</strong>
-            <p>Tap the mic, say it naturally, and let SayIt catch the raw message before it slips away.</p>
-          </article>
-          <article class="hero-card">
-            <span class="hero-kicker">Translate</span>
-            <strong>Turn stress into something clear and usable.</strong>
-            <p>Shape the message so a spouse, child, client, or coworker can actually hear what you mean.</p>
-          </article>
-          <article class="hero-card">
-            <span class="hero-kicker">Deliver</span>
-            <strong>Practice it live in teleprompter mode.</strong>
-            <p>Use the rewritten message with auto-scroll, pace control, pause, resume, and line focus.</p>
-          </article>
+          <p class="hero-lead">Tap the mic and tell me what's going on.</p>
+          <p class="hero-text">I'll help you say it the way you mean it.</p>
         </div>
       </header>
 
       <section class="workspace">
         <section class="panel intake-panel">
-          <div class="panel-heading">
-            <div>
-              <p class="section-label">Intake</p>
-              <h2>Build the communication context</h2>
-            </div>
-            <span id="save-status" class="save-status">Draft saved locally</span>
+          <div class="panel-heading intake-heading">
+            <p class="section-label">Intake</p>
           </div>
 
           <form id="intake-form" class="intake-form">
@@ -67,7 +56,7 @@
                   id="recipient"
                   name="recipient"
                   type="text"
-                  placeholder="My manager, my partner, a customer..."
+                  placeholder="Name"
                 />
               </label>
 
@@ -91,37 +80,31 @@
             </div>
 
             <label class="field">
-              <span>What is happening right now?</span>
+              <span>Add context to this</span>
               <textarea
                 id="situation"
                 name="situation"
                 rows="3"
-                placeholder="An argument is starting, I need to set a boundary, I want to explain something calmly..."
+                placeholder="What is this conversation about? Give me the main context."
               ></textarea>
             </label>
 
-            <label class="field">
-              <span>Say the raw message</span>
-              <textarea
-                id="message"
-                name="message"
-                rows="7"
-                placeholder="Paste or type exactly what you want to say. Messy is fine."
-              ></textarea>
-            </label>
+            <input id="message" name="message" type="hidden" />
 
             <div class="voice-bar">
-              <div>
-                <p class="voice-title">Voice capture</p>
+              <div class="voice-copy">
+                <p class="voice-title">Talk to me. I've got your back.</p>
                 <p id="voice-status" class="voice-status">
-                  Browser speech capture is standing by.
+                  When you're ready, tap SayIt! and speak naturally.
                 </p>
+                <p id="voice-preview" class="voice-preview">Your spoken draft will show up here as you talk.</p>
               </div>
               <div class="voice-actions">
-                <button type="button" id="voice-start" class="secondary-button">
-                  Start listening
+                <button type="button" id="voice-start" class="sayit-button">
+                  <img src="./assets/sayit-button.png" alt="" />
+                  <span>SayIt!</span>
                 </button>
-                <button type="button" id="voice-stop" class="ghost-button">
+                <button type="button" id="voice-stop" class="secondary-button">
                   Stop
                 </button>
               </div>
@@ -161,44 +144,32 @@
 
             <label class="field">
               <span>Choose the translation tone</span>
+              <small class="field-hint">Pick one or as many as you want.</small>
               <div id="tone-group" class="chip-group"></div>
             </label>
 
             <div class="field-grid">
               <label class="field">
-                <span>What is making this hard?</span>
+                <span>What is the main context of the conversation?</span>
                 <select id="barrier" name="barrier">
-                  <option value="">Select a barrier</option>
-                  <option>Different generation</option>
-                  <option>Different emotional state</option>
-                  <option>Different authority level</option>
-                  <option>Cultural difference</option>
-                  <option>Power dynamic</option>
-                  <option>Misunderstanding</option>
-                  <option>Frustration</option>
-                  <option>Defensiveness</option>
+                  <option value="">Select the main context</option>
+                  <option>Work</option>
+                  <option>Partner or relationship</option>
+                  <option>Parenting or family</option>
+                  <option>Friendship</option>
+                  <option>Customer or client</option>
+                  <option>Boundary setting</option>
+                  <option>Conflict repair</option>
+                  <option>Money</option>
+                  <option>Scheduling</option>
+                  <option>Health or care</option>
+                  <option>Something sensitive</option>
                 </select>
               </label>
-
               <label class="field">
-                <span>How does the message feel right now?</span>
-                <select id="before-state" name="beforeState">
-                  <option value="">Select the before state</option>
-                  <option>Too emotional</option>
-                  <option>Too aggressive</option>
-                  <option>Too passive</option>
-                  <option>Too messy</option>
-                  <option>Too long</option>
-                  <option>Too blunt</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="field-grid">
-              <label class="field">
-                <span>How should it feel after?</span>
+                <span>How do I want this message to come across?</span>
                 <select id="after-state" name="afterState">
-                  <option value="">Select the after state</option>
+                  <option value="">Select how I want it to come across</option>
                   <option>Clear</option>
                   <option>Respectful</option>
                   <option>Calm</option>
@@ -209,16 +180,6 @@
                   <option>Easy to understand</option>
                 </select>
               </label>
-
-              <label class="field">
-                <span>What would prove this worked?</span>
-                <input
-                  id="proof"
-                  name="proof"
-                  type="text"
-                  placeholder="The conversation stays calm, I get a clear response..."
-                />
-              </label>
             </div>
 
             <div class="form-actions">
@@ -226,117 +187,94 @@
                 Load sample
               </button>
               <button type="button" id="reset-form" class="ghost-button">
-                Reset
+                Reset all
               </button>
               <button type="submit" class="primary-button">
-                Translate my message
+                Let's do this
               </button>
             </div>
           </form>
         </section>
 
         <section class="panel output-panel">
-          <div class="panel-heading">
+          <div class="panel-heading teleprompter-panel-heading">
             <div>
-              <p class="section-label">Output</p>
-              <h2>Message translation</h2>
+              <p class="section-label">Teleprompter</p>
+              <h2>Ready to deliver</h2>
             </div>
-            <div class="status-stack">
-              <p id="intent-badge" class="intent-badge">Intent waiting for input</p>
-              <p id="engine-badge" class="engine-badge">Waiting for translation</p>
-            </div>
+            <button id="open-teleprompter" type="button" class="secondary-button" disabled>
+              Open teleprompter
+            </button>
           </div>
 
-          <div id="summary-grid" class="summary-grid"></div>
-
-          <div class="detail-grid">
-            <article class="support-card">
-              <h3>Conversation map</h3>
-              <ul id="conversation-map" class="detail-list">
-                <li>Generate a translation to map the conversation shape.</li>
-              </ul>
-            </article>
-
-            <article class="support-card">
-              <h3>Tone translation</h3>
-              <ul id="tone-map" class="detail-list">
-                <li>Choose up to three tones to see how the rewrite is being steered.</li>
-              </ul>
-            </article>
-          </div>
-
-          <article class="message-card">
-            <div class="message-header">
-              <h3>Primary translation</h3>
-              <button id="copy-primary" type="button" class="secondary-button">
-                Copy
-              </button>
-            </div>
-            <p id="primary-output" class="message-output empty-state">
-              Complete the intake, then generate a draft.
+          <section class="teleprompter-card teleprompter-ready-card">
+            <p id="teleprompter-summary" class="teleprompter-summary">
+              Generate a translated message and SayIt will open a focused teleprompter screen.
             </p>
-          </article>
-
-          <div class="alt-grid">
-            <article class="support-card">
-              <h3>Short version</h3>
-              <p id="short-output" class="support-copy">
-                Your condensed version will appear here.
-              </p>
-            </article>
-            <article class="support-card">
-              <h3>Delivery notes</h3>
-              <ul id="notes-output" class="note-list">
-                <li>Choose a tone and outcome to shape the coaching notes.</li>
-              </ul>
-            </article>
-          </div>
-
-          <section class="teleprompter-card">
-            <div class="teleprompter-header">
-              <div>
-                <p class="section-label">Teleprompter</p>
-                <h3>Practice it out loud</h3>
-              </div>
-              <div class="teleprompter-controls">
-                <label class="toggle">
-                  <input id="highlight-toggle" type="checkbox" checked />
-                  <span>Highlight line</span>
-                </label>
-                <div class="speed-group" id="speed-group">
-                  <button type="button" data-speed="slow" class="speed-button is-active">
-                    Slow
-                  </button>
-                  <button type="button" data-speed="medium" class="speed-button">
-                    Medium
-                  </button>
-                  <button type="button" data-speed="fast" class="speed-button">
-                    Fast
-                  </button>
-                </div>
-                <button id="teleprompter-start" type="button" class="secondary-button">
-                  Start
-                </button>
-                <button id="teleprompter-pause" type="button" class="ghost-button">
-                  Pause
-                </button>
-                <button id="teleprompter-reset" type="button" class="ghost-button">
-                  Reset
-                </button>
-              </div>
-            </div>
-
-            <div id="teleprompter" class="teleprompter">
-              <div id="teleprompter-script" class="teleprompter-script">
-                <p class="teleprompter-placeholder">
-                  Generate a translated message to load teleprompter mode.
-                </p>
-              </div>
-            </div>
+            <p class="teleprompter-note">
+              Hit Let&apos;s do this to launch a full-screen delivery view with copy, close, and pace controls.
+            </p>
           </section>
         </section>
       </section>
     </main>
+
+    <div id="teleprompter-overlay" class="teleprompter-overlay" hidden aria-hidden="true">
+      <section
+        class="teleprompter-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="teleprompter-overlay-title"
+      >
+        <header class="teleprompter-overlay-header">
+          <div>
+            <p class="section-label">Teleprompter</p>
+            <h2 id="teleprompter-overlay-title">Your message</h2>
+          </div>
+          <div class="teleprompter-overlay-actions">
+            <button id="copy-message" type="button" class="secondary-button">Copy message</button>
+            <button id="close-teleprompter" type="button" class="ghost-button">Close</button>
+          </div>
+        </header>
+
+        <section class="teleprompter-card teleprompter-panel">
+          <div class="teleprompter-controls">
+            <label class="toggle">
+              <input id="highlight-toggle" type="checkbox" checked />
+              <span>Highlight line</span>
+            </label>
+            <div class="speed-group" id="speed-group">
+              <button type="button" data-speed="slow" class="speed-button is-active">
+                Slow
+              </button>
+              <button type="button" data-speed="medium" class="speed-button">
+                Medium
+              </button>
+              <button type="button" data-speed="fast" class="speed-button">
+                Fast
+              </button>
+            </div>
+            <button id="teleprompter-start" type="button" class="secondary-button">
+              Start
+            </button>
+            <button id="teleprompter-pause" type="button" class="ghost-button">
+              Pause
+            </button>
+            <button id="teleprompter-reset" type="button" class="ghost-button">
+              Reset
+            </button>
+          </div>
+
+          <div id="teleprompter" class="teleprompter">
+            <div id="teleprompter-script" class="teleprompter-script">
+              <p class="teleprompter-placeholder">
+                Generate a translated message to load teleprompter mode.
+              </p>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
 
     <script type="module" src="./src/main.js"></script>
   </body>

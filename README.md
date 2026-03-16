@@ -6,7 +6,7 @@ SayIt! is a first-build communication translator that turns a messy draft into a
 
 - Full intake flow for audience, relationship, situation, outcome, barrier, tone, before state, after state, and proof of success
 - Browser voice capture using `SpeechRecognition` / `webkitSpeechRecognition` when available
-- Translation output with a primary rewrite, short version, conversation map, tone translation map, delivery notes, and teleprompter script
+- Translation output with a primary rewrite, short version, conversation map, tone translation map, delivery notes, and a full-screen teleprompter overlay
 - Local draft persistence with `localStorage`
 - A Cloudflare Pages Function at `/api/translate` that creates a real backend boundary for future OpenAI integration
 - Static-first fallback behavior so the app still works when the API route is unavailable during simple local development
@@ -14,9 +14,9 @@ SayIt! is a first-build communication translator that turns a messy draft into a
 
 ## Project shape
 
-- [`site/`](/Users/dannybrooking/Documents/GitHub = master copy/AMP/projects/SayIt/site): static frontend shipped to Cloudflare Pages
-- [`functions/api/translate.js`](/Users/dannybrooking/Documents/GitHub = master copy/AMP/projects/SayIt/functions/api/translate.js): Pages Function translation endpoint
-- [`site/src/rewrite-engine.js`](/Users/dannybrooking/Documents/GitHub = master copy/AMP/projects/SayIt/site/src/rewrite-engine.js): rule-based translation engine used by both frontend fallback and server endpoint
+- [`site/`](/Users/dannybrooking/Documents/GitHub%20=%20master%20copy/projects/SayIt/site): static frontend shipped to Cloudflare Pages
+- [`functions/api/translate.js`](/Users/dannybrooking/Documents/GitHub%20=%20master%20copy/projects/SayIt/functions/api/translate.js): Pages Function translation endpoint
+- [`site/src/rewrite-engine.js`](/Users/dannybrooking/Documents/GitHub%20=%20master%20copy/projects/SayIt/site/src/rewrite-engine.js): rule-based translation engine used by both frontend fallback and server endpoint
 
 ## Commands
 
@@ -25,7 +25,11 @@ npm run dev
 npm test
 ```
 
-`npm run dev` serves the static site at `http://localhost:4173`.
+`npm run dev` serves the static site at `http://127.0.0.1:4173`.
+
+For the mobile app-style review inside VS Code Simple Browser, use:
+
+`http://127.0.0.1:4173/?preview=app-mobile`
 
 For full Cloudflare-style local verification, run Pages dev separately if `wrangler` is installed in the operator environment:
 
