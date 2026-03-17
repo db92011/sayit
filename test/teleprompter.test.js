@@ -128,6 +128,8 @@ test("teleprompter loads lines and highlights the active line", () => {
 
     controller.setLines(["Line one", "Line two", "Line three"]);
     assert.equal(script.children.length, 3);
+    assert.equal(controller.hasLines(), true);
+    assert.equal(controller.canScroll(), true);
 
     script.scrollTop = 50;
     controller.updateHighlight();
@@ -137,6 +139,55 @@ test("teleprompter loads lines and highlights the active line", () => {
 
     controller.reset();
     assert.equal(script.scrollTop, 0);
+  } finally {
+    globalThis.document = originalDocument;
+    globalThis.window = originalWindow;
+  }
+});
+
+test("teleprompter start returns false when content is too short to scroll", () => {
+  const originalDocument = globalThis.document;
+  const originalWindow = globalThis.window;
+
+  globalThis.document = {
+    createDocumentFragment() {
+      return {
+        children: [],
+        appendChild(node) {
+          this.children.push(node);
+        },
+      };
+    },
+    createElement() {
+      return {
+        className: "",
+        textContent: "",
+        classList: makeClassList(),
+      };
+    },
+  };
+
+  globalThis.window = {
+    requestAnimationFrame() {
+      return 1;
+    },
+    cancelAnimationFrame() {},
+  };
+
+  try {
+    const script = makeScriptNode();
+    script.clientHeight = 500;
+    script.scrollHeight = 500;
+    const controller = new TeleprompterController({
+      container: {},
+      script,
+      highlightToggle: { checked: true },
+    });
+
+    controller.setLines(["Short line"]);
+    assert.equal(controller.hasLines(), true);
+    assert.equal(controller.canScroll(), false);
+    assert.equal(controller.start(), false);
   } finally {
     globalThis.document = originalDocument;
     globalThis.window = originalWindow;

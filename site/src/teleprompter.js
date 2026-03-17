@@ -46,24 +46,38 @@ export class TeleprompterController {
     }
   }
 
+  hasLines() {
+    return this.lines.length > 0;
+  }
+
+  canScroll() {
+    return this.hasLines() && this.getMaxScrollTop() > 2;
+  }
+
   start() {
-    if (this.lines.length === 0) {
-      return;
+    if (!this.hasLines()) {
+      return false;
     }
 
     const maxScrollTop = this.getMaxScrollTop();
+    if (maxScrollTop <= 2) {
+      this.updateHighlight();
+      return false;
+    }
+
     if (this.script.scrollTop >= maxScrollTop - 2) {
       this.reset();
     }
 
     if (this.running) {
-      return;
+      return true;
     }
 
     this.running = true;
     this.lastTimestamp = 0;
     this.updateHighlight();
     this.animationFrame = window.requestAnimationFrame(this.tick);
+    return true;
   }
 
   pause() {
