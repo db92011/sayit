@@ -2,7 +2,7 @@ import { createSpeechController } from "./speech.js";
 import { TeleprompterController } from "./teleprompter.js";
 import { requestTranslation } from "./translation-service.js";
 
-const STORAGE_KEY = "sayit-draft-v2";
+const STORAGE_KEY = "sayit-draft-v3";
 const SAYIT_PRO_ACTIVE_KEY = "sayit_pro_active";
 const SAYIT_PRO_EMAIL_KEY = "sayit_pro_email";
 const SAYIT_DEVICE_ID_KEY = "sayit_device_id";
@@ -15,6 +15,7 @@ const form = document.querySelector("#intake-form");
 const voicePreview = document.querySelector("#voice-preview");
 const copyMessageButton = document.querySelector("#copy-message");
 const closeTeleprompterButton = document.querySelector("#close-teleprompter");
+const openTeleprompterButton = document.querySelector("#open-teleprompter");
 const teleprompterOverlay = document.querySelector("#teleprompter-overlay");
 const teleprompterSummary = document.querySelector("#teleprompter-summary");
 const submitButton = document.querySelector("#translate-action");
@@ -464,6 +465,10 @@ function clearOutputs() {
   closeTeleprompter();
   latestMessageText = "";
   copyMessageButton.disabled = true;
+  if (openTeleprompterButton) {
+    openTeleprompterButton.hidden = true;
+    openTeleprompterButton.disabled = true;
+  }
   setCopyButtonLabel("Copy");
   setTeleprompterSummary("");
   teleprompter.setLines([]);
@@ -472,6 +477,11 @@ function clearOutputs() {
 function updateOutputs(translation, meta = {}) {
   latestMessageText = translation?.primary || "";
   copyMessageButton.disabled = !latestMessageText;
+  if (openTeleprompterButton) {
+    const ready = Boolean(latestMessageText);
+    openTeleprompterButton.hidden = !ready;
+    openTeleprompterButton.disabled = !ready;
+  }
   setCopyButtonLabel("Copy");
   if (meta.mode === "openai") {
     setTeleprompterSummary();
@@ -548,10 +558,6 @@ function hydrateDraft() {
 
     updateVoicePreview(draft.message || "");
 
-    if ((draft.message || "").trim() || (draft.situation || "").trim()) {
-      generateTranslation();
-    }
-
     return true;
   } catch {
     return false;
@@ -588,6 +594,7 @@ form.addEventListener("change", () => {
 
 document.querySelector("#reset-form").addEventListener("click", resetForm);
 closeTeleprompterButton.addEventListener("click", closeTeleprompter);
+openTeleprompterButton?.addEventListener("click", openTeleprompter);
 plusButton?.addEventListener("click", (event) => {
   event.preventDefault();
   showPlusModal();
