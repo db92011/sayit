@@ -46,8 +46,7 @@
 
         var previewMode = previewParam;
 
-        var pwaLaunch = url.searchParams.get("source") === "pwa";
-        var allowApp = isLocalHost || isStandalone || pwaLaunch || previewAllowed;
+        var allowApp = isLocalHost || isStandalone || previewAllowed;
 
         if (!allowApp) {
           window.location.replace("/#install");

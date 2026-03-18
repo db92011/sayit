@@ -25,6 +25,23 @@
     <meta property="og:type" content="website" />
     <link rel="stylesheet" href="/style.css" />
     <script>
+      (function () {
+        var url = new URL(window.location.href);
+        var isStandalone = false;
+        try {
+          isStandalone =
+            window.matchMedia("(display-mode: standalone)").matches ||
+            window.navigator.standalone === true ||
+            document.referrer.indexOf("android-app://") === 0;
+        } catch (error) {}
+
+        var pwaLaunch = url.searchParams.get("source") === "pwa";
+        if (isStandalone || pwaLaunch) {
+          window.location.replace("/app");
+        }
+      })();
+    </script>
+    <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker.register("/service-worker.js").catch(() => {});
