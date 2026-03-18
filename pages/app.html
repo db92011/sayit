@@ -6,7 +6,12 @@
     <title>SayIt!</title>
     <meta name="theme-color" content="#20a8ff" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SayIt!" />
+    <link rel="apple-touch-icon" href="/assets/sayit-app-icon.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/assets/sayit-app-icon.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/assets/sayit-app-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/sayit-app-icon.png" />
 
     <script>
       (function () {
@@ -64,8 +69,14 @@
     </script>
 
     <link rel="manifest" href="/site.webmanifest" />
-    <link rel="apple-touch-icon" href="/assets/sayit-app-icon.png" />
     <link rel="stylesheet" href="/app.css" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/service-worker.js").catch(() => {});
+        });
+      }
+    </script>
   </head>
   <body class="app">
     <div class="page">
