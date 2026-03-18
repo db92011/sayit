@@ -57,6 +57,8 @@ const plusContinueButton = document.querySelector("#plusContinueBtn");
 const counterText = document.querySelector("#counterText");
 const deviceLimitMessage = document.querySelector("#deviceLimitMsg");
 const manageDevicesButton = document.querySelector("#manageDevicesLink");
+const runtimeModeNode = document.querySelector("#runtimeMode");
+const launchModeNote = document.querySelector("#launchModeNote");
 
 const fields = {
   recipient: document.querySelector("#recipient"),
@@ -80,6 +82,58 @@ let latestMessageText = "";
 let continueBusy = false;
 let removeBusy = false;
 let appLocked = false;
+
+function detectRuntimeMode() {
+  const initialMode = String(window.__SAYIT_RUNTIME_MODE__ || "").trim();
+  if (initialMode === "standalone" || initialMode === "preview" || initialMode === "browser") {
+    return initialMode;
+  }
+
+  try {
+    if (
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true ||
+      document.referrer.indexOf("android-app://") === 0
+    ) {
+      return "standalone";
+    }
+  } catch {}
+
+  return "browser";
+}
+
+function refreshRuntimeModeUi() {
+  const runtimeMode = detectRuntimeMode();
+  window.__SAYIT_RUNTIME_MODE__ = runtimeMode;
+
+  if (runtimeModeNode) {
+    runtimeModeNode.classList.remove("is-standalone", "is-browser", "is-preview");
+
+    if (runtimeMode === "standalone") {
+      runtimeModeNode.textContent = "Installed app";
+      runtimeModeNode.classList.add("is-standalone");
+    } else if (runtimeMode === "preview") {
+      runtimeModeNode.textContent = "Preview mode";
+      runtimeModeNode.classList.add("is-preview");
+    } else {
+      runtimeModeNode.textContent = "Safari/browser";
+      runtimeModeNode.classList.add("is-browser");
+    }
+  }
+
+  if (launchModeNote) {
+    if (runtimeMode === "browser") {
+      launchModeNote.hidden = false;
+      launchModeNote.textContent = "This screen is still in Safari. Add SayIt! to your Home Screen, close Safari, then open the new icon to get the app view.";
+    } else if (runtimeMode === "preview") {
+      launchModeNote.hidden = false;
+      launchModeNote.textContent = "Preview mode is only for testing. Install SayIt! and open the Home Screen icon for the real app launch.";
+    } else {
+      launchModeNote.hidden = true;
+      launchModeNote.textContent = "";
+    }
+  }
+}
 
 function isLocalPreviewHost() {
   return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
@@ -744,6 +798,7 @@ async function copyLatestMessage() {
 clearOutputs();
 syncPlusStateFromUrl();
 refreshPlusUi();
+refreshRuntimeModeUi();
 syncPlusFromServer();
 enforceAccessGate();
 
@@ -882,3 +937,10 @@ if (!hydrateDraft()) {
 }
 
 syncTeleprompterControls();
+
+window.addEventListener("pageshow", refreshRuntimeModeUi);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    refreshRuntimeModeUi();
+  }
+});

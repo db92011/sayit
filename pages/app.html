@@ -58,6 +58,8 @@
           }
         }
 
+        window.__SAYIT_RUNTIME_MODE__ = previewMode ? "preview" : isStandalone ? "standalone" : "browser";
+
         if (!isStandalone && !previewMode) {
           document.documentElement.classList.add("browser-hosted");
         }
@@ -89,6 +91,7 @@
             <div class="brandText">
               <strong>SayIt!</strong>
               <p>Clearer conversations, in your own voice.</p>
+              <p id="runtimeMode" class="runtime-mode" aria-live="polite">Checking launch mode...</p>
             </div>
           </div>
 
@@ -257,6 +260,8 @@
           <div class="modalFine">
             $2/month · Stripe handles billing
           </div>
+
+          <p id="launchModeNote" class="launch-mode-note" hidden></p>
 
           <label class="modalLabel" for="plusEmail">Email</label>
           <input
