@@ -955,6 +955,15 @@ body.teleprompter-open {
 }
 
 @media (max-width: 720px) {
+  html,
+  body {
+    height: 100%;
+  }
+
+  body.app {
+    overflow: hidden;
+  }
+
   body {
     background:
       radial-gradient(1200px 600px at 10% 0%, rgba(32, 168, 255, 0.2) 0%, transparent 60%),
@@ -964,23 +973,34 @@ body.teleprompter-open {
 
   .page {
     width: 100vw;
+    height: 100dvh;
+    min-height: 100dvh;
     padding: 0;
     padding-bottom: calc(12px + var(--counter-h) + var(--safe-bottom));
+    overflow: hidden;
   }
 
   .shell {
     max-width: none;
     width: 100vw;
-    min-height: 100vh;
+    height: calc(100dvh - (12px + var(--counter-h) + var(--safe-bottom)));
+    min-height: calc(100dvh - (12px + var(--counter-h) + var(--safe-bottom)));
     border-radius: 0;
     border-left: 0;
     border-right: 0;
     border-top: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
   }
 
   .main {
     padding: 12px;
     grid-template-columns: 1fr;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    align-content: start;
   }
 
   .row2 {
