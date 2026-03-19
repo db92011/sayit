@@ -170,7 +170,7 @@ function refreshPlusUi() {
     return;
   }
 
-  counterText.textContent = isSayItProActive() ? "SayIt! Pro subscribed" : "Better yet, SayIt! Pro";
+  counterText.textContent = isSayItProActive() ? "Registered" : "";
 }
 
 function showPlusModal() {
@@ -494,14 +494,12 @@ function syncPlusStateFromUrl() {
 function updateVoicePreview(text = "", { fromVoice = false } = {}) {
   const nextText = String(text || "").trim();
   const showPreview = fromVoice && Boolean(nextText);
-  voicePreview.textContent = showPreview ? "Voice draft captured. You can edit it in the message box below." : "";
+  voicePreview.textContent = showPreview ? "Voice draft captured. You can refine it before you generate." : "";
   voicePreview.classList.toggle("has-content", showPreview);
 }
 
 function setTeleprompterSummary(text = "") {
-  teleprompterSummary.textContent =
-    text ||
-    "Copy or use teleprompter once your message is ready.";
+  teleprompterSummary.textContent = text || "";
 }
 
 function setVoiceStatus(text) {
@@ -657,15 +655,10 @@ function updateOutputs(translation, meta = {}) {
 
   if (meta.mode === "openai") {
     setTeleprompterSummary();
-    setVoiceStatus("OpenAI rewrite is active. You can adjust your message and generate again any time.");
+    setVoiceStatus("");
   } else if (meta.source === "local" || meta.mode === "rule-based") {
-    if (isLocalPreviewHost()) {
-      setTeleprompterSummary("Local preview is using the built-in fallback rewrite.");
-      setVoiceStatus("Add your OpenAI key in .dev.vars to preview the live AI rewrite.");
-    } else {
-      setTeleprompterSummary("Live rewrite is temporarily unavailable, so SayIt used the built-in fallback.");
-      setVoiceStatus("You can still edit your draft and generate again any time.");
-    }
+    setTeleprompterSummary("");
+    setVoiceStatus("");
   } else {
     setTeleprompterSummary();
   }

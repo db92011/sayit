@@ -8,7 +8,7 @@ function buildFallback(payload, reason) {
     translation: buildTranslation(payload),
     meta: {
       source: "local",
-      label: "Local engine fallback",
+      label: "Local rewrite mode",
       reason
     }
   };

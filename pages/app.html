@@ -19,7 +19,8 @@
 
         var iosStandalone = window.navigator.standalone === true;
         var displayStandalone = window.matchMedia("(display-mode: standalone)").matches;
-        var isStandalone = iosStandalone || displayStandalone;
+        var androidStandaloneReferrer = document.referrer.indexOf("android-app://") === 0;
+        var isStandalone = iosStandalone || displayStandalone || androidStandaloneReferrer;
         var isNativeApp = false;
         try {
           isNativeApp =
@@ -27,16 +28,10 @@
             /Capacitor/i.test(window.navigator.userAgent || "");
         } catch (error) {}
 
-        console.log("iosStandalone:", iosStandalone);
-        console.log("displayStandalone:", displayStandalone);
-        console.log("inStandalone:", isStandalone);
-        console.log("isNativeApp:", isNativeApp);
-
         document.documentElement.setAttribute("data-standalone", isStandalone ? "yes" : "no");
         document.documentElement.setAttribute("data-native-app", isNativeApp ? "yes" : "no");
 
         var previewParam = String(url.searchParams.get("preview") || "").trim();
-        var pwaLaunch = url.searchParams.get("source") === "pwa";
         if (previewParam) {
           try {
             sessionStorage.setItem("sayit_app_preview_allowed", "1");
@@ -54,7 +49,7 @@
 
         var previewMode = previewParam;
 
-        var allowApp = isLocalHost || isStandalone || isNativeApp || pwaLaunch || previewAllowed;
+        var allowApp = isLocalHost || isStandalone || isNativeApp || previewAllowed;
 
         if (!allowApp) {
           window.location.replace("/#install");
@@ -107,6 +102,11 @@
         <main class="main">
           <form id="intake-form" class="intake-form">
             <section class="panel app-section intake-card">
+              <div class="panelHeading">
+                <div class="panelEyebrow">Compose</div>
+                <p class="panelIntro">Shape the message before it leaves your mouth or your keyboard.</p>
+              </div>
+
               <label class="field field-short">
                 <span>Who are you talking to?</span>
                 <input
@@ -172,7 +172,7 @@
                   id="situation"
                   name="situation"
                   rows="4"
-                  placeholder="Is there anything you left out before you hit generate? You can add it here."
+                  placeholder="Add more information here."
                 ></textarea>
               </label>
 
@@ -182,15 +182,12 @@
                   id="message"
                   name="message"
                   rows="7"
-                  placeholder="Type it exactly how it came out in your head. Messy is fine."
+                  placeholder=""
                 ></textarea>
-                <span class="field-hint">Type it, paste it, or use Record and we'll write into this box.</span>
               </label>
 
               <p id="voice-preview" class="voice-preview"></p>
-              <p id="voice-status" class="voice-status">
-                Type it, or tap Record if you want to talk it out first.
-              </p>
+              <p id="voice-status" class="voice-status"></p>
 
               <div class="voice-actions">
                 <button
@@ -205,13 +202,16 @@
                 </button>
               </div>
 
-              <p id="teleprompter-summary" class="teleprompter-summary">
-                Copy or use teleprompter once your message is ready.
-              </p>
+              <p id="teleprompter-summary" class="teleprompter-summary"></p>
             </section>
           </form>
 
           <section class="panel resultWrap">
+            <div class="panelHeading resultHeading">
+              <div class="panelEyebrow">Refined draft</div>
+              <p class="panelIntro">Your cleaner version appears here, ready to copy or read aloud.</p>
+            </div>
+
             <div class="resultTop">
               <label for="result">Result</label>
               <div class="badgeCount">
@@ -219,7 +219,7 @@
               </div>
             </div>
 
-            <textarea id="result" readonly placeholder="Your cleaned-up message shows up here..."></textarea>
+            <textarea id="result" readonly placeholder=""></textarea>
 
             <div class="resultActions">
               <button type="button" id="copy-result" class="ghost-button">Copy</button>
@@ -232,7 +232,7 @@
     </div>
 
     <div class="counterBar" aria-live="polite">
-      <span id="counterText">Better yet, SayIt! Pro</span>
+      <span id="counterText"></span>
     </div>
 
     <div id="plusModal" class="modalOverlay" hidden>
@@ -243,9 +243,9 @@
               <img class="modalLogoImg" src="/assets/sayit-app-icon.png" alt="SayIt!" />
             </div>
             <div>
-              <div id="plusTitle" class="modalTitle">Start here</div>
+              <div id="plusTitle" class="modalTitle">Unlock SayIt! Pro</div>
               <div class="modalSub">
-                One-time setup. After this, SayIt! just works.
+                Use your email to restore access or start a subscription.
               </div>
             </div>
           </div>
@@ -253,8 +253,8 @@
 
         <div class="modalBody">
           <ul class="modalList">
-            <li><strong>Already paying?</strong> This unlocks SayIt! Pro on this device.</li>
-            <li><strong>Not paying yet?</strong> You’ll go to Stripe to subscribe.</li>
+            <li><strong>Already subscribed?</strong> We’ll unlock this device for your account.</li>
+            <li><strong>New to Pro?</strong> We’ll send you to Stripe to finish setup.</li>
           </ul>
 
           <div class="modalFine">
@@ -284,7 +284,7 @@
 
         <div class="modalActions">
           <button id="plusCancelBtn" type="button" class="ghost-button">Cancel</button>
-          <button id="plusContinueBtn" type="button" class="primary-button">Register</button>
+          <button id="plusContinueBtn" type="button" class="primary-button">Continue</button>
         </div>
       </div>
     </div>

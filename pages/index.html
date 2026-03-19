@@ -9,9 +9,6 @@
       content="SayIt! helps you say the hard thing clearly, calmly, and in your own voice."
     />
     <meta name="theme-color" content="#0b0f14" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="SayIt!" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon-180.png" />
     <meta property="og:title" content="SayIt! | Clearer conversations" />
@@ -21,27 +18,6 @@
     />
     <meta property="og:type" content="website" />
     <link rel="stylesheet" href="/style.css" />
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/service-worker.js").catch(() => {});
-        });
-      }
-    </script>
-    <script>
-      (function () {
-        var isNativeApp = false;
-        try {
-          isNativeApp =
-            window.Capacitor?.isNativePlatform?.() === true ||
-            /Capacitor/i.test(window.navigator.userAgent || "");
-        } catch (error) {}
-
-        if (isNativeApp) {
-          window.location.replace("/app");
-        }
-      })();
-    </script>
   </head>
   <body class="sayit-install">
     <a class="skip" href="#main">Skip to content</a>
@@ -162,17 +138,25 @@
         <div class="sayit-wrap">
           <h2 class="section-title">Install</h2>
           <p class="section-sub">
-            Install SayIt to your device from the standalone app, then open it and use <strong>Register</strong> in the footer when you are ready for Pro.
+            SayIt is install-only. This page is the installer and instructions.
           </p>
+          <div class="how-card">
+            <p>
+              <strong>Why we do not use app stores</strong><br />
+              SayIt is not in an app store on purpose. App stores take a cut, impose rules, and push products into a bigger, more expensive ecosystem than this app needs.
+            </p>
+            <p>
+              We would rather keep SayIt lightweight, powerful, easy on your device, privacy-respecting, and affordable at just $2/month.
+            </p>
+          </div>
 
           <div class="install-grid">
             <div class="install-card" id="install-ios">
               <h3>iPhone / iPad (Safari)</h3>
               <ol>
                 <li>Open the standalone SayIt app in <strong>Safari</strong>.</li>
-                <li>Tap the <strong>Share</strong> button, then choose <strong>Add to Home Screen</strong>.</li>
-                <li>Open SayIt! from your Home Screen.</li>
-                <li>Inside the app, tap <strong>Register</strong> to unlock SayIt! Pro.</li>
+                <li>Tap <strong>Share</strong>, then <strong>More</strong>, then <strong>Add to Home Screen</strong>.</li>
+                <li>Open SayIt from your Home Screen.</li>
               </ol>
               <div class="small-note">Install the standalone SayIt app, not the Circle marketing page. If you do not see “Add to Home Screen,” you are probably not in Safari.</div>
             </div>
@@ -181,19 +165,17 @@
               <h3>Android (Chrome)</h3>
               <ol>
                 <li>Open the standalone SayIt app in <strong>Chrome</strong>.</li>
-                <li>Tap the <strong>⋮</strong> menu.</li>
                 <li>Tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li>
-                <li>Open SayIt! from your home screen and use <strong>Register</strong> inside the app.</li>
+                <li>Open SayIt from your Home Screen.</li>
               </ol>
             </div>
 
             <div class="install-card" id="install-desktop">
               <h3>Mac / Windows</h3>
               <ol>
-                <li>Open the standalone SayIt app in <strong>Chrome</strong>, <strong>Edge</strong>, or <strong>Safari</strong>.</li>
-                <li>Use the browser install option or add it to your Dock.</li>
-                <li>Open SayIt! like a normal app.</li>
-                <li>Use <strong>Register</strong> inside the app when you want Pro.</li>
+                <li><strong>Mac:</strong> Open in <strong>Safari</strong>, then use <strong>Share</strong> and <strong>Add to Dock</strong>.</li>
+                <li><strong>Windows:</strong> Open in <strong>Chrome</strong> or <strong>Edge</strong>, then choose <strong>Install app</strong>.</li>
+                <li>Open SayIt like a normal app.</li>
               </ol>
               <div class="small-note">SayIt! Pro is $2/month and limited to 2 devices. If you hit a third device, the app can remove your oldest seat directly.</div>
             </div>
