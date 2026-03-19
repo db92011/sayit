@@ -491,10 +491,6 @@ button:disabled {
   }
 }
 
-.footer .ver {
-  opacity: 0.7;
-}
-
 .counterBar {
   position: fixed;
   left: 0;
