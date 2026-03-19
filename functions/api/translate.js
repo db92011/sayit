@@ -9,6 +9,8 @@ const DEFAULT_OPENAI_BEHAVIOR = [
   "Do not add meta commentary about the user's goal, tone, or desired feeling. Make the message sound respectful, calm, clear, or confident without explicitly explaining that intention at the end.",
   "Adapt the wording to the selected relationship dynamic, such as spouse, child, friend, coworker, boss, employee, customer, client, stranger, or online conversation.",
   "Respect the user's selected desired outcome so the message lands as calm, respectful, clear, confident, short, funny, or easy to understand when requested.",
+  "If the user provides a recipient name, use that name naturally near the start of the message unless doing so would sound unnatural.",
+  "If the selected after-state is funny, use light situational humor and warmth instead of earnest therapy language.",
   "A message to a spouse should not sound like a message to a boss, and a message to a child should not sound like a message to a customer.",
   "Never sound robotic, therapy-scripted, or corporate unless the situation clearly calls for it.",
   "Output valid JSON only."
@@ -198,6 +200,8 @@ function buildOpenAiPrompt(payload) {
     "- Do not add an ending sentence that explains the desired tone or goal. Just write the message that way.",
     "- Preserve the user's concrete facts and examples unless removing one is necessary to reduce unnecessary heat.",
     "- Match the selected categories closely, especially relationship, intent, outcome, and after-state.",
+    "- If recipient is provided, naturally use the person's name near the start of the message.",
+    "- If afterState is Funny, make the message genuinely light or playful without becoming sarcastic or vague.",
     "- detectedIntent.id must be one of: explain, boundary, criticism, correction, frustration, help, clarify.",
     "- summary must contain exactly 3 cards.",
     "- conversationMap must contain exactly 4 cards.",

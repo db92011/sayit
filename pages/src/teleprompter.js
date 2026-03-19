@@ -1,7 +1,7 @@
 const SPEED_MAP = {
-  slow: 34,
-  medium: 54,
-  fast: 78
+  slow: 52,
+  medium: 82,
+  fast: 118
 };
 
 export class TeleprompterController {
@@ -96,7 +96,7 @@ export class TeleprompterController {
 
   reset() {
     this.stop();
-    this.script.scrollTop = 0;
+    this.centerLine(0);
     this.updateHighlight();
     this.notifyStateChange();
   }
@@ -170,6 +170,18 @@ export class TeleprompterController {
 
   getMaxScrollTop() {
     return Math.max(0, this.script.scrollHeight - this.script.clientHeight);
+  }
+
+  centerLine(index = 0) {
+    const line = this.lines[index];
+    if (!line) {
+      this.script.scrollTop = 0;
+      return;
+    }
+
+    const lineMidpoint = line.offsetTop + line.offsetHeight / 2;
+    const targetScrollTop = Math.max(0, lineMidpoint - this.script.clientHeight / 2);
+    this.script.scrollTop = Math.min(targetScrollTop, this.getMaxScrollTop());
   }
 
   notifyStateChange() {

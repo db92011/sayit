@@ -17,6 +17,7 @@
   --radius: 22px;
   --pad: 18px;
   --counter-h: 78px;
+  --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -444,16 +445,6 @@ button:disabled {
   margin-top: 12px;
 }
 
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 14px 18px 18px;
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 14px;
-}
-
 @media (min-width: 960px) {
   .page {
     padding: 24px;
@@ -860,7 +851,7 @@ body.teleprompter-open {
   left: 0;
   right: 0;
   top: 50%;
-  height: 11rem;
+  height: 10rem;
   transform: translateY(-50%);
   border-top: 1px solid rgba(174, 235, 133, 0.34);
   border-bottom: 1px solid rgba(174, 235, 133, 0.34);
@@ -898,7 +889,7 @@ body.teleprompter-open {
 .teleprompter-script {
   height: 100%;
   overflow-y: auto;
-  padding: 43vh clamp(1.35rem, 3vw, 2.5rem) 37vh;
+  padding: 38vh clamp(1.35rem, 3vw, 2.5rem) 34vh;
   scrollbar-width: none;
   position: relative;
   z-index: 2;
@@ -909,11 +900,11 @@ body.teleprompter-open {
 }
 
 .teleprompter-script > * {
-  max-width: 15ch;
+  max-width: 16ch;
 }
 
 .teleprompter-end-spacer {
-  height: 58vh;
+  height: 54vh;
   min-height: 260px;
 }
 
@@ -972,6 +963,7 @@ body.teleprompter-open {
     height: 100dvh;
     min-height: 100dvh;
     padding: 0;
+    padding-top: var(--safe-top);
     padding-bottom: calc(12px + var(--counter-h) + var(--safe-bottom));
     overflow: hidden;
   }
@@ -979,8 +971,8 @@ body.teleprompter-open {
   .shell {
     max-width: none;
     width: 100vw;
-    height: calc(100dvh - (12px + var(--counter-h) + var(--safe-bottom)));
-    min-height: calc(100dvh - (12px + var(--counter-h) + var(--safe-bottom)));
+    height: calc(100dvh - var(--safe-top) - (12px + var(--counter-h) + var(--safe-bottom)));
+    min-height: calc(100dvh - var(--safe-top) - (12px + var(--counter-h) + var(--safe-bottom)));
     border-radius: 0;
     border-left: 0;
     border-right: 0;
@@ -1004,7 +996,7 @@ body.teleprompter-open {
   }
 
   .header {
-    padding: 14px 14px 14px;
+    padding: 12px 14px 14px;
   }
 
   .brand {
@@ -1113,7 +1105,7 @@ body.teleprompter-open {
   }
 
   .teleprompter-script {
-    padding: 32vh 1.05rem 26vh;
+    padding: 30vh 1.05rem 24vh;
   }
 
   .teleprompter-script > * {
@@ -1126,7 +1118,7 @@ body.teleprompter-open {
   }
 
   .teleprompter-highlight-guide {
-    height: 6.9rem;
+    height: 7.4rem;
   }
 
   .teleprompter-line,
@@ -1186,11 +1178,6 @@ body.teleprompter-open {
     max-width: 84vw;
   }
 
-  .footer {
-    padding: 12px 14px 14px;
-    font-size: 13px;
-  }
-
   #situation {
     min-height: 5rem;
   }
@@ -1241,11 +1228,11 @@ body.teleprompter-open {
   }
 
   .teleprompter-script {
-    padding: 30vh 0.95rem 23vh;
+    padding: 28vh 0.95rem 22vh;
   }
 
   .teleprompter-highlight-guide {
-    height: 6.4rem;
+    height: 7rem;
   }
 
   .teleprompter-line,

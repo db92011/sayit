@@ -34,25 +34,27 @@ test("buildTranslation creates a primary draft, concise draft, and teleprompter 
   assert.ok(translation.teleprompterLines.length >= 2);
   assert.equal(translation.summary.length, 3);
   assert.equal(translation.conversationMap.length, 4);
-  assert.equal(translation.toneMap.length, 2);
+  assert.ok(translation.toneMap.length >= 2);
   assert.match(translation.diagnostics.intensityLabel, /Low|Medium|High/);
 });
 
 test("buildTranslation treats after-state as delivery style instead of outcome text", () => {
   const translation = buildTranslation({
-    recipient: "My partner",
+    recipient: "Tanya",
     relationship: "Spouse or partner",
     situation: "A small test message.",
-    message: "Testing one, two, three.",
+    message: "I am tired of doing the dishes alone.",
     intent: "auto",
     outcome: "",
     afterState: "Funny",
-    tones: ["gentle"]
+    tones: []
   });
 
   assert.doesNotMatch(translation.primary, /What I want from this conversation is simple: funny\./i);
   assert.doesNotMatch(translation.primary, /feel funny instead of reactive/i);
-  assert.match(translation.primary, /I want to say this clearly and respectfully|I care about us/i);
+  assert.match(translation.primary, /^Tanya,/i);
+  assert.match(translation.primary, /dishes start acting like permanent residents|apparently employed by the sink/i);
+  assert.doesNotMatch(translation.primary, /I care about us, so I want to say this with love and respect\./i);
 });
 
 test("buildTranslation rewrites heated cleanup drafts instead of echoing them back", () => {
@@ -69,6 +71,18 @@ test("buildTranslation rewrites heated cleanup drafts instead of echoing them ba
   assert.match(translation.primary, /cleanup has been landing on me|share the dishes and cleanup/i);
   assert.doesNotMatch(translation.primary, /mess that you've created|hi hi honey|doing the dishes for years/i);
   assert.ok(translation.teleprompterLines.every((line) => !/mess that you've created/i.test(line)));
+});
+
+test("buildTranslation uses the provided recipient name near the start", () => {
+  const translation = buildTranslation({
+    recipient: "Tanya",
+    relationship: "Spouse or partner",
+    message: "I need more help with the dishes.",
+    afterState: "Respectful"
+  });
+
+  assert.match(translation.primary, /^Tanya,/i);
+  assert.match(translation.concise, /^Tanya,/i);
 });
 
 test("buildTranslation keeps concrete cleanup details from a typed draft", () => {

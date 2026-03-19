@@ -223,6 +223,17 @@ const TONE_GUIDANCE = {
   }
 };
 
+const AFTER_STATE_TONES = {
+  Clear: ["clear", "calm"],
+  Respectful: ["gentle", "clear", "calm"],
+  Calm: ["calm", "gentle", "clear"],
+  Smart: ["clear", "confident", "professional"],
+  Short: ["direct", "clear"],
+  Confident: ["confident", "direct", "clear"],
+  Funny: ["funny", "friendly", "clear"],
+  "Easy to understand": ["clear", "calm"]
+};
+
 function normalizeWhitespace(text = "") {
   return text.replace(/\s+/g, " ").trim();
 }
@@ -271,9 +282,13 @@ export function detectIntent({ message = "", situation = "", outcome = "" }) {
   return winner;
 }
 
-function chooseTones(tones = [], relationship = "") {
-  if (Array.isArray(tones) && tones.length > 0) {
-    return tones;
+function chooseTones(tones = [], relationship = "", afterState = "") {
+  const explicit = Array.isArray(tones) ? tones.filter(Boolean) : [];
+  const derived = AFTER_STATE_TONES[String(afterState || "").trim()] || [];
+  const combined = [...new Set([...explicit, ...derived])];
+
+  if (combined.length > 0) {
+    return combined;
   }
 
   const relationshipTones = RELATIONSHIP_GUIDANCE[relationship]?.tones;
@@ -281,23 +296,37 @@ function chooseTones(tones = [], relationship = "") {
     return relationshipTones;
   }
 
-  if (!Array.isArray(tones) || tones.length === 0) {
+  if (combined.length === 0) {
     return ["clear", "calm"];
   }
 
-  return tones;
+  return combined;
 }
 
-function buildToneLead(tones, relationship) {
-  const active = chooseTones(tones, relationship);
+function buildToneLead(tones, relationship, afterState = "", recipient = "") {
+  const active = chooseTones(tones, relationship, afterState);
   const relationshipLead = RELATIONSHIP_GUIDANCE[relationship]?.lead;
   const parts = [];
+  const recipientName = normalizeWhitespace(recipient);
+  const recipientLead = recipientName ? `${recipientName},` : "";
 
-  if (relationshipLead) {
+  if (recipientLead) {
+    parts.push(recipientLead);
+  }
+
+  if (active.includes("funny")) {
+    if (relationship === "Spouse or partner") {
+      parts.push("I love you, and I need to say this before the dishes start acting like permanent residents.");
+    } else if (recipientName) {
+      parts.push(`Tiny bit of humor, ${recipientName}, but I do mean this.`);
+    } else {
+      parts.push("Tiny bit of humor here, but I do mean this.");
+    }
+  } else if (relationshipLead) {
     parts.push(relationshipLead);
   }
 
-  if (active.includes("friendly")) {
+  if (active.includes("friendly") && !active.includes("funny")) {
     parts.push(relationship ? `I value our ${relationship.toLowerCase()} dynamic.` : "I value our relationship.");
   }
 
@@ -310,7 +339,7 @@ function buildToneLead(tones, relationship) {
   }
 
   if (active.includes("funny")) {
-    parts.push("No drama, just honesty.");
+    parts.push("I am trying to keep this light without losing the point.");
   }
 
   return parts.join(" ");
@@ -392,12 +421,16 @@ function isCleanupTopic(haystack = "") {
   return /(dish|dishes|cleanup|clean up|mess|sink|kitchen)/i.test(haystack);
 }
 
-function buildConcernStatement(input, intentId) {
+function buildConcernStatement(input, intentId, tones = []) {
   const situation = condenseMessage(input.situation || "");
   const messageClauses = extractUsefulClauses(input.message || "");
   const haystack = `${input.message || ""} ${input.situation || ""}`.toLowerCase();
 
   if (isCleanupTopic(haystack)) {
+    if (tones.includes("funny")) {
+      return "The kitchen has started feeling like the dishes have squatters' rights, and I am worn down by how much of the cleanup keeps landing on me.";
+    }
+
     if (/(pile|piling|sink|dirty)/i.test(haystack) && /(cook|cooking|every time|leave)/i.test(haystack)) {
       return "I have been feeling worn down because the dishes and sink cleanup keep piling up, especially when I end up cleaning after we cook.";
     }
@@ -443,12 +476,16 @@ function buildConcernStatement(input, intentId) {
   return `What has been hard for me is that ${firstClause.charAt(0).toLowerCase()}${firstClause.slice(1)}`;
 }
 
-function buildRequestStatement(input, intentId) {
+function buildRequestStatement(input, intentId, tones = []) {
   const message = condenseMessage(input.message || "");
   const messageClauses = extractUsefulClauses(input.message || "");
   const haystack = `${input.message || ""} ${input.situation || ""}`.toLowerCase();
 
   if (isCleanupTopic(haystack)) {
+    if (tones.includes("funny")) {
+      return "I need us to split the dishes and kitchen cleanup more evenly so I am not the only one apparently employed by the sink.";
+    }
+
     if (/(help|support|work with me|share|pitch in|hand)/i.test(haystack)) {
       return "I need more help with the dishes and kitchen cleanup instead of handling it by myself.";
     }
@@ -525,7 +562,7 @@ function buildProof(proof = "", outcome = "", intentLabel = "") {
 
 function buildNotes({ barrier, outcome, beforeState, tones, intensity }) {
   const notes = [];
-  const active = chooseTones(tones);
+  const active = Array.isArray(tones) && tones.length > 0 ? tones : ["clear", "calm"];
 
   if (beforeState) {
     notes.push(`Shift from "${beforeState.toLowerCase()}" into a steadier delivery.`);
@@ -618,7 +655,7 @@ function buildConversationMap({ recipient, relationship, barrier, beforeState, a
 }
 
 function buildToneMap(tones = []) {
-  return chooseTones(tones).map((tone) => ({
+  return (Array.isArray(tones) ? tones : []).map((tone) => ({
     tone,
     label: TONE_GUIDANCE[tone]?.label || tone,
     action: TONE_GUIDANCE[tone]?.action || "Shape the rewrite with this tone."
@@ -643,11 +680,11 @@ export function buildTranslation(input) {
   const detectedIntent = detectIntent(input);
   const intentId = input.intent && input.intent !== "auto" ? input.intent : detectedIntent.id;
   const intentData = INTENT_COPY[intentId] || INTENT_COPY.explain;
-  const tones = chooseTones(input.tones, input.relationship);
+  const tones = chooseTones(input.tones, input.relationship, input.afterState);
   const intensity = detectIntensity(message);
-  const toneLead = buildToneLead(tones, input.relationship);
-  const concern = buildConcernStatement(input, intentId);
-  const ask = buildRequestStatement(input, intentId);
+  const toneLead = buildToneLead(tones, input.relationship, input.afterState, input.recipient);
+  const concern = buildConcernStatement(input, intentId, tones);
+  const ask = buildRequestStatement(input, intentId, tones);
   const closer = buildOutcomeCloser(input.outcome, input.afterState);
   const proof = buildProof(input.proof, input.outcome, detectedIntent.label);
   const notes = buildNotes({
@@ -659,7 +696,7 @@ export function buildTranslation(input) {
   });
   const notesWithRelationship = [...relationshipNotes(input.relationship), ...notes].slice(0, 4);
 
-  const shouldSkipGenericOpener = isCleanupTopic(haystack) && intentId === "help";
+  const shouldSkipGenericOpener = isCleanupTopic(haystack) && (intentId === "help" || tones.includes("funny"));
   const mainParts = [
     toneLead,
     shouldSkipGenericOpener ? "" : intentData.opener,
@@ -669,7 +706,10 @@ export function buildTranslation(input) {
   ].filter(Boolean);
 
   const primary = mainParts.join(" ");
-  const concise = [toneLead, concern, ask].filter(Boolean).slice(0, 3).join(" ");
+  const concise = [input.recipient ? `${normalizeWhitespace(input.recipient)},` : "", concern, ask]
+    .filter(Boolean)
+    .slice(0, 3)
+    .join(" ");
   const toneMap = buildToneMap(tones);
   const intentLabel =
     (INTENT_COPY[intentId] ? INTENT_RULES.find((item) => item.id === intentId) : detectedIntent)?.label ||
