@@ -57,8 +57,6 @@ const plusContinueButton = document.querySelector("#plusContinueBtn");
 const counterText = document.querySelector("#counterText");
 const deviceLimitMessage = document.querySelector("#deviceLimitMsg");
 const manageDevicesButton = document.querySelector("#manageDevicesLink");
-const runtimeModeNode = document.querySelector("#runtimeMode");
-const launchModeNote = document.querySelector("#launchModeNote");
 
 const fields = {
   recipient: document.querySelector("#recipient"),
@@ -100,31 +98,6 @@ function refreshRuntimeModeUi() {
   const runtimeMode = detectRuntimeMode();
   document.documentElement.setAttribute("data-standalone", runtimeMode === "standalone" ? "yes" : "no");
   document.documentElement.setAttribute("data-native-app", runtimeMode === "native" ? "yes" : "no");
-
-  if (runtimeModeNode) {
-    runtimeModeNode.classList.remove("is-standalone", "is-browser");
-
-    if (runtimeMode === "standalone") {
-      runtimeModeNode.textContent = "Mode: Standalone App";
-      runtimeModeNode.classList.add("is-standalone");
-    } else if (runtimeMode === "native") {
-      runtimeModeNode.textContent = "Mode: Native App";
-      runtimeModeNode.classList.add("is-standalone");
-    } else {
-      runtimeModeNode.textContent = "Mode: Safari Browser";
-      runtimeModeNode.classList.add("is-browser");
-    }
-  }
-
-  if (launchModeNote) {
-    if (runtimeMode === "browser") {
-      launchModeNote.hidden = false;
-      launchModeNote.textContent = "This screen is still in Safari. Add SayIt! to your Home Screen, close Safari, then open the new icon to get the app view.";
-    } else {
-      launchModeNote.hidden = true;
-      launchModeNote.textContent = "";
-    }
-  }
 }
 
 function isLocalPreviewHost() {
