@@ -85,6 +85,30 @@ test("buildTranslation uses the provided recipient name near the start", () => {
   assert.match(translation.concise, /^Tanya,/i);
 });
 
+test("buildTranslation expands short spouse drafts with warmth", () => {
+  const translation = buildTranslation({
+    recipient: "Tanya",
+    relationship: "Spouse or partner",
+    message: "Need help with dishes.",
+    afterState: "Respectful"
+  });
+
+  assert.match(translation.primary, /loving and honest|You matter to me/i);
+  assert.match(translation.primary, /dishes|cleanup/i);
+});
+
+test("buildTranslation expands short boss drafts with professionalism", () => {
+  const translation = buildTranslation({
+    recipient: "Mara",
+    relationship: "Boss or supervisor",
+    message: "Need clarity on deadlines.",
+    afterState: "Confident"
+  });
+
+  assert.match(translation.primary, /professionally|next step easy to respond to/i);
+  assert.match(translation.primary, /^Mara,/i);
+});
+
 test("buildTranslation keeps concrete cleanup details from a typed draft", () => {
   const translation = buildTranslation({
     relationship: "Spouse or partner",

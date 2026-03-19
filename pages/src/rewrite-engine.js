@@ -662,6 +662,50 @@ function buildToneMap(tones = []) {
   }));
 }
 
+function isShortDraft(input) {
+  const combined = normalizeWhitespace(`${input.message || ""} ${input.situation || ""}`);
+  if (!combined) {
+    return true;
+  }
+
+  const wordCount = combined.split(/\s+/).filter(Boolean).length;
+  return wordCount <= 14;
+}
+
+function buildRelationshipSupport(relationship = "", tones = [], shortDraft = false) {
+  if (!shortDraft) {
+    return "";
+  }
+
+  if (relationship === "Spouse or partner") {
+    return tones.includes("funny")
+      ? "You matter to me, so I want to make this easier to hear than the version in my head."
+      : "You matter to me, so I want to say this in a way that still feels loving and honest.";
+  }
+
+  if (relationship === "Boss or supervisor") {
+    return "I want to handle this professionally and make the next step easy to respond to.";
+  }
+
+  if (relationship === "Coworker") {
+    return "I want to keep this practical, respectful, and easy to work from.";
+  }
+
+  if (relationship === "Friend") {
+    return "I care about our friendship, so I want to say this in a way that is honest without being harsh.";
+  }
+
+  if (relationship === "Child or teenager") {
+    return "I want to say this steadily so the point is clear without it sounding heavier than it needs to.";
+  }
+
+  if (relationship === "Customer" || relationship === "Client") {
+    return "I want this to sound thoughtful, clear, and easy to act on.";
+  }
+
+  return "";
+}
+
 function splitTeleprompterLines(text) {
   const parts = text
     .split(/(?<=[.!?])\s+/)
@@ -686,6 +730,7 @@ export function buildTranslation(input) {
   const concern = buildConcernStatement(input, intentId, tones);
   const ask = buildRequestStatement(input, intentId, tones);
   const closer = buildOutcomeCloser(input.outcome, input.afterState);
+  const relationshipSupport = buildRelationshipSupport(input.relationship, tones, isShortDraft(input));
   const proof = buildProof(input.proof, input.outcome, detectedIntent.label);
   const notes = buildNotes({
     barrier: input.barrier,
@@ -699,6 +744,7 @@ export function buildTranslation(input) {
   const shouldSkipGenericOpener = isCleanupTopic(haystack) && (intentId === "help" || tones.includes("funny"));
   const mainParts = [
     toneLead,
+    relationshipSupport,
     shouldSkipGenericOpener ? "" : intentData.opener,
     concern,
     ask,
