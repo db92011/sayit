@@ -1,7 +1,8 @@
 {
   "name": "SayIt!",
   "short_name": "SayIt!",
-  "start_url": "/",
+  "id": "/app",
+  "start_url": "/app",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0b0f14",

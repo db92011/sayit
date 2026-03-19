@@ -32,8 +32,7 @@
             document.referrer.indexOf("android-app://") === 0;
         } catch (error) {}
 
-        var pwaLaunch = url.searchParams.get("source") === "pwa";
-        if (isStandalone || pwaLaunch) {
+        if (isStandalone) {
           window.location.replace("/app");
         }
       })();
