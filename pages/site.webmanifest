@@ -1,7 +1,7 @@
 {
   "name": "SayIt!",
   "short_name": "SayIt!",
-  "start_url": "/?source=pwa",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0b0f14",

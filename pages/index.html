@@ -4,90 +4,437 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>SayIt!</title>
-    <meta
-      name="description"
-      content="SayIt! helps you say the hard thing clearly, calmly, and in your own voice."
-    />
     <meta name="theme-color" content="#0b0f14" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="SayIt!" />
-    <link rel="manifest" href="/site.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon-180.png" />
-    <style>
-      html,
-      body {
-        margin: 0;
-        min-height: 100%;
-        font-family:
-          -apple-system,
-          BlinkMacSystemFont,
-          "SF Pro Text",
-          "SF Pro Display",
-          system-ui,
-          "Segoe UI",
-          Roboto,
-          Arial,
-          sans-serif;
-        background: #0b0f14;
-        color: rgba(255, 255, 255, 0.92);
-      }
 
-      body {
-        display: grid;
-        place-items: center;
-        padding: 24px;
-      }
-
-      .handoff {
-        width: min(100%, 460px);
-        padding: 22px 20px;
-        border-radius: 22px;
-        background: rgba(17, 24, 39, 0.92);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
-      }
-
-      h1 {
-        margin: 0 0 10px;
-        font-size: 28px;
-        line-height: 1.04;
-      }
-
-      p {
-        margin: 0;
-        line-height: 1.5;
-        color: rgba(226, 232, 240, 0.88);
-      }
-
-      a {
-        color: #8bc9ff;
-      }
-    </style>
     <script>
       (function () {
         var url = new URL(window.location.href);
-        var next = new URL("/app", window.location.origin);
+        var manifestStart = "/";
+        var manifestScope = "/";
 
-        for (var entry of url.searchParams.entries()) {
-          next.searchParams.set(entry[0], entry[1]);
+        var iosStandalone = window.navigator.standalone === true;
+        var displayStandalone = window.matchMedia("(display-mode: standalone)").matches;
+        var androidStandaloneReferrer = document.referrer.indexOf("android-app://") === 0;
+        var isStandalone = iosStandalone || displayStandalone || androidStandaloneReferrer;
+        var isNativeApp = false;
+        try {
+          isNativeApp =
+            window.Capacitor?.isNativePlatform?.() === true ||
+            /Capacitor/i.test(window.navigator.userAgent || "");
+        } catch (error) {}
+
+        var mode = isNativeApp ? "native" : isStandalone ? "standalone" : "browser";
+        var topLevel = false;
+        try {
+          topLevel = window.top === window.self;
+        } catch (error) {}
+
+        var actualRoute = url.pathname + url.search;
+        var routeMatchesManifestStart = actualRoute === manifestStart;
+        var inManifestScope = url.pathname.indexOf(manifestScope) === 0;
+        var pwaLaunch = url.searchParams.get("source") === "pwa";
+        var previewParam = String(url.searchParams.get("preview") || "").trim();
+
+        window.__SAYIT_RUNTIME_DIAGNOSTIC__ = {
+          mode: mode,
+          iosStandalone: iosStandalone,
+          displayStandalone: displayStandalone,
+          androidStandaloneReferrer: androidStandaloneReferrer,
+          isNativeApp: isNativeApp,
+          topLevel: topLevel,
+          launchHref: window.location.href,
+          launchPath: url.pathname,
+          launchQuery: url.search || "",
+          actualRoute: actualRoute,
+          manifestStart: manifestStart,
+          manifestScope: manifestScope,
+          routeMatchesManifestStart: routeMatchesManifestStart,
+          inManifestScope: inManifestScope,
+          pwaLaunch: pwaLaunch,
+          referrer: document.referrer || "",
+          hasReferrer: Boolean(document.referrer),
+          redirectPlanned: false,
+          redirectTarget: "",
+          redirectLog: []
+        };
+
+        document.documentElement.setAttribute("data-standalone", isStandalone ? "yes" : "no");
+        document.documentElement.setAttribute("data-native-app", isNativeApp ? "yes" : "no");
+
+        if (previewParam) {
+          document.documentElement.dataset.previewMode = previewParam;
+          if (previewParam === "app-mobile") {
+            document.documentElement.classList.add("preview-app-mobile");
+          }
         }
 
-        if (!next.searchParams.has("source")) {
-          next.searchParams.set("source", "pwa");
+        window.__SAYIT_PREVIEW_MODE__ = previewParam;
+
+        if (!isStandalone && !isNativeApp && !previewParam) {
+          document.documentElement.classList.add("browser-hosted");
         }
 
-        window.location.replace(next.toString());
+        try {
+          var originalReplaceState = window.history.replaceState.bind(window.history);
+          window.history.replaceState = function () {
+            var nextUrl = arguments.length >= 3 ? arguments[2] : "";
+            window.__SAYIT_RUNTIME_DIAGNOSTIC__.redirectLog.push({
+              type: "history.replaceState",
+              target: nextUrl || "",
+              phase: "runtime"
+            });
+            return originalReplaceState.apply(window.history, arguments);
+          };
+        } catch (error) {}
+
+        try {
+          var originalPushState = window.history.pushState.bind(window.history);
+          window.history.pushState = function () {
+            var nextUrl = arguments.length >= 3 ? arguments[2] : "";
+            window.__SAYIT_RUNTIME_DIAGNOSTIC__.redirectLog.push({
+              type: "history.pushState",
+              target: nextUrl || "",
+              phase: "runtime"
+            });
+            return originalPushState.apply(window.history, arguments);
+          };
+        } catch (error) {}
       })();
     </script>
+
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="stylesheet" href="/app.css" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/service-worker.js").catch(() => {});
+        });
+      }
+    </script>
   </head>
-  <body>
-    <main class="handoff">
-      <h1>Opening SayIt!</h1>
-      <p>
-        If the app does not open automatically, continue to
-        <a id="open-app-link" href="/app?source=pwa">the standalone app</a>.
-      </p>
-    </main>
+  <body class="app">
+    <aside id="runtimeDiagnostic" class="runtimeDiagnostic" aria-live="polite">
+      <div class="runtimeDiagnosticTitle">Runtime Diagnostic</div>
+      <pre id="runtimeDiagnosticOutput"></pre>
+    </aside>
+    <div class="page">
+      <div class="shell">
+        <header class="header">
+          <div class="brand">
+            <img class="brand-logo" src="/assets/sayit-app-icon.png" alt="SayIt!" />
+            <div class="brandText">
+              <strong>SayIt!</strong>
+              <p>Clearer conversations, in your own voice.</p>
+            </div>
+          </div>
+
+          <div class="headerActions">
+            <button type="button" id="reset-form" class="ghost-button header-button">Clear</button>
+          </div>
+        </header>
+
+        <main class="main">
+          <form id="intake-form" class="intake-form">
+            <section class="panel app-section intake-card">
+              <div class="panelHeading">
+                <div class="panelEyebrow">Compose</div>
+                <p class="panelIntro">Shape the message before it leaves your mouth or your keyboard.</p>
+              </div>
+
+              <label class="field field-short">
+                <span>Who are you talking to?</span>
+                <input
+                  id="recipient"
+                  name="recipient"
+                  type="text"
+                  placeholder="Name"
+                />
+              </label>
+
+              <div class="row2">
+                <label class="field">
+                  <span>Relationship dynamic</span>
+                  <select id="relationship" name="relationship">
+                    <option value="">Select a dynamic</option>
+                    <option>Spouse or partner</option>
+                    <option>Child or teenager</option>
+                    <option>Friend</option>
+                    <option>Coworker</option>
+                    <option>Boss or supervisor</option>
+                    <option>Employee or subordinate</option>
+                    <option>Customer</option>
+                    <option>Client</option>
+                    <option>Stranger</option>
+                    <option>Online conversation</option>
+                    <option>Social media comment</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>Core intent</span>
+                  <select id="intent" name="intent">
+                    <option value="auto">Auto-detect from your message</option>
+                    <option value="explain">Explain a problem</option>
+                    <option value="boundary">Set a boundary</option>
+                    <option value="criticism">Respond to criticism</option>
+                    <option value="correction">Correct someone</option>
+                    <option value="frustration">Express frustration</option>
+                    <option value="help">Ask for help</option>
+                    <option value="clarify">Clarify something</option>
+                  </select>
+                </label>
+              </div>
+
+              <label class="field">
+                <span>How do I want this message to come across?</span>
+                <select id="after-state" name="afterState">
+                  <option value="">Select how I want it to come across</option>
+                  <option>Clear</option>
+                  <option>Respectful</option>
+                  <option>Calm</option>
+                  <option>Smart</option>
+                  <option>Short</option>
+                  <option>Confident</option>
+                  <option>Funny</option>
+                  <option>Easy to understand</option>
+                </select>
+              </label>
+
+              <label class="field field-large">
+                <span>Extra context (optional)</span>
+                <textarea
+                  id="situation"
+                  name="situation"
+                  rows="4"
+                  placeholder="Add more information here."
+                ></textarea>
+              </label>
+
+              <label class="field field-large">
+                <span>What do you want to say?</span>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="7"
+                  placeholder=""
+                ></textarea>
+              </label>
+
+              <p id="voice-preview" class="voice-preview"></p>
+              <p id="voice-status" class="voice-status"></p>
+
+              <div class="voice-actions">
+                <button
+                  type="button"
+                  id="voice-start"
+                  class="ghost-button compact-button"
+                >
+                  Record
+                </button>
+                <button type="submit" id="translate-action" class="primary-button compact-button">
+                  Generate
+                </button>
+              </div>
+
+              <p id="teleprompter-summary" class="teleprompter-summary"></p>
+            </section>
+          </form>
+
+          <section class="panel resultWrap">
+            <div class="panelHeading resultHeading">
+              <div class="panelEyebrow">Refined draft</div>
+              <p class="panelIntro">Your cleaner version appears here, ready to copy or read aloud.</p>
+            </div>
+
+            <div class="resultTop">
+              <label for="result">Result</label>
+              <div class="badgeCount">
+                <span id="charCount">0</span> chars
+              </div>
+            </div>
+
+            <textarea id="result" readonly placeholder=""></textarea>
+
+            <div class="resultActions">
+              <button type="button" id="copy-result" class="ghost-button">Copy</button>
+              <button type="button" id="open-teleprompter" class="ghost-button" hidden>Teleprompter</button>
+            </div>
+          </section>
+        </main>
+
+      </div>
+    </div>
+
+    <div class="counterBar" aria-live="polite">
+      <span id="counterText"></span>
+    </div>
+
+    <div id="plusModal" class="modalOverlay" hidden>
+      <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="plusTitle">
+        <div class="modalBanner">
+          <div class="modalBannerInner">
+            <div class="modalLogo">
+              <img class="modalLogoImg" src="/assets/sayit-app-icon.png" alt="SayIt!" />
+            </div>
+            <div>
+              <div id="plusTitle" class="modalTitle">Unlock SayIt! Pro</div>
+              <div class="modalSub">
+                Use your email to restore access or start a subscription.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modalBody">
+          <ul class="modalList">
+            <li><strong>Already subscribed?</strong> We’ll unlock this device for your account.</li>
+            <li><strong>New to Pro?</strong> We’ll send you to Stripe to finish setup.</li>
+          </ul>
+
+          <div class="modalFine">
+            $2/month · Stripe handles billing
+          </div>
+
+          <label class="modalLabel" for="plusEmail">Email</label>
+          <input
+            id="plusEmail"
+            class="modalInput"
+            type="email"
+            placeholder="Email address"
+            autocomplete="email"
+          />
+
+          <div id="deviceLimitMsg" aria-live="polite" style="display:none; margin-top:12px; font-size:14px; line-height:1.35;"></div>
+
+          <button
+            id="manageDevicesLink"
+            type="button"
+            class="ghost-button"
+            style="display:none; margin-top:10px; width:100%;"
+          >
+            Remove oldest device
+          </button>
+        </div>
+
+        <div class="modalActions">
+          <button id="plusCancelBtn" type="button" class="ghost-button">Cancel</button>
+          <button id="plusContinueBtn" type="button" class="primary-button">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="teleprompter-overlay" class="teleprompter-overlay" hidden aria-hidden="true">
+      <section
+        class="teleprompter-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="teleprompter-overlay-title"
+      >
+        <h2 id="teleprompter-overlay-title" class="visually-hidden">Your message</h2>
+
+        <section class="teleprompter-layout">
+          <aside class="teleprompter-sidebar" aria-label="Teleprompter controls">
+            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-top">
+              <button id="copy-message" type="button" class="teleprompter-rail-button">Copy</button>
+              <button id="teleprompter-playback" type="button" class="teleprompter-rail-button">Pause</button>
+            </div>
+
+            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-middle">
+              <div class="teleprompter-speed-control">
+                <button
+                  id="teleprompter-speed-toggle"
+                  type="button"
+                  class="teleprompter-rail-button teleprompter-speed-toggle"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  aria-controls="speed-group"
+                >
+                  Speed: Slow
+                </button>
+                <div class="teleprompter-speed-popover" id="speed-group" hidden>
+                  <button type="button" data-speed="slow" class="teleprompter-rail-button speed-button is-active">
+                    Slow
+                  </button>
+                  <button type="button" data-speed="medium" class="teleprompter-rail-button speed-button">
+                    Medium
+                  </button>
+                  <button type="button" data-speed="fast" class="teleprompter-rail-button speed-button">
+                    Fast
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-close">
+              <button id="close-teleprompter" type="button" class="teleprompter-rail-button">Close</button>
+            </div>
+          </aside>
+
+          <section class="teleprompter-card teleprompter-panel teleprompter-reader">
+            <div id="teleprompter" class="teleprompter">
+              <div class="teleprompter-highlight-guide" aria-hidden="true"></div>
+              <div id="teleprompter-script" class="teleprompter-script">
+                <p class="teleprompter-placeholder">
+                  Generate a translated message to load teleprompter mode.
+                </p>
+              </div>
+            </div>
+          </section>
+        </section>
+      </section>
+    </div>
+
+    <script type="module" src="/app.js"></script>
+    <script>
+      (function () {
+        var output = document.getElementById("runtimeDiagnosticOutput");
+        if (!output) {
+          return;
+        }
+
+        function renderDiagnostic() {
+          var diag = window.__SAYIT_RUNTIME_DIAGNOSTIC__ || {};
+          var currentUrl = new URL(window.location.href);
+          var currentRoute = currentUrl.pathname + currentUrl.search;
+          var routeMatchesManifestStart = currentRoute === (diag.manifestStart || "");
+          var rows = [
+            "mode: " + (diag.mode || "unknown"),
+            "launchHref: " + (diag.launchHref || ""),
+            "currentHref: " + window.location.href,
+            "launchRoute: " + (diag.actualRoute || ""),
+            "currentRoute: " + currentRoute,
+            "manifestStart: " + (diag.manifestStart || ""),
+            "routeMatchesManifestStart: " + String(routeMatchesManifestStart),
+            "inManifestScope: " + String(diag.inManifestScope),
+            "pwaLaunch: " + String(diag.pwaLaunch),
+            "topLevel: " + String(diag.topLevel),
+            "iosStandalone: " + String(diag.iosStandalone),
+            "displayStandalone: " + String(diag.displayStandalone),
+            "androidStandaloneReferrer: " + String(diag.androidStandaloneReferrer),
+            "nativeApp: " + String(diag.isNativeApp),
+            "hasReferrer: " + String(diag.hasReferrer),
+            "referrer: " + (diag.referrer || "(none)"),
+            "redirectPlanned: " + String(diag.redirectPlanned),
+            "redirectTarget: " + (diag.redirectTarget || "(none)"),
+            "redirectLog: " + JSON.stringify(diag.redirectLog || [])
+          ];
+          output.textContent = rows.join("\n");
+        }
+
+        renderDiagnostic();
+        window.addEventListener("pageshow", renderDiagnostic);
+        window.addEventListener("popstate", renderDiagnostic);
+        window.addEventListener("hashchange", renderDiagnostic);
+        document.addEventListener("visibilitychange", function () {
+          if (!document.hidden) {
+            renderDiagnostic();
+          }
+        });
+      })();
+    </script>
   </body>
 </html>
