@@ -10,49 +10,57 @@ export class TeleprompterController {
     this.script = script;
     this.highlightToggle = highlightToggle;
     this.onStateChange = onStateChange;
+
     this.lines = [];
     this.endSpacer = null;
     this.speed = "slow";
     this.animationFrame = null;
     this.running = false;
     this.lastTimestamp = 0;
+
+    this.tick = this.tick.bind(this);
   }
 
   setLines(lines) {
     this.stop();
     this.script.innerHTML = "";
     this.lines = [];
+    this.endSpacer = null;
 
-    if (!lines || lines.length === 0) {
+    if (!Array.isArray(lines) || lines.length === 0) {
       this.script.innerHTML =
         '<p class="teleprompter-placeholder">Generate a translated message to load teleprompter mode.</p>';
-      this.endSpacer = null;
       this.notifyStateChange();
       return;
     }
 
     const fragment = document.createDocumentFragment();
-    for (const line of lines) {
+
+    for (const lineText of lines) {
       const node = document.createElement("p");
       node.className = "teleprompter-line";
-      node.textContent = line;
+      node.textContent = lineText;
       fragment.appendChild(node);
       this.lines.push(node);
     }
 
     this.script.appendChild(fragment);
+
     const spacer = document.createElement("div");
     spacer.className = "teleprompter-end-spacer";
     this.script.appendChild(spacer);
     this.endSpacer = spacer;
+
     this.reset();
   }
 
   setSpeed(speed) {
-    if (SPEED_MAP[speed]) {
-      this.speed = speed;
-      this.notifyStateChange();
+    if (!Object.prototype.hasOwnProperty.call(SPEED_MAP, speed)) {
+      return;
     }
+
+    this.speed = speed;
+    this.notifyStateChange();
   }
 
   hasLines() {
@@ -87,6 +95,7 @@ export class TeleprompterController {
     this.updateHighlight();
     this.animationFrame = window.requestAnimationFrame(this.tick);
     this.notifyStateChange();
+
     return true;
   }
 
@@ -103,14 +112,17 @@ export class TeleprompterController {
 
   stop() {
     this.running = false;
-    if (this.animationFrame) {
+    this.lastTimestamp = 0;
+
+    if (this.animationFrame !== null) {
       window.cancelAnimationFrame(this.animationFrame);
       this.animationFrame = null;
     }
+
     this.notifyStateChange();
   }
 
-  tick = (timestamp) => {
+  tick(timestamp) {
     if (!this.running) {
       return;
     }
@@ -119,53 +131,70 @@ export class TeleprompterController {
       this.lastTimestamp = timestamp;
     }
 
-    const delta = (timestamp - this.lastTimestamp) / 1000;
+    const deltaSeconds = (timestamp - this.lastTimestamp) / 1000;
     this.lastTimestamp = timestamp;
+
+    const pixelsPerSecond = SPEED_MAP[this.speed] || SPEED_MAP.slow;
     const maxScrollTop = this.getMaxScrollTop();
-    const nextScrollTop = Math.min(this.script.scrollTop + SPEED_MAP[this.speed] * delta, maxScrollTop);
+    const nextScrollTop = Math.min(
+      this.script.scrollTop + pixelsPerSecond * deltaSeconds,
+      maxScrollTop
+    );
+
     this.script.scrollTop = nextScrollTop;
     this.updateHighlight();
 
-    const reachedBottom = nextScrollTop >= maxScrollTop - 2;
-
-    if (reachedBottom) {
+    if (nextScrollTop >= maxScrollTop - 2) {
       this.stop();
       return;
     }
 
     this.animationFrame = window.requestAnimationFrame(this.tick);
-  };
+  }
 
   updateHighlight() {
+    if (!this.lines.length) {
+      return;
+    }
+
     if (this.highlightToggle && !this.highlightToggle.checked) {
-      this.lines.forEach((line) => {
+      for (const line of this.lines) {
         line.classList.remove("is-active", "is-near", "is-far");
-      });
+      }
       return;
     }
 
     const midpoint = this.script.scrollTop + this.script.clientHeight / 2;
     const nearThreshold = this.script.clientHeight * 0.24;
     const farThreshold = this.script.clientHeight * 0.4;
+
     let activeLine = null;
     let smallestDistance = Number.POSITIVE_INFINITY;
 
     for (const line of this.lines) {
       const lineMidpoint = line.offsetTop + line.offsetHeight / 2;
       const distance = Math.abs(midpoint - lineMidpoint);
+
       if (distance < smallestDistance) {
         smallestDistance = distance;
         activeLine = line;
       }
     }
 
-    this.lines.forEach((line) => {
+    for (const line of this.lines) {
       const lineMidpoint = line.offsetTop + line.offsetHeight / 2;
       const distance = Math.abs(midpoint - lineMidpoint);
+
       line.classList.toggle("is-active", line === activeLine);
-      line.classList.toggle("is-near", line !== activeLine && distance <= nearThreshold);
-      line.classList.toggle("is-far", distance > nearThreshold && distance <= farThreshold);
-    });
+      line.classList.toggle(
+        "is-near",
+        line !== activeLine && distance <= nearThreshold
+      );
+      line.classList.toggle(
+        "is-far",
+        distance > nearThreshold && distance <= farThreshold
+      );
+    }
   }
 
   getMaxScrollTop() {
@@ -174,13 +203,18 @@ export class TeleprompterController {
 
   centerLine(index = 0) {
     const line = this.lines[index];
+
     if (!line) {
       this.script.scrollTop = 0;
       return;
     }
 
     const lineMidpoint = line.offsetTop + line.offsetHeight / 2;
-    const targetScrollTop = Math.max(0, lineMidpoint - this.script.clientHeight / 2);
+    const targetScrollTop = Math.max(
+      0,
+      lineMidpoint - this.script.clientHeight / 2
+    );
+
     this.script.scrollTop = Math.min(targetScrollTop, this.getMaxScrollTop());
   }
 
