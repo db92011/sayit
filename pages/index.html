@@ -2,132 +2,65 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <title>SayIt!</title>
+
     <meta name="theme-color" content="#0b0f14" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="SayIt!" />
+
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+    <link rel="stylesheet" href="/app.css" />
 
     <script>
       (function () {
-        var url = new URL(window.location.href);
-        var manifestStart = "/";
-        var manifestScope = "/";
-
         var iosStandalone = window.navigator.standalone === true;
-        var displayStandalone = window.matchMedia("(display-mode: standalone)").matches;
-        var androidStandaloneReferrer = document.referrer.indexOf("android-app://") === 0;
-        var isStandalone = iosStandalone || displayStandalone || androidStandaloneReferrer;
-        var isNativeApp = false;
+        var displayStandalone = false;
+
         try {
-          isNativeApp =
-            window.Capacitor?.isNativePlatform?.() === true ||
-            /Capacitor/i.test(window.navigator.userAgent || "");
+          displayStandalone = window.matchMedia("(display-mode: standalone)").matches;
         } catch (error) {}
 
-        var mode = isNativeApp ? "native" : isStandalone ? "standalone" : "browser";
-        var topLevel = false;
-        try {
-          topLevel = window.top === window.self;
-        } catch (error) {}
+        var isStandalone = iosStandalone || displayStandalone;
 
-        var actualRoute = url.pathname + url.search;
-        var routeMatchesManifestStart = actualRoute === manifestStart;
-        var inManifestScope = url.pathname.indexOf(manifestScope) === 0;
-        var pwaLaunch = url.searchParams.get("source") === "pwa";
-        var previewParam = String(url.searchParams.get("preview") || "").trim();
-        var runtimeDiagnosticEnabled = url.searchParams.get("runtimeDiagnostic") === "1";
+        document.documentElement.setAttribute(
+          "data-standalone",
+          isStandalone ? "yes" : "no"
+        );
 
-        window.__SAYIT_RUNTIME_DIAGNOSTIC__ = {
-          enabled: runtimeDiagnosticEnabled,
-          mode: mode,
-          iosStandalone: iosStandalone,
-          displayStandalone: displayStandalone,
-          androidStandaloneReferrer: androidStandaloneReferrer,
-          isNativeApp: isNativeApp,
-          topLevel: topLevel,
-          launchHref: window.location.href,
-          launchPath: url.pathname,
-          launchQuery: url.search || "",
-          actualRoute: actualRoute,
-          manifestStart: manifestStart,
-          manifestScope: manifestScope,
-          routeMatchesManifestStart: routeMatchesManifestStart,
-          inManifestScope: inManifestScope,
-          pwaLaunch: pwaLaunch,
-          referrer: document.referrer || "",
-          hasReferrer: Boolean(document.referrer),
-          redirectPlanned: false,
-          redirectTarget: "",
-          redirectLog: []
-        };
-
-        document.documentElement.setAttribute("data-standalone", isStandalone ? "yes" : "no");
-        document.documentElement.setAttribute("data-native-app", isNativeApp ? "yes" : "no");
-
-        if (previewParam) {
-          document.documentElement.dataset.previewMode = previewParam;
-          if (previewParam === "app-mobile") {
-            document.documentElement.classList.add("preview-app-mobile");
-          }
-        }
-
-        window.__SAYIT_PREVIEW_MODE__ = previewParam;
-
-        if (!isStandalone && !isNativeApp && !previewParam) {
+        if (!isStandalone) {
           document.documentElement.classList.add("browser-hosted");
         }
 
-        try {
-          var originalReplaceState = window.history.replaceState.bind(window.history);
-          window.history.replaceState = function () {
-            var nextUrl = arguments.length >= 3 ? arguments[2] : "";
-            window.__SAYIT_RUNTIME_DIAGNOSTIC__.redirectLog.push({
-              type: "history.replaceState",
-              target: nextUrl || "",
-              phase: "runtime"
+        if ("serviceWorker" in navigator) {
+          window.addEventListener("load", function () {
+            navigator.serviceWorker.register("/service-worker.js").catch(function (error) {
+              console.error("Service worker registration failed:", error);
             });
-            return originalReplaceState.apply(window.history, arguments);
-          };
-        } catch (error) {}
-
-        try {
-          var originalPushState = window.history.pushState.bind(window.history);
-          window.history.pushState = function () {
-            var nextUrl = arguments.length >= 3 ? arguments[2] : "";
-            window.__SAYIT_RUNTIME_DIAGNOSTIC__.redirectLog.push({
-              type: "history.pushState",
-              target: nextUrl || "",
-              phase: "runtime"
-            });
-            return originalPushState.apply(window.history, arguments);
-          };
-        } catch (error) {}
+          });
+        }
       })();
     </script>
-
-    <link rel="manifest" href="/site.webmanifest" />
-    <link rel="stylesheet" href="/app.css" />
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/service-worker.js").catch(() => {});
-        });
-      }
-    </script>
   </head>
+
   <body class="app">
-    <aside id="runtimeDiagnostic" class="runtimeDiagnostic" aria-live="polite" hidden>
-      <div class="runtimeDiagnosticTitle">Runtime Diagnostic</div>
-      <pre id="runtimeDiagnosticOutput"></pre>
-    </aside>
     <div class="page">
       <div class="shell">
         <header class="header">
           <div class="brand">
-            <img class="brand-logo" src="/assets/sayit-app-icon.png" alt="SayIt!" />
+            <img
+              class="brand-logo"
+              src="/assets/sayit-app-icon.png"
+              alt="SayIt!"
+            />
             <div class="brandText">
               <strong>SayIt!</strong>
               <p>Clearer conversations, in your own voice.</p>
@@ -135,7 +68,13 @@
           </div>
 
           <div class="headerActions">
-            <button type="button" id="reset-form" class="ghost-button header-button">Clear</button>
+            <button
+              type="button"
+              id="reset-form"
+              class="ghost-button header-button"
+            >
+              Clear
+            </button>
           </div>
         </header>
 
@@ -144,7 +83,9 @@
             <section class="panel app-section intake-card">
               <div class="panelHeading">
                 <div class="panelEyebrow">Compose</div>
-                <p class="panelIntro">Shape the message before it leaves your mouth or your keyboard.</p>
+                <p class="panelIntro">
+                  Shape the message before it leaves your mouth or your keyboard.
+                </p>
               </div>
 
               <label class="field field-short">
@@ -237,7 +178,11 @@
                 >
                   Record
                 </button>
-                <button type="submit" id="translate-action" class="primary-button compact-button">
+                <button
+                  type="submit"
+                  id="translate-action"
+                  class="primary-button compact-button"
+                >
                   Generate
                 </button>
               </div>
@@ -249,7 +194,9 @@
           <section class="panel resultWrap">
             <div class="panelHeading resultHeading">
               <div class="panelEyebrow">Refined draft</div>
-              <p class="panelIntro">Your cleaner version appears here, ready to copy or read aloud.</p>
+              <p class="panelIntro">
+                Your cleaner version appears here, ready to copy or read aloud.
+              </p>
             </div>
 
             <div class="resultTop">
@@ -262,12 +209,20 @@
             <textarea id="result" readonly placeholder=""></textarea>
 
             <div class="resultActions">
-              <button type="button" id="copy-result" class="ghost-button">Copy</button>
-              <button type="button" id="open-teleprompter" class="ghost-button" hidden>Teleprompter</button>
+              <button type="button" id="copy-result" class="ghost-button">
+                Copy
+              </button>
+              <button
+                type="button"
+                id="open-teleprompter"
+                class="ghost-button"
+                hidden
+              >
+                Teleprompter
+              </button>
             </div>
           </section>
         </main>
-
       </div>
     </div>
 
@@ -276,11 +231,20 @@
     </div>
 
     <div id="plusModal" class="modalOverlay" hidden>
-      <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="plusTitle">
+      <div
+        class="modalCard"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="plusTitle"
+      >
         <div class="modalBanner">
           <div class="modalBannerInner">
             <div class="modalLogo">
-              <img class="modalLogoImg" src="/assets/sayit-app-icon.png" alt="SayIt!" />
+              <img
+                class="modalLogoImg"
+                src="/assets/sayit-app-icon.png"
+                alt="SayIt!"
+              />
             </div>
             <div>
               <div id="plusTitle" class="modalTitle">Unlock SayIt! Pro</div>
@@ -293,13 +257,17 @@
 
         <div class="modalBody">
           <ul class="modalList">
-            <li><strong>Already subscribed?</strong> We’ll unlock this device for your account.</li>
-            <li><strong>New to Pro?</strong> We’ll send you to Stripe to finish setup.</li>
+            <li>
+              <strong>Already subscribed?</strong> We’ll unlock this device for
+              your account.
+            </li>
+            <li>
+              <strong>New to Pro?</strong> We’ll send you to Stripe to finish
+              setup.
+            </li>
           </ul>
 
-          <div class="modalFine">
-            $2/month · Stripe handles billing
-          </div>
+          <div class="modalFine">$2/month · Stripe handles billing</div>
 
           <label class="modalLabel" for="plusEmail">Email</label>
           <input
@@ -310,39 +278,69 @@
             autocomplete="email"
           />
 
-          <div id="deviceLimitMsg" aria-live="polite" style="display:none; margin-top:12px; font-size:14px; line-height:1.35;"></div>
+          <div
+            id="deviceLimitMsg"
+            aria-live="polite"
+            style="display: none; margin-top: 12px; font-size: 14px; line-height: 1.35;"
+          ></div>
 
           <button
             id="manageDevicesLink"
             type="button"
             class="ghost-button"
-            style="display:none; margin-top:10px; width:100%;"
+            style="display: none; margin-top: 10px; width: 100%;"
           >
             Remove oldest device
           </button>
         </div>
 
         <div class="modalActions">
-          <button id="plusCancelBtn" type="button" class="ghost-button">Cancel</button>
-          <button id="plusContinueBtn" type="button" class="primary-button">Continue</button>
+          <button id="plusCancelBtn" type="button" class="ghost-button">
+            Cancel
+          </button>
+          <button id="plusContinueBtn" type="button" class="primary-button">
+            Continue
+          </button>
         </div>
       </div>
     </div>
 
-    <div id="teleprompter-overlay" class="teleprompter-overlay" hidden aria-hidden="true">
+    <div
+      id="teleprompter-overlay"
+      class="teleprompter-overlay"
+      hidden
+      aria-hidden="true"
+    >
       <section
         class="teleprompter-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="teleprompter-overlay-title"
       >
-        <h2 id="teleprompter-overlay-title" class="visually-hidden">Your message</h2>
+        <h2 id="teleprompter-overlay-title" class="visually-hidden">
+          Your message
+        </h2>
 
         <section class="teleprompter-layout">
-          <aside class="teleprompter-sidebar" aria-label="Teleprompter controls">
+          <aside
+            class="teleprompter-sidebar"
+            aria-label="Teleprompter controls"
+          >
             <div class="teleprompter-sidebar-group teleprompter-sidebar-group-top">
-              <button id="copy-message" type="button" class="teleprompter-rail-button">Copy</button>
-              <button id="teleprompter-playback" type="button" class="teleprompter-rail-button">Pause</button>
+              <button
+                id="copy-message"
+                type="button"
+                class="teleprompter-rail-button"
+              >
+                Copy
+              </button>
+              <button
+                id="teleprompter-playback"
+                type="button"
+                class="teleprompter-rail-button"
+              >
+                Pause
+              </button>
             </div>
 
             <div class="teleprompter-sidebar-group teleprompter-sidebar-group-middle">
@@ -358,13 +356,25 @@
                   Speed: Slow
                 </button>
                 <div class="teleprompter-speed-popover" id="speed-group" hidden>
-                  <button type="button" data-speed="slow" class="teleprompter-rail-button speed-button is-active">
+                  <button
+                    type="button"
+                    data-speed="slow"
+                    class="teleprompter-rail-button speed-button is-active"
+                  >
                     Slow
                   </button>
-                  <button type="button" data-speed="medium" class="teleprompter-rail-button speed-button">
+                  <button
+                    type="button"
+                    data-speed="medium"
+                    class="teleprompter-rail-button speed-button"
+                  >
                     Medium
                   </button>
-                  <button type="button" data-speed="fast" class="teleprompter-rail-button speed-button">
+                  <button
+                    type="button"
+                    data-speed="fast"
+                    class="teleprompter-rail-button speed-button"
+                  >
                     Fast
                   </button>
                 </div>
@@ -372,7 +382,13 @@
             </div>
 
             <div class="teleprompter-sidebar-group teleprompter-sidebar-group-close">
-              <button id="close-teleprompter" type="button" class="teleprompter-rail-button">Close</button>
+              <button
+                id="close-teleprompter"
+                type="button"
+                class="teleprompter-rail-button"
+              >
+                Close
+              </button>
             </div>
           </aside>
 
@@ -391,60 +407,5 @@
     </div>
 
     <script type="module" src="/app.js"></script>
-    <script>
-      (function () {
-        var diag = window.__SAYIT_RUNTIME_DIAGNOSTIC__ || {};
-        if (!diag.enabled) {
-          return;
-        }
-
-        var panel = document.getElementById("runtimeDiagnostic");
-        var output = document.getElementById("runtimeDiagnosticOutput");
-        if (!panel || !output) {
-          return;
-        }
-
-        panel.hidden = false;
-
-        function renderDiagnostic() {
-          var liveDiag = window.__SAYIT_RUNTIME_DIAGNOSTIC__ || {};
-          var currentUrl = new URL(window.location.href);
-          var currentRoute = currentUrl.pathname + currentUrl.search;
-          var routeMatchesManifestStart = currentRoute === (liveDiag.manifestStart || "");
-          var rows = [
-            "mode: " + (liveDiag.mode || "unknown"),
-            "launchHref: " + (liveDiag.launchHref || ""),
-            "currentHref: " + window.location.href,
-            "launchRoute: " + (liveDiag.actualRoute || ""),
-            "currentRoute: " + currentRoute,
-            "manifestStart: " + (liveDiag.manifestStart || ""),
-            "routeMatchesManifestStart: " + String(routeMatchesManifestStart),
-            "inManifestScope: " + String(liveDiag.inManifestScope),
-            "pwaLaunch: " + String(liveDiag.pwaLaunch),
-            "topLevel: " + String(liveDiag.topLevel),
-            "iosStandalone: " + String(liveDiag.iosStandalone),
-            "displayStandalone: " + String(liveDiag.displayStandalone),
-            "androidStandaloneReferrer: " + String(liveDiag.androidStandaloneReferrer),
-            "nativeApp: " + String(liveDiag.isNativeApp),
-            "hasReferrer: " + String(liveDiag.hasReferrer),
-            "referrer: " + (liveDiag.referrer || "(none)"),
-            "redirectPlanned: " + String(liveDiag.redirectPlanned),
-            "redirectTarget: " + (liveDiag.redirectTarget || "(none)"),
-            "redirectLog: " + JSON.stringify(liveDiag.redirectLog || [])
-          ];
-          output.textContent = rows.join("\n");
-        }
-
-        renderDiagnostic();
-        window.addEventListener("pageshow", renderDiagnostic);
-        window.addEventListener("popstate", renderDiagnostic);
-        window.addEventListener("hashchange", renderDiagnostic);
-        document.addEventListener("visibilitychange", function () {
-          if (!document.hidden) {
-            renderDiagnostic();
-          }
-        });
-      })();
-    </script>
   </body>
 </html>
