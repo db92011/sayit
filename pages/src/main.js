@@ -17,15 +17,11 @@ function stripTrailingSlashes(value = "") {
 
 function getConfiguredApiBase() {
   const globalBase = safeTrim(window.__SAYIT_API_BASE__);
-  if (globalBase) {
-    return stripTrailingSlashes(globalBase);
-  }
+  if (globalBase) return stripTrailingSlashes(globalBase);
 
   const meta = document.querySelector('meta[name="sayit-api-base"]');
   const metaBase = safeTrim(meta?.getAttribute("content"));
-  if (metaBase) {
-    return stripTrailingSlashes(metaBase);
-  }
+  if (metaBase) return stripTrailingSlashes(metaBase);
 
   return stripTrailingSlashes(window.location.origin || "");
 }
@@ -37,6 +33,12 @@ const SAYIT_CHECKOUT_URL = `${SAYIT_API_BASE}/api/create-checkout-link`;
 
 const form = document.querySelector("#intake-form");
 const voicePreview = document.querySelector("#voice-preview");
+const voiceStatusNode = document.querySelector("#voice-status");
+const resultField = document.querySelector("#result");
+const charCount = document.querySelector("#charCount");
+const submitButton = document.querySelector("#translate-action");
+const counterText = document.querySelector("#counterText");
+
 const copyResultButton = document.querySelector("#copy-result");
 const teleprompterCopyButton = document.querySelector("#copy-message");
 const closeTeleprompterButton = document.querySelector("#close-teleprompter");
@@ -46,15 +48,12 @@ const teleprompterSummary = document.querySelector("#teleprompter-summary");
 const teleprompterPlaybackButton = document.querySelector("#teleprompter-playback");
 const teleprompterSpeedToggleButton = document.querySelector("#teleprompter-speed-toggle");
 const teleprompterSpeedGroup = document.querySelector("#speed-group");
-const resultField = document.querySelector("#result");
-const charCount = document.querySelector("#charCount");
-const submitButton = document.querySelector("#translate-action");
+
 const plusModal = document.querySelector("#plusModal");
 const plusModalCard = document.querySelector("#plusModal .modalCard");
 const plusEmailInput = document.querySelector("#plusEmail");
 const plusCancelButton = document.querySelector("#plusCancelBtn");
 const plusContinueButton = document.querySelector("#plusContinueBtn");
-const counterText = document.querySelector("#counterText");
 const deviceLimitMessage = document.querySelector("#deviceLimitMsg");
 const manageDevicesButton = document.querySelector("#manageDevicesLink");
 
@@ -67,6 +66,13 @@ const fields = {
   afterState: document.querySelector("#after-state")
 };
 
+let latestMessageText = "";
+let continueBusy = false;
+let removeBusy = false;
+let appLocked = false;
+let serviceWorkerRefreshPending = false;
+let teleprompterOpen = false;
+
 const teleprompter = new TeleprompterController({
   container: document.querySelector("#teleprompter"),
   script: document.querySelector("#teleprompter-script"),
@@ -74,22 +80,18 @@ const teleprompter = new TeleprompterController({
   onStateChange: () => syncTeleprompterControls()
 });
 
-const voiceStatusNode = document.querySelector("#voice-status");
-
-let latestMessageText = "";
-let continueBusy = false;
-let removeBusy = false;
-let appLocked = false;
-let serviceWorkerRefreshPending = false;
+const speechController = createSpeechController({
+  textarea: fields.message,
+  statusNode: voiceStatusNode,
+  startButton: document.querySelector("#voice-start"),
+  stopButton: null,
+  onTranscript(nextValue) {
+    updateVoicePreview(nextValue, { fromVoice: true });
+    persistDraft();
+  }
+});
 
 function detectRuntimeMode() {
-  const isNativeApp =
-    window.Capacitor?.isNativePlatform?.() === true ||
-    /Capacitor/i.test(window.navigator.userAgent || "");
-  if (isNativeApp) {
-    return "native";
-  }
-
   const iosStandalone = window.navigator.standalone === true;
   const displayStandalone = window.matchMedia("(display-mode: standalone)").matches;
   return iosStandalone || displayStandalone ? "standalone" : "browser";
@@ -97,38 +99,37 @@ function detectRuntimeMode() {
 
 function refreshRuntimeModeUi() {
   const runtimeMode = detectRuntimeMode();
-  document.documentElement.setAttribute("data-standalone", runtimeMode === "standalone" ? "yes" : "no");
-  document.documentElement.setAttribute("data-native-app", runtimeMode === "native" ? "yes" : "no");
+  document.documentElement.setAttribute(
+    "data-standalone",
+    runtimeMode === "standalone" ? "yes" : "no"
+  );
+  document.documentElement.setAttribute("data-native-app", "no");
 }
 
 function installServiceWorkerRefreshHandler() {
-  if (!("serviceWorker" in navigator)) {
-    return;
-  }
+  if (!("serviceWorker" in navigator)) return;
 
   navigator.serviceWorker.addEventListener("message", (event) => {
-    if (event.data?.type !== "SAYIT_SW_ACTIVATED") {
-      return;
-    }
-
-    if (serviceWorkerRefreshPending) {
-      return;
-    }
+    if (event.data?.type !== "SAYIT_SW_ACTIVATED") return;
+    if (serviceWorkerRefreshPending) return;
 
     serviceWorkerRefreshPending = true;
 
-    if (teleprompter.isOpen()) {
-      teleprompter.close();
+    if (teleprompterOpen) {
+      closeTeleprompter();
     }
 
     window.setTimeout(() => {
       window.location.reload();
-    }, 60);
+    }, 80);
   });
 }
 
 function isLocalPreviewHost() {
-  return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  return (
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+  );
 }
 
 function setAppLocked(locked) {
@@ -136,29 +137,17 @@ function setAppLocked(locked) {
   document.body.classList.toggle("app-locked", appLocked);
 
   for (const field of Object.values(fields)) {
-    if (field) {
-      field.disabled = appLocked;
-    }
+    if (field) field.disabled = appLocked;
   }
 
-  if (submitButton) {
-    submitButton.disabled = appLocked;
-  }
-
-  if (copyResultButton) {
-    copyResultButton.disabled = appLocked || !latestMessageText;
-  }
-
-  if (openTeleprompterButton) {
-    openTeleprompterButton.disabled = appLocked || !latestMessageText;
-  }
+  if (submitButton) submitButton.disabled = appLocked;
+  if (copyResultButton) copyResultButton.disabled = appLocked || !latestMessageText;
+  if (openTeleprompterButton) openTeleprompterButton.disabled = appLocked || !latestMessageText;
 }
 
 function getOrCreateDeviceId() {
-  const existing = String(window.localStorage.getItem(SAYIT_DEVICE_ID_KEY) || "").trim();
-  if (existing) {
-    return existing;
-  }
+  const existing = String(localStorage.getItem(SAYIT_DEVICE_ID_KEY) || "").trim();
+  if (existing) return existing;
 
   let nextId = "";
   try {
@@ -171,39 +160,32 @@ function getOrCreateDeviceId() {
     nextId = `sayit_${Math.random().toString(16).slice(2)}_${Date.now()}`;
   }
 
-  window.localStorage.setItem(SAYIT_DEVICE_ID_KEY, nextId);
+  localStorage.setItem(SAYIT_DEVICE_ID_KEY, nextId);
   return nextId;
 }
 
 function isSayItProActive() {
-  return window.localStorage.getItem(SAYIT_PRO_ACTIVE_KEY) === "true";
+  return localStorage.getItem(SAYIT_PRO_ACTIVE_KEY) === "true";
 }
 
 function getSayItProEmail() {
-  return String(window.localStorage.getItem(SAYIT_PRO_EMAIL_KEY) || "").trim().toLowerCase();
+  return String(localStorage.getItem(SAYIT_PRO_EMAIL_KEY) || "").trim().toLowerCase();
 }
 
 function setSayItProActive(email = "") {
-  window.localStorage.setItem(SAYIT_PRO_ACTIVE_KEY, "true");
-  if (email) {
-    window.localStorage.setItem(SAYIT_PRO_EMAIL_KEY, email);
-  }
+  localStorage.setItem(SAYIT_PRO_ACTIVE_KEY, "true");
+  if (email) localStorage.setItem(SAYIT_PRO_EMAIL_KEY, email);
   setAppLocked(false);
   refreshPlusUi();
 }
 
 function refreshPlusUi() {
-  if (!counterText) {
-    return;
-  }
-
+  if (!counterText) return;
   counterText.textContent = isSayItProActive() ? "Registered" : "";
 }
 
 function showPlusModal() {
-  if (!plusModal) {
-    return;
-  }
+  if (!plusModal) return;
 
   plusModal.hidden = false;
   plusModal.removeAttribute("hidden");
@@ -223,6 +205,17 @@ function showPlusModal() {
   }, 30);
 }
 
+function hidePlusModal() {
+  if (!plusModal) return;
+  if (appLocked && !isSayItProActive()) return;
+
+  plusModal.hidden = true;
+  plusModal.setAttribute("hidden", "");
+  plusModal.style.display = "none";
+  document.documentElement.style.overflow = "";
+  document.body.style.overflow = "";
+}
+
 function enforceAccessGate() {
   const unlocked = isSayItProActive();
   setAppLocked(!unlocked);
@@ -230,22 +223,6 @@ function enforceAccessGate() {
   if (!unlocked && !isLocalPreviewHost()) {
     showPlusModal();
   }
-}
-
-function hidePlusModal() {
-  if (!plusModal) {
-    return;
-  }
-
-  if (appLocked && !isSayItProActive()) {
-    return;
-  }
-
-  plusModal.hidden = true;
-  plusModal.setAttribute("hidden", "");
-  plusModal.style.display = "none";
-  document.documentElement.style.overflow = "";
-  document.body.style.overflow = "";
 }
 
 function resetDeviceLimitUi() {
@@ -262,15 +239,6 @@ function resetDeviceLimitUi() {
   }
 }
 
-function setDeviceMessage(html) {
-  if (!deviceLimitMessage) {
-    return;
-  }
-
-  deviceLimitMessage.innerHTML = html;
-  deviceLimitMessage.style.display = "block";
-}
-
 function escapeHtml(value = "") {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -280,6 +248,12 @@ function escapeHtml(value = "") {
     .replace(/'/g, "&#039;");
 }
 
+function setDeviceMessage(html) {
+  if (!deviceLimitMessage) return;
+  deviceLimitMessage.innerHTML = html;
+  deviceLimitMessage.style.display = "block";
+}
+
 async function checkPlan(email) {
   const normalizedEmail = String(email || "").trim().toLowerCase();
   if (!normalizedEmail) {
@@ -287,6 +261,7 @@ async function checkPlan(email) {
   }
 
   const deviceId = getOrCreateDeviceId();
+
   const response = await fetch(SAYIT_PLAN_URL, {
     method: "POST",
     headers: {
@@ -301,18 +276,19 @@ async function checkPlan(email) {
   });
 
   const body = await response.json().catch(() => ({}));
+
   if (
     response.status === 403 &&
-    (body?.reason === "DEVICE_LIMIT_REACHED" || body?.blockReason === "device_limit" || body?.allowed === false)
+    (body?.reason === "DEVICE_LIMIT_REACHED" ||
+      body?.blockReason === "device_limit" ||
+      body?.allowed === false)
   ) {
     return {
       plan: "plus",
       status: body?.status || "active",
       allowed: false,
       blocked: true,
-      message: body?.message || "You've already used SayIt! Pro on 2 devices.",
-      seatsUsed: body?.seatsUsed,
-      seatsMax: body?.seatsMax
+      message: body?.message || "You've already used SayIt! Pro on 2 devices."
     };
   }
 
@@ -334,25 +310,26 @@ async function removeOldestDevice(email) {
   }
 
   removeBusy = true;
-  if (manageDevicesButton) {
-    manageDevicesButton.disabled = true;
-  }
+  if (manageDevicesButton) manageDevicesButton.disabled = true;
 
   try {
+    const deviceId = getOrCreateDeviceId();
+
     const response = await fetch(SAYIT_REMOVE_OLDEST_URL, {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-sayit-device": getOrCreateDeviceId(),
+        "x-sayit-device": deviceId,
         "x-sayit-email": normalizedEmail
       },
       body: JSON.stringify({
         email: normalizedEmail,
-        device_id: getOrCreateDeviceId()
+        device_id: deviceId
       })
     });
 
     const body = await response.json().catch(() => ({}));
+
     if (!response.ok || !body?.ok) {
       return {
         ok: false,
@@ -371,14 +348,15 @@ async function removeOldestDevice(email) {
     };
   } finally {
     removeBusy = false;
-    if (manageDevicesButton) {
-      manageDevicesButton.disabled = false;
-    }
+    if (manageDevicesButton) manageDevicesButton.disabled = false;
   }
 }
 
 function showDeviceLimitUi(message, email) {
-  const seatsLine = String(message || "You've hit the 2-device limit for this email.").trim();
+  const seatsLine = String(
+    message || "You've hit the 2-device limit for this email."
+  ).trim();
+
   setDeviceMessage(
     "<strong>Device limit reached</strong><br>" +
       escapeHtml(seatsLine) +
@@ -386,15 +364,15 @@ function showDeviceLimitUi(message, email) {
       '<span style="opacity:.85;">This happens instantly here - no new screens.</span>'
   );
 
-  if (!manageDevicesButton) {
-    return;
-  }
+  if (!manageDevicesButton) return;
 
   manageDevicesButton.style.display = "inline-flex";
   manageDevicesButton.textContent = "Remove your oldest device";
   manageDevicesButton.onclick = async (event) => {
     event.preventDefault();
+
     setDeviceMessage("<strong>Device limit reached</strong><br>Removing your oldest device...");
+
     const result = await removeOldestDevice(email);
 
     if (!result.ok) {
@@ -403,6 +381,7 @@ function showDeviceLimitUi(message, email) {
     }
 
     setDeviceMessage("<strong>Device limit reached</strong><br>Oldest device removed. Unlocking this device...");
+
     try {
       const nextPlan = await checkPlan(email);
       if (nextPlan.plan === "plus" && nextPlan.allowed !== false) {
@@ -410,6 +389,7 @@ function showDeviceLimitUi(message, email) {
         setSayItProActive(email);
         return;
       }
+
       showDeviceLimitUi(nextPlan.message || "Still blocked. Try once more.", email);
     } catch (error) {
       setDeviceMessage(
@@ -434,6 +414,7 @@ async function goToStripeCheckout(email) {
   });
 
   const body = await response.json().catch(() => ({}));
+
   if (!response.ok || !body?.ok || !body?.checkoutUrl) {
     throw new Error(body?.error || "Unable to start SayIt! Pro checkout right now.");
   }
@@ -442,13 +423,11 @@ async function goToStripeCheckout(email) {
 }
 
 async function syncPlusFromServer() {
-  if (!isSayItProActive()) {
-    return;
-  }
+  if (!isSayItProActive()) return;
 
   const email = getSayItProEmail();
   if (!email) {
-    window.localStorage.removeItem(SAYIT_PRO_ACTIVE_KEY);
+    localStorage.removeItem(SAYIT_PRO_ACTIVE_KEY);
     refreshPlusUi();
     return;
   }
@@ -456,7 +435,7 @@ async function syncPlusFromServer() {
   try {
     const plan = await checkPlan(email);
     if (plan.plan !== "plus") {
-      window.localStorage.removeItem(SAYIT_PRO_ACTIVE_KEY);
+      localStorage.removeItem(SAYIT_PRO_ACTIVE_KEY);
       refreshPlusUi();
     }
   } catch {}
@@ -465,23 +444,17 @@ async function syncPlusFromServer() {
 async function handlePlusContinue() {
   const email = String(plusEmailInput?.value || "").trim().toLowerCase();
 
-  if (email) {
-    window.localStorage.setItem(SAYIT_PRO_EMAIL_KEY, email);
-  }
-
-  if (!email || continueBusy) {
-    return;
-  }
+  if (email) localStorage.setItem(SAYIT_PRO_EMAIL_KEY, email);
+  if (!email || continueBusy) return;
 
   continueBusy = true;
-  if (plusContinueButton) {
-    plusContinueButton.disabled = true;
-  }
+  if (plusContinueButton) plusContinueButton.disabled = true;
 
   try {
     resetDeviceLimitUi();
 
     const plan = await checkPlan(email);
+
     if (plan.blocked) {
       showDeviceLimitUi(plan.message, email);
       return;
@@ -502,9 +475,7 @@ async function handlePlusContinue() {
     );
   } finally {
     continueBusy = false;
-    if (plusContinueButton) {
-      plusContinueButton.disabled = false;
-    }
+    if (plusContinueButton) plusContinueButton.disabled = false;
   }
 }
 
@@ -521,7 +492,9 @@ function syncPlusStateFromUrl() {
 function updateVoicePreview(text = "", { fromVoice = false } = {}) {
   const nextText = String(text || "").trim();
   const showPreview = fromVoice && Boolean(nextText);
-  voicePreview.textContent = showPreview ? "Voice draft captured. You can refine it before you generate." : "";
+  voicePreview.textContent = showPreview
+    ? "Voice draft captured. You can refine it before you generate."
+    : "";
   voicePreview.classList.toggle("has-content", showPreview);
 }
 
@@ -529,29 +502,19 @@ function setTeleprompterSummary(text = "") {
   teleprompterSummary.textContent = text || "";
 }
 
-function setVoiceStatus(text) {
-  if (voiceStatusNode) {
-    voiceStatusNode.textContent = text;
-  }
+function setVoiceStatus(text = "") {
+  if (voiceStatusNode) voiceStatusNode.textContent = text;
 }
 
 function setCopyButtonLabel(label) {
-  if (copyResultButton) {
-    copyResultButton.textContent = label;
-  }
-  if (teleprompterCopyButton) {
-    teleprompterCopyButton.textContent = label;
-  }
+  if (copyResultButton) copyResultButton.textContent = label;
+  if (teleprompterCopyButton) teleprompterCopyButton.textContent = label;
 }
 
 function setResultText(text = "") {
   const nextText = String(text || "");
-  if (resultField) {
-    resultField.value = nextText;
-  }
-  if (charCount) {
-    charCount.textContent = String(nextText.length);
-  }
+  if (resultField) resultField.value = nextText;
+  if (charCount) charCount.textContent = String(nextText.length);
 }
 
 function syncTeleprompterControls() {
@@ -563,6 +526,7 @@ function syncTeleprompterControls() {
     copyResultButton.disabled = !latestMessageText;
     copyResultButton.classList.toggle("is-active", Boolean(latestMessageText));
   }
+
   if (teleprompterCopyButton) {
     teleprompterCopyButton.disabled = !latestMessageText;
     teleprompterCopyButton.classList.toggle("is-active", Boolean(latestMessageText));
@@ -589,9 +553,7 @@ function syncTeleprompterControls() {
 }
 
 function setSpeedMenuOpen(open) {
-  if (!teleprompterSpeedToggleButton || !teleprompterSpeedGroup) {
-    return;
-  }
+  if (!teleprompterSpeedToggleButton || !teleprompterSpeedGroup) return;
 
   const isOpen = Boolean(open);
   teleprompterSpeedGroup.hidden = !isOpen;
@@ -600,22 +562,20 @@ function setSpeedMenuOpen(open) {
 }
 
 function syncTeleprompterReadiness() {
-  if (!openTeleprompterButton) {
-    return;
-  }
+  if (!openTeleprompterButton) return;
 
   const ready = Boolean(latestMessageText);
   openTeleprompterButton.hidden = !ready;
   openTeleprompterButton.disabled = !ready;
   openTeleprompterButton.textContent = "Teleprompter";
+
   syncTeleprompterControls();
 }
 
 function openTeleprompter({ autoStart = true } = {}) {
-  if (!latestMessageText) {
-    return;
-  }
+  if (!latestMessageText) return;
 
+  teleprompterOpen = true;
   teleprompterOverlay.hidden = false;
   teleprompterOverlay.setAttribute("aria-hidden", "false");
   document.body.classList.add("teleprompter-open");
@@ -623,6 +583,7 @@ function openTeleprompter({ autoStart = true } = {}) {
   const afterLayout = () => {
     teleprompter.reset();
     syncTeleprompterControls();
+
     if (autoStart && teleprompter.start()) {
       setTeleprompterSummary("Teleprompter is live. You can pause or change speed any time.");
       syncTeleprompterControls();
@@ -632,6 +593,7 @@ function openTeleprompter({ autoStart = true } = {}) {
     if (teleprompter.hasLines()) {
       setTeleprompterSummary("Your message is ready. Tap Run when you want it to start scrolling.");
     }
+
     syncTeleprompterControls();
   };
 
@@ -642,6 +604,7 @@ function openTeleprompter({ autoStart = true } = {}) {
 
 function closeTeleprompter() {
   teleprompter.pause();
+  teleprompterOpen = false;
   setSpeedMenuOpen(false);
   teleprompterOverlay.hidden = true;
   teleprompterOverlay.setAttribute("aria-hidden", "true");
@@ -652,7 +615,6 @@ function closeTeleprompter() {
 function collectData() {
   const transcript = fields.message.value.trim();
   const situation = fields.situation.value.trim();
-  const afterState = fields.afterState.value;
 
   return {
     recipient: fields.recipient.value.trim(),
@@ -661,7 +623,7 @@ function collectData() {
     message: transcript || situation,
     intent: fields.intent.value,
     outcome: "",
-    afterState
+    afterState: fields.afterState.value
   };
 }
 
@@ -676,25 +638,36 @@ function clearOutputs() {
 }
 
 function updateOutputs(translation, meta = {}) {
-  latestMessageText = translation?.primary || "";
+  latestMessageText =
+    typeof translation === "string"
+      ? translation
+      : String(translation?.primary || "");
+
   setResultText(latestMessageText);
   setCopyButtonLabel("Copy");
+  setVoiceStatus("");
 
   if (meta.mode === "openai") {
-    setTeleprompterSummary();
-    setVoiceStatus("");
+    setTeleprompterSummary("");
   } else if (meta.source === "local" || meta.mode === "rule-based") {
     setTeleprompterSummary("");
-    setVoiceStatus("");
   } else {
-    setTeleprompterSummary();
+    setTeleprompterSummary("");
   }
 
-  teleprompter.setLines(translation?.teleprompterLines || []);
+  const teleprompterLines = Array.isArray(translation?.teleprompterLines)
+    ? translation.teleprompterLines
+    : latestMessageText
+        .split(/\n+/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+  teleprompter.setLines(teleprompterLines);
   syncTeleprompterReadiness();
 }
 
 function setGeneratingState(isGenerating) {
+  if (!submitButton) return;
   submitButton.disabled = isGenerating;
   submitButton.textContent = isGenerating ? "Working..." : "Generate";
 }
@@ -716,9 +689,11 @@ async function generateTranslation({ openTeleprompterOnComplete = false } = {}) 
   try {
     const result = await requestTranslation(payload);
     updateOutputs(result.translation, result.meta);
-    if (openTeleprompterOnComplete && result?.translation?.primary) {
+
+    if (openTeleprompterOnComplete && latestMessageText) {
       openTeleprompter();
     }
+
     return result.translation;
   } finally {
     setGeneratingState(false);
@@ -731,17 +706,16 @@ function persistDraft() {
     message: fields.message.value.trim()
   };
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
 
 function hydrateDraft() {
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) {
-    return false;
-  }
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return false;
 
   try {
     const draft = JSON.parse(raw);
+
     for (const [key, field] of Object.entries(fields)) {
       if (field && typeof draft[key] === "string") {
         field.value = draft[key];
@@ -756,18 +730,16 @@ function hydrateDraft() {
 }
 
 function resetForm() {
-  speechController?.stop();
+  speechController?.stop?.();
   form.reset();
   fields.message.value = "";
   updateVoicePreview("");
   clearOutputs();
-  window.localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STORAGE_KEY);
 }
 
 async function copyLatestMessage() {
-  if (!latestMessageText) {
-    return;
-  }
+  if (!latestMessageText) return;
 
   try {
     await navigator.clipboard.writeText(latestMessageText);
@@ -794,27 +766,20 @@ form.addEventListener("submit", async (event) => {
   await generateTranslation({ openTeleprompterOnComplete: false });
 });
 
-form.addEventListener("input", () => {
-  persistDraft();
-});
+form.addEventListener("input", persistDraft);
+form.addEventListener("change", persistDraft);
 
-form.addEventListener("change", () => {
-  persistDraft();
-});
+document.querySelector("#reset-form")?.addEventListener("click", resetForm);
+closeTeleprompterButton?.addEventListener("click", closeTeleprompter);
 
-document.querySelector("#reset-form").addEventListener("click", resetForm);
-closeTeleprompterButton.addEventListener("click", closeTeleprompter);
 openTeleprompterButton?.addEventListener("click", () => {
   openTeleprompter({ autoStart: false });
 });
-plusCancelButton?.addEventListener("click", () => {
-  hidePlusModal();
-});
-plusContinueButton?.addEventListener("click", () => {
-  handlePlusContinue();
-});
 
-teleprompterOverlay.addEventListener("click", (event) => {
+plusCancelButton?.addEventListener("click", hidePlusModal);
+plusContinueButton?.addEventListener("click", handlePlusContinue);
+
+teleprompterOverlay?.addEventListener("click", (event) => {
   if (event.target === teleprompterOverlay) {
     closeTeleprompter();
   }
@@ -853,25 +818,12 @@ teleprompterCopyButton?.addEventListener("click", () => {
   void copyLatestMessage();
 });
 
-const speechController = createSpeechController({
-  textarea: fields.message,
-  statusNode: document.querySelector("#voice-status"),
-  startButton: document.querySelector("#voice-start"),
-  stopButton: null,
-  onTranscript(nextValue) {
-    updateVoicePreview(nextValue, { fromVoice: true });
-    persistDraft();
-  }
-});
-
-document.querySelector("#voice-start").addEventListener("click", () => {
+document.querySelector("#voice-start")?.addEventListener("click", () => {
   void speechController?.start();
 });
 
 teleprompterSpeedToggleButton?.addEventListener("click", () => {
-  if (teleprompterSpeedToggleButton.disabled) {
-    return;
-  }
+  if (teleprompterSpeedToggleButton.disabled) return;
 
   const nextOpen = teleprompterSpeedGroup?.hidden !== false;
   setSpeedMenuOpen(nextOpen);
@@ -879,13 +831,12 @@ teleprompterSpeedToggleButton?.addEventListener("click", () => {
 
 teleprompterSpeedGroup?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-speed]");
-  if (!button) {
-    return;
-  }
+  if (!button) return;
 
   document.querySelectorAll(".speed-button").forEach((node) => {
     node.classList.toggle("is-active", node === button);
   });
+
   teleprompter.setSpeed(button.dataset.speed);
   setSpeedMenuOpen(false);
 });
@@ -903,14 +854,13 @@ teleprompterPlaybackButton?.addEventListener("click", () => {
     syncTeleprompterControls();
     return;
   }
+
   setTeleprompterSummary("Teleprompter is live. You can pause or change speed any time.");
   syncTeleprompterControls();
 });
 
 document.addEventListener("click", (event) => {
-  if (!teleprompterSpeedGroup || teleprompterSpeedGroup.hidden) {
-    return;
-  }
+  if (!teleprompterSpeedGroup || teleprompterSpeedGroup.hidden) return;
 
   const insideSpeedControl = event.target.closest(".teleprompter-speed-control");
   if (!insideSpeedControl) {
