@@ -3,221 +3,91 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>SayIt! | Clearer conversations</title>
+    <title>SayIt!</title>
     <meta
       name="description"
       content="SayIt! helps you say the hard thing clearly, calmly, and in your own voice."
     />
     <meta name="theme-color" content="#0b0f14" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SayIt!" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon-180.png" />
-    <meta property="og:title" content="SayIt! | Clearer conversations" />
-    <meta
-      property="og:description"
-      content="Install SayIt!, open the app, and use SayIt! Pro inside the standalone app."
-    />
-    <meta property="og:type" content="website" />
-    <link rel="stylesheet" href="/style.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        font-family:
+          -apple-system,
+          BlinkMacSystemFont,
+          "SF Pro Text",
+          "SF Pro Display",
+          system-ui,
+          "Segoe UI",
+          Roboto,
+          Arial,
+          sans-serif;
+        background: #0b0f14;
+        color: rgba(255, 255, 255, 0.92);
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .handoff {
+        width: min(100%, 460px);
+        padding: 22px 20px;
+        border-radius: 22px;
+        background: rgba(17, 24, 39, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: 28px;
+        line-height: 1.04;
+      }
+
+      p {
+        margin: 0;
+        line-height: 1.5;
+        color: rgba(226, 232, 240, 0.88);
+      }
+
+      a {
+        color: #8bc9ff;
+      }
+    </style>
+    <script>
+      (function () {
+        var url = new URL(window.location.href);
+        var next = new URL("/app", window.location.origin);
+
+        for (var entry of url.searchParams.entries()) {
+          next.searchParams.set(entry[0], entry[1]);
+        }
+
+        if (!next.searchParams.has("source")) {
+          next.searchParams.set("source", "pwa");
+        }
+
+        window.location.replace(next.toString());
+      })();
+    </script>
   </head>
-  <body class="sayit-install">
-    <a class="skip" href="#main">Skip to content</a>
-
-    <header class="sayit-header">
-      <div class="sayit-wrap">
-        <a class="brand-lockup" href="/" aria-label="SayIt! home">
-          <img class="brand-mark" src="/assets/sayit-app-icon.png" alt="SayIt!" width="44" height="44" />
-          <div class="brand-copy">
-            <div class="brand-name">SayIt!</div>
-            <div class="brand-tag">Clearer conversations</div>
-          </div>
-        </a>
-
-        <nav class="sayit-nav" aria-label="Primary">
-          <a href="#how" class="nav-link">How it works</a>
-          <a href="#install" class="nav-link">Install</a>
-          <a href="#reviews" class="nav-link">Reviews</a>
-        </nav>
-      </div>
-    </header>
-
-    <main id="main">
-      <section class="hero">
-        <div class="sayit-wrap hero-grid">
-          <div class="hero-copy">
-            <div class="pill">Hard conversations. Cleaner delivery.</div>
-            <img class="hero-logo" src="/assets/SayIt-hero.png" alt="SayIt!" />
-            <h1 class="hero-title">Say the hard thing clearly, calmly, and in your own voice.</h1>
-            <p class="hero-sub">
-              SayIt! helps when you know what you mean, but the first version in your head is too
-              sharp, too messy, or too emotional to land well.
-            </p>
-
-            <div class="cta-row">
-              <a class="btn btn-primary" href="#install-ios">Install on iPhone/iPad</a>
-              <a class="btn btn-ghost" href="#install-android">Install on Android</a>
-              <a class="btn btn-ghost" href="#install-desktop">Install on Mac/Windows</a>
-            </div>
-
-            <div class="trust-row">
-              <div class="trust-item">
-                <div class="trust-title">Built for real moments</div>
-                <div class="trust-text">Spouses, kids, bosses, coworkers, clients, and messy texts.</div>
-              </div>
-              <div class="trust-item">
-                <div class="trust-title">Speak or type</div>
-                <div class="trust-text">Talk it out, rewrite it, then read it from teleprompter mode.</div>
-              </div>
-              <div class="trust-item">
-                <div class="trust-title">Useful and light</div>
-                <div class="trust-text">No giant platform. No surveillance theater. Just the tool.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="hero-card">
-            <h2 class="card-title">What SayIt! does</h2>
-            <ul class="clean-list">
-              <li><strong>Translate</strong> a heated draft into something calmer and easier to hear.</li>
-              <li><strong>Adjust</strong> the rewrite to the relationship you chose: spouse, child, boss, friend, and more.</li>
-              <li><strong>Match the outcome</strong> you want, like clear, respectful, calm, confident, or short.</li>
-              <li><strong>Use teleprompter mode</strong> when you need to say it out loud instead of sending it.</li>
-              <li><strong>Unlock SayIt! Pro inside the standalone app</strong> with the Continue button after install.</li>
-            </ul>
-
-            <div class="note">
-              This page is the installer and setup guide. The live SayIt runtime, API routes, and billing stay inside the standalone app.
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="sayit-wrap">
-          <h2 class="section-title">Perfect for</h2>
-          <p class="section-sub">
-            People who do not need more advice. They just need help getting the message across better.
-          </p>
-
-          <div class="grid3">
-            <div class="tile">
-              <h3>Family and home</h3>
-              <p>Say the hard thing with less heat when the other person is your spouse, teenager, or someone you love.</p>
-            </div>
-            <div class="tile">
-              <h3>Work</h3>
-              <p>Clean up a draft to your boss, coworker, employee, customer, or client without losing the point.</p>
-            </div>
-            <div class="tile">
-              <h3>Pressure moments</h3>
-              <p>Use it when you are angry, overwhelmed, misread, or trying to reset a conversation before it goes sideways.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="how">
-        <div class="sayit-wrap">
-          <h2 class="section-title">How it works</h2>
-          <div class="how-story">
-            <p class="section-sub">
-              Daily life creates emotionally loaded conversations. You are trying to get something across without hurting someone, but the version in your head can come out too sharp, too messy, or too reactive.
-            </p>
-            <div class="how-card">
-              <p>
-                That is why we created <strong>SayIt!</strong> You record or type the message you are trying to say, add the relationship and the tone you want it to land with, and SayIt! turns it into something clearer, calmer, and easier for the other person to actually hear.
-              </p>
-              <p>
-                It helps you keep your meaning while improving the delivery. The result is still your message, just more concise, more grounded, and closer to the better version of you in the moment.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="install">
-        <div class="sayit-wrap">
-          <h2 class="section-title">Install</h2>
-          <p class="section-sub">
-            SayIt is install-only. This page is the installer and instructions.
-          </p>
-          <div class="how-card">
-            <p>
-              <strong>Why we do not use app stores</strong><br />
-              SayIt is not in an app store on purpose. App stores take a cut, impose rules, and push products into a bigger, more expensive ecosystem than this app needs.
-            </p>
-            <p>
-              We would rather keep SayIt lightweight, powerful, easy on your device, privacy-respecting, and affordable at just $2/month.
-            </p>
-          </div>
-
-          <div class="install-grid">
-            <div class="install-card" id="install-ios">
-              <h3>iPhone / iPad (Safari)</h3>
-              <ol>
-                <li>Open the standalone SayIt app in <strong>Safari</strong>.</li>
-                <li>Tap <strong>Share</strong>, then <strong>More</strong>, then <strong>Add to Home Screen</strong>.</li>
-                <li>Open SayIt from your Home Screen.</li>
-              </ol>
-              <div class="small-note">Install the standalone SayIt app, not the Circle marketing page. If you do not see “Add to Home Screen,” you are probably not in Safari.</div>
-            </div>
-
-            <div class="install-card" id="install-android">
-              <h3>Android (Chrome)</h3>
-              <ol>
-                <li>Open the standalone SayIt app in <strong>Chrome</strong>.</li>
-                <li>Tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li>
-                <li>Open SayIt from your Home Screen.</li>
-              </ol>
-            </div>
-
-            <div class="install-card" id="install-desktop">
-              <h3>Mac / Windows</h3>
-              <ol>
-                <li><strong>Mac:</strong> Open in <strong>Safari</strong>, then use <strong>Share</strong> and <strong>Add to Dock</strong>.</li>
-                <li><strong>Windows:</strong> Open in <strong>Chrome</strong> or <strong>Edge</strong>, then choose <strong>Install app</strong>.</li>
-                <li>Open SayIt like a normal app.</li>
-              </ol>
-              <div class="small-note">SayIt! Pro is $2/month and limited to 2 devices. If you hit a third device, the app can remove your oldest seat directly.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="reviews">
-        <div class="sayit-wrap">
-          <h2 class="section-title">Reviews</h2>
-          <p class="section-sub">The kind of things people say when a communication tool actually helps.</p>
-
-          <div class="reviews-grid">
-            <div class="review"><p>“This helped me say what I meant without starting a fight.”</p><span>— Maya R.</span></div>
-            <div class="review"><p>“I use it before sending anything sensitive at work now.”</p><span>— Jordan P.</span></div>
-            <div class="review"><p>“The spouse-to-boss difference is real. It actually changes the feel.”</p><span>— Sam K.</span></div>
-            <div class="review"><p>“Teleprompter mode is the thing I didn’t know I needed.”</p><span>— Taylor B.</span></div>
-            <div class="review"><p>“It lets me keep my point without sounding like I want war.”</p><span>— Chris L.</span></div>
-            <div class="review"><p>“This is one of those tiny apps that becomes part of life fast.”</p><span>— Nina S.</span></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="final-cta">
-        <div class="sayit-wrap final-cta-inner">
-          <h2>Clearer conversations.</h2>
-          <p>Install SayIt and keep it one tap away.</p>
-          <div class="cta-row">
-            <a class="btn btn-primary" href="#install">Install SayIt!</a>
-          </div>
-          <div class="privacy-line">Useful apps. Clean incentives. No surveillance theater.</div>
-        </div>
-      </section>
+  <body>
+    <main class="handoff">
+      <h1>Opening SayIt!</h1>
+      <p>
+        If the app does not open automatically, continue to
+        <a id="open-app-link" href="/app?source=pwa">the standalone app</a>.
+      </p>
     </main>
-
-    <footer class="sayit-footer">
-      <div class="sayit-wrap footer-inner">
-        <div>&copy; <span data-current-year></span> Circle The People Inc.</div>
-        <div class="footer-right">Clearer conversations.</div>
-      </div>
-    </footer>
-
-    <script src="/index.js" defer></script>
   </body>
 </html>

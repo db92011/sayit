@@ -82,8 +82,9 @@
         } catch (error) {}
 
         var previewMode = previewParam;
+        var pwaLaunch = url.searchParams.get("source") === "pwa";
 
-        var allowApp = isLocalHost || isStandalone || isNativeApp || previewAllowed;
+        var allowApp = isLocalHost || isStandalone || isNativeApp || pwaLaunch || previewAllowed;
 
         if (!allowApp) {
           window.__SAYIT_RUNTIME_DIAGNOSTIC__.redirectPlanned = true;
