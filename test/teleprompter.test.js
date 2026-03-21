@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { TeleprompterController } from "../pages/src/teleprompter.js";
+import { splitTeleprompterLines } from "../pages/src/rewrite-engine.js";
 
 function makeClassList() {
   const values = new Set();
@@ -192,4 +193,76 @@ test("teleprompter start still runs for short content", () => {
     globalThis.document = originalDocument;
     globalThis.window = originalWindow;
   }
+});
+
+test("teleprompter slow speed still advances from the start position", () => {
+  const originalDocument = globalThis.document;
+  const originalWindow = globalThis.window;
+
+  globalThis.document = {
+    createDocumentFragment() {
+      return {
+        children: [],
+        appendChild(node) {
+          this.children.push(node);
+        },
+      };
+    },
+    createElement() {
+      return {
+        className: "",
+        textContent: "",
+        classList: makeClassList(),
+      };
+    },
+  };
+
+  globalThis.window = {
+    requestAnimationFrame() {
+      return 1;
+    },
+    cancelAnimationFrame() {},
+  };
+
+  try {
+    const script = makeScriptNode();
+    script.clientHeight = 320;
+    script.scrollHeight = 1200;
+    const controller = new TeleprompterController({
+      container: {},
+      script,
+      highlightToggle: { checked: true },
+    });
+
+    controller.setLines([
+      "Line one with enough text to read comfortably.",
+      "Line two with enough text to read comfortably.",
+      "Line three with enough text to read comfortably.",
+      "Line four with enough text to read comfortably.",
+    ]);
+    controller.setSpeed("slow");
+
+    assert.equal(script.scrollTop, 0);
+    assert.equal(controller.start(), true);
+
+    controller.tick(1000);
+    controller.tick(2000);
+
+    assert.ok(script.scrollTop > 0);
+  } finally {
+    globalThis.document = originalDocument;
+    globalThis.window = originalWindow;
+  }
+});
+
+test("teleprompter lines do not keep dangling commas after clause splitting", () => {
+  const lines = splitTeleprompterLines(
+    "Tanya, I need more help with the dishes and kitchen cleanup, especially after we cook. When I end up handling it on my own after we cook, I feel worn down, and I do not want this turning into resentment between us."
+  );
+
+  assert.deepEqual(lines, [
+    "Tanya, I need more help with the dishes and kitchen cleanup, especially after we cook.",
+    "When I end up handling it on my own after we cook, I feel worn down.",
+    "I do not want this turning into resentment between us.",
+  ]);
 });

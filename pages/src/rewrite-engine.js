@@ -605,6 +605,14 @@ function buildImpactStatement(input, intentId, tones = []) {
       return "When it keeps falling to me, I stop feeling like your partner and start feeling like support staff.";
     }
 
+    if (input.relationship === "Spouse or partner") {
+      if (/(every time|cook|cooking|after you cook|after we cook)/i.test(haystack)) {
+        return "When I end up handling it on my own after we cook, I feel worn down, and I do not want this turning into resentment between us.";
+      }
+
+      return "When it keeps falling to me, I feel worn down, and I do not want that frustration building up between us.";
+    }
+
     if (/(every time|cook|cooking|after you cook|after we cook)/i.test(haystack)) {
       return "When I end up handling it on my own after we cook, I feel worn down and frustrated.";
     }
@@ -877,6 +885,7 @@ export function splitTeleprompterLines(text) {
 
     const pieces = part
       .split(/\s+(?:and|but)\s+/i)
+      .map((piece) => piece.replace(/,\s*$/g, "").trim())
       .map((piece) => ensureSentence(piece))
       .filter(Boolean);
 

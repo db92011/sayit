@@ -1,7 +1,7 @@
 const SPEED_MAP = {
-  slow: 52,
-  medium: 82,
-  fast: 118
+  slow: 68,
+  medium: 92,
+  fast: 126
 };
 
 export class TeleprompterController {
@@ -105,7 +105,7 @@ export class TeleprompterController {
 
   reset() {
     this.stop();
-    this.centerLine(0);
+    this.script.scrollTop = 0;
     this.updateHighlight();
     this.notifyStateChange();
   }

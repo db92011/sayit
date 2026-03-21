@@ -14,8 +14,9 @@ const DEFAULT_OPENAI_BEHAVIOR = [
   "Start with the real point. Do not front-load the rewrite with throat-clearing lines like 'I care about us', 'Let me say this more clearly', 'I want to say this respectfully', 'What I mean is', or any other speech about the speech.",
   "Do not add meta commentary about the user's goal, tone, or desired feeling. Make it sound clear, respectful, and calm without explicitly explaining that intention.",
   "Adapt the wording to the selected relationship dynamic. A message to a spouse should not sound like a message to a boss, and a message to a child should not sound like a message to a customer.",
+  "For spouse or partner messages, a brief heartfelt line is okay when it is grounded in the real issue, such as not wanting resentment to build or wanting the home to feel more like teamwork. Do not make that line a vague preamble.",
   "If the user provides a recipient name, use that name naturally near the start only when it helps the message land better.",
-  "The final draft should usually be 2 to 4 sentences and should sound ready to say out loud.",
+  "The final draft should usually be 3 to 5 sentences and should sound ready to say out loud.",
   "Teleprompter lines must be cut directly from the same final draft, in order, with no extra intro lines.",
   "Never sound robotic, therapy-scripted, or corporate unless the situation clearly calls for it.",
   "Output valid JSON only."
@@ -206,6 +207,7 @@ function buildOpenAiPrompt(payload) {
     "- Start directly with the actual point. Do not include preambles like 'I care about us', 'Let me say this more clearly', 'I want to say this respectfully', 'What I mean is', or any sentence that explains the tone before the point.",
     "- Preserve the user's concrete facts and examples unless removing one is necessary to reduce unnecessary heat.",
     "- Match the selected relationship dynamic and desired tone closely.",
+    "- For spouse or partner messages, a brief warm line is welcome only if it feels grounded and specific, not vague or performative.",
     "- If recipient is provided, use the person's name naturally once near the start only if it helps.",
     "- tones may only use: clear, respectful, calm.",
     "- detectedIntent.id must be one of: explain, boundary, criticism, correction, frustration, help, clarify.",

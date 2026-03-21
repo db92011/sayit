@@ -1,4 +1,4 @@
-const CACHE = "sayit-static-v9";
+const CACHE = "sayit-static-v10";
 
 const APP_SHELL = [
   "/",
