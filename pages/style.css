@@ -43,6 +43,8 @@ body.sayit-install {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  position: relative;
+  isolation: isolate;
   background-color: #fbfffe;
   background-image:
     radial-gradient(1400px 900px at 20% 0%, rgba(32, 168, 255, 0.14), transparent 65%),
@@ -51,6 +53,21 @@ body.sayit-install {
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
+}
+
+body.sayit-install::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.42;
+  background-image:
+    url("/assets/conversation-wallpaper.svg"),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(247, 244, 235, 0.12));
+  background-size: 880px 880px, auto;
+  background-repeat: repeat, no-repeat;
+  background-position: center top, center;
 }
 
 img {
@@ -98,6 +115,13 @@ a {
   -webkit-backdrop-filter: blur(12px);
   background: rgba(246, 251, 255, 0.34);
   border-bottom: 1px solid rgba(15, 23, 42, 0.04);
+}
+
+.sayit-header,
+main,
+.sayit-footer {
+  position: relative;
+  z-index: 1;
 }
 
 .sayit-header .sayit-wrap {
@@ -190,146 +214,6 @@ body.sayit-install .hero-grid {
   background: transparent;
   border: 0;
   box-shadow: none;
-}
-
-body.sayit-install .hero-collage {
-  position: absolute;
-  inset: -18px -40px auto;
-  height: 520px;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 0;
-  opacity: 0.38;
-}
-
-body.sayit-install .bubble,
-body.sayit-install .talk-icon,
-body.sayit-install .avatar-badge {
-  position: absolute;
-  filter: blur(0.2px);
-  opacity: 0.56;
-}
-
-body.sayit-install .bubble {
-  padding: 14px 18px;
-  border-radius: 22px;
-  font-size: 0.94rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: rgba(23, 29, 42, 0.7);
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.82);
-  box-shadow: 0 20px 40px rgba(31, 55, 84, 0.08);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-}
-
-body.sayit-install .bubble-a {
-  top: 40px;
-  left: 8%;
-  transform: rotate(-8deg);
-}
-
-body.sayit-install .bubble-b {
-  top: 16px;
-  right: 10%;
-  transform: rotate(7deg);
-}
-
-body.sayit-install .bubble-c {
-  top: 176px;
-  left: 1%;
-  transform: rotate(-5deg);
-}
-
-body.sayit-install .bubble-d {
-  top: 210px;
-  right: 2%;
-  transform: rotate(8deg);
-}
-
-body.sayit-install .bubble-e {
-  bottom: 90px;
-  left: 12%;
-  transform: rotate(5deg);
-}
-
-body.sayit-install .bubble-f {
-  bottom: 56px;
-  right: 14%;
-  transform: rotate(-7deg);
-}
-
-body.sayit-install .talk-icon {
-  width: 78px;
-  height: 78px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.3)),
-    linear-gradient(145deg, rgba(32, 168, 255, 0.3), rgba(243, 154, 61, 0.18));
-  border: 1px solid rgba(255, 255, 255, 0.74);
-  box-shadow: 0 20px 42px rgba(31, 55, 84, 0.12);
-}
-
-body.sayit-install .talk-icon span {
-  position: absolute;
-  display: block;
-  width: 26px;
-  height: 26px;
-  border: 4px solid rgba(16, 116, 209, 0.64);
-  border-radius: 999px;
-}
-
-body.sayit-install .talk-icon span:last-child {
-  width: 18px;
-  height: 18px;
-  transform: translate(14px, -14px);
-  border-color: rgba(243, 154, 61, 0.65);
-}
-
-body.sayit-install .talk-icon-a {
-  top: 110px;
-  right: 20%;
-}
-
-body.sayit-install .talk-icon-b {
-  bottom: 110px;
-  left: 24%;
-}
-
-body.sayit-install .talk-icon-c {
-  top: 288px;
-  right: 27%;
-  transform: scale(0.88);
-}
-
-body.sayit-install .avatar-badge {
-  width: 54px;
-  height: 54px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 18px 36px rgba(31, 55, 84, 0.1);
-  background:
-    radial-gradient(circle at 50% 32%, rgba(255, 255, 255, 0.92) 0 16%, transparent 17%),
-    radial-gradient(circle at 50% 74%, rgba(255, 255, 255, 0.9) 0 28%, transparent 29%),
-    linear-gradient(145deg, rgba(32, 168, 255, 0.36), rgba(243, 154, 61, 0.18));
-}
-
-body.sayit-install .avatar-a {
-  top: 88px;
-  left: 28%;
-}
-
-body.sayit-install .avatar-b {
-  top: 316px;
-  left: 20%;
-}
-
-body.sayit-install .avatar-c {
-  bottom: 118px;
-  right: 24%;
 }
 
 body.sayit-install .hero-copy {
@@ -763,11 +647,6 @@ body.sayit-install .hero-card {
     align-self: center;
   }
 
-   body.sayit-install .hero-collage {
-    inset: -22px -30px auto;
-    height: 560px;
-  }
-
   body.sayit-install .hero-logo {
     width: min(210px, 24vw);
     margin: 0 0 22px;
@@ -846,30 +725,6 @@ body.sayit-install .hero-card {
     padding: 38px 0 18px;
   }
 
-  body.sayit-install .hero-collage {
-    inset: 26px -16px auto;
-    height: 320px;
-    opacity: 0.18;
-  }
-
-  body.sayit-install .bubble {
-    font-size: 0.76rem;
-    padding: 8px 10px;
-  }
-
-  body.sayit-install .bubble-b,
-  body.sayit-install .bubble-c,
-  body.sayit-install .bubble-d,
-  body.sayit-install .bubble-f,
-  body.sayit-install .talk-icon-a,
-  body.sayit-install .talk-icon-b,
-  body.sayit-install .talk-icon-c,
-  body.sayit-install .avatar-a,
-  body.sayit-install .avatar-b,
-  body.sayit-install .avatar-c {
-    display: none;
-  }
-
   .hero-title {
     font-size: clamp(30px, 8.4vw, 42px);
     max-width: 8.2ch;
@@ -914,6 +769,11 @@ body.sayit-install .hero-card {
 
   .sayit-nav {
     display: none;
+  }
+
+  body.sayit-install::before {
+    opacity: 0.26;
+    background-size: 640px 640px, auto;
   }
 }
 
