@@ -2,410 +2,236 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <title>SayIt!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>SayIt! | Install the app</title>
 
-    <meta name="theme-color" content="#0b0f14" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
+      name="description"
+      content="Open the real SayIt! app, then add it to your phone or desktop from there."
     />
-    <meta name="apple-mobile-web-app-title" content="SayIt!" />
+    <meta name="theme-color" content="#20a8ff" />
+
+    <meta property="og:title" content="SayIt! | Install the app" />
+    <meta
+      property="og:description"
+      content="Open the real SayIt! app, then add it to your phone or desktop from there."
+    />
+    <meta property="og:type" content="website" />
 
     <link rel="manifest" href="/site.webmanifest" />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="icon" type="image/png" href="/icons/icon-192.png" />
     <link rel="apple-touch-icon" href="/icons/icon-180.png" />
-    <link rel="stylesheet" href="/app.css" />
-
-    <script>
-      (function () {
-        var iosStandalone = window.navigator.standalone === true;
-        var displayStandalone = false;
-
-        try {
-          displayStandalone = window.matchMedia("(display-mode: standalone)").matches;
-        } catch (error) {}
-
-        var isStandalone = iosStandalone || displayStandalone;
-
-        document.documentElement.setAttribute(
-          "data-standalone",
-          isStandalone ? "yes" : "no"
-        );
-
-        if (!isStandalone) {
-          document.documentElement.classList.add("browser-hosted");
-        }
-
-        if ("serviceWorker" in navigator) {
-          window.addEventListener("load", function () {
-            navigator.serviceWorker.register("/service-worker.js").catch(function (error) {
-              console.error("Service worker registration failed:", error);
-            });
-          });
-        }
-      })();
-    </script>
   </head>
+  <body class="sayit-install">
+    <a class="skip" href="#main">Skip to content</a>
 
-  <body class="app">
-    <div class="page">
-      <div class="shell">
-        <header class="header">
-          <div class="brand">
-            <img
-              class="brand-logo"
-              src="/assets/sayit-app-icon.png"
-              alt="SayIt!"
-            />
-            <div class="brandText">
-              <strong>SayIt!</strong>
-              <p>Clearer conversations, in your own voice.</p>
+    <header class="sayit-header">
+      <div class="sayit-wrap">
+        <a class="brand-lockup" href="/" aria-label="SayIt! install home">
+          <img
+            class="brand-mark"
+            src="/assets/sayit-app-icon.png"
+            alt="SayIt!"
+            width="44"
+            height="44"
+          />
+          <div class="brand-copy">
+            <div class="brand-name">SayIt!</div>
+            <div class="brand-tag">Clearer conversations</div>
+          </div>
+        </a>
+
+        <nav class="sayit-nav" aria-label="Primary">
+          <a href="#how" class="nav-link">How it works</a>
+          <a href="#install" class="nav-link">Install</a>
+          <a href="#reviews" class="nav-link">Reviews</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="sayit-wrap hero-grid">
+          <div class="hero-copy">
+            <div class="pill">Hard conversations. Cleaner delivery.</div>
+
+            <h1 class="hero-title">Open the real SayIt! app, then add it to your device.</h1>
+
+            <p class="hero-sub">
+              This is the SayIt install surface on the app domain. Open the app first, then use your
+              phone or browser’s built-in install flow from there.
+            </p>
+
+            <div class="cta-row">
+              <a class="btn btn-primary" id="downloadButton" href="/app?source=pwa">Open the SayIt! App</a>
+              <a class="btn btn-ghost" href="#install">How to install</a>
+            </div>
+
+            <div class="download-note" id="downloadNote">
+              On iPhone, tap <strong>Open the SayIt! App</strong>, wait until you are on the real app
+              screen, then use <strong>Share</strong> and <strong>Add to Home Screen</strong>.
+            </div>
+
+            <div class="trust-row">
+              <div class="trust-item">
+                <div class="trust-title">Install from the right place</div>
+                <div class="trust-text">The saved icon should come from the app surface, not from a marketing page.</div>
+              </div>
+              <div class="trust-item">
+                <div class="trust-title">Speak or type</div>
+                <div class="trust-text">Talk it out, rewrite it, then read it from teleprompter mode.</div>
+              </div>
+              <div class="trust-item">
+                <div class="trust-title">Useful and light</div>
+                <div class="trust-text">No giant platform. No surveillance theater. Just the tool.</div>
+              </div>
             </div>
           </div>
 
-          <div class="headerActions">
-            <button
-              type="button"
-              id="reset-form"
-              class="ghost-button header-button"
-            >
-              Clear
-            </button>
+          <div class="hero-card">
+            <h2 class="card-title">What SayIt! does</h2>
+            <ul class="clean-list">
+              <li><strong>Translate</strong> a heated draft into something calmer and easier to hear.</li>
+              <li><strong>Adjust</strong> the rewrite to the relationship you chose: spouse, child, boss, friend, and more.</li>
+              <li><strong>Match the outcome</strong> you want, like clear, respectful, calm, confident, or short.</li>
+              <li><strong>Use teleprompter mode</strong> when you need to say it out loud instead of sending it.</li>
+              <li><strong>Unlock SayIt! Pro inside the app</strong> after installation.</li>
+            </ul>
+
+            <div class="note">
+              This page is only the install guide. The actual SayIt! experience opens on the app route.
+            </div>
           </div>
-        </header>
+        </div>
+      </section>
 
-        <main class="main">
-          <form id="intake-form" class="intake-form">
-            <section class="panel app-section intake-card">
-              <div class="panelHeading">
-                <div class="panelEyebrow">Compose</div>
-                <p class="panelIntro">
-                  Shape the message before it leaves your mouth or your keyboard.
-                </p>
-              </div>
+      <section class="section">
+        <div class="sayit-wrap">
+          <h2 class="section-title">Perfect for</h2>
+          <p class="section-sub">
+            People who do not need more advice. They just need help getting the message across better.
+          </p>
 
-              <label class="field field-short">
-                <span>Who are you talking to?</span>
-                <input
-                  id="recipient"
-                  name="recipient"
-                  type="text"
-                  placeholder="Name"
-                />
-              </label>
+          <div class="grid3">
+            <div class="tile">
+              <h3>Family and home</h3>
+              <p>Say the hard thing with less heat when the other person is your spouse, teenager, or someone you love.</p>
+            </div>
+            <div class="tile">
+              <h3>Work</h3>
+              <p>Clean up a draft to your boss, coworker, employee, customer, or client without losing the point.</p>
+            </div>
+            <div class="tile">
+              <h3>Pressure moments</h3>
+              <p>Use it when you are angry, overwhelmed, misread, or trying to reset a conversation before it goes sideways.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              <div class="row2">
-                <label class="field">
-                  <span>Relationship dynamic</span>
-                  <select id="relationship" name="relationship">
-                    <option value="">Select a dynamic</option>
-                    <option>Spouse or partner</option>
-                    <option>Child or teenager</option>
-                    <option>Friend</option>
-                    <option>Coworker</option>
-                    <option>Boss or supervisor</option>
-                    <option>Employee or subordinate</option>
-                    <option>Customer</option>
-                    <option>Client</option>
-                    <option>Stranger</option>
-                    <option>Online conversation</option>
-                    <option>Social media comment</option>
-                  </select>
-                </label>
+      <section class="section" id="how">
+        <div class="sayit-wrap">
+          <h2 class="section-title">How it works</h2>
+          <div class="how-story">
+            <p class="section-sub">
+              SayIt helps you keep your meaning while improving the delivery. The result is still your
+              message, just more concise, more grounded, and closer to the better version of you in the
+              moment.
+            </p>
 
-                <label class="field">
-                  <span>Core intent</span>
-                  <select id="intent" name="intent">
-                    <option value="auto">Auto-detect from your message</option>
-                    <option value="explain">Explain a problem</option>
-                    <option value="boundary">Set a boundary</option>
-                    <option value="criticism">Respond to criticism</option>
-                    <option value="correction">Correct someone</option>
-                    <option value="frustration">Express frustration</option>
-                    <option value="help">Ask for help</option>
-                    <option value="clarify">Clarify something</option>
-                  </select>
-                </label>
-              </div>
-
-              <label class="field">
-                <span>How do I want this message to come across?</span>
-                <select id="after-state" name="afterState">
-                  <option value="">Select how I want it to come across</option>
-                  <option>Clear</option>
-                  <option>Respectful</option>
-                  <option>Calm</option>
-                  <option>Smart</option>
-                  <option>Short</option>
-                  <option>Confident</option>
-                  <option>Funny</option>
-                  <option>Easy to understand</option>
-                </select>
-              </label>
-
-              <label class="field field-large">
-                <span>Extra context (optional)</span>
-                <textarea
-                  id="situation"
-                  name="situation"
-                  rows="4"
-                  placeholder="Add more information here."
-                ></textarea>
-              </label>
-
-              <label class="field field-large">
-                <span>What do you want to say?</span>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows="7"
-                  placeholder=""
-                ></textarea>
-              </label>
-
-              <p id="voice-preview" class="voice-preview"></p>
-              <p id="voice-status" class="voice-status"></p>
-
-              <div class="voice-actions">
-                <button
-                  type="button"
-                  id="voice-start"
-                  class="ghost-button compact-button"
-                >
-                  Record
-                </button>
-                <button
-                  type="submit"
-                  id="translate-action"
-                  class="primary-button compact-button"
-                >
-                  Generate
-                </button>
-              </div>
-
-              <p id="teleprompter-summary" class="teleprompter-summary"></p>
-            </section>
-          </form>
-
-          <section class="panel resultWrap">
-            <div class="panelHeading resultHeading">
-              <div class="panelEyebrow">Refined draft</div>
-              <p class="panelIntro">
-                Your cleaner version appears here, ready to copy or read aloud.
+            <div class="how-card">
+              <p>
+                Start on this install page, open the real app, and then add it to your Home Screen or
+                desktop from the app itself. That way the icon launches into SayIt instead of back to an
+                install guide.
+              </p>
+              <p>
+                Once you are in the app, you can type or dictate what you want to say, set the
+                relationship and tone, and let SayIt turn it into something clearer and easier to hear.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div class="resultTop">
-              <label for="result">Result</label>
-              <div class="badgeCount">
-                <span id="charCount">0</span> chars
+      <section class="section" id="install">
+        <div class="sayit-wrap">
+          <h2 class="section-title">Install</h2>
+
+          <div class="how-card">
+            <p>
+              <strong>Important:</strong><br />
+              Do not add this install guide to your device. First open the actual SayIt! app, then
+              install it from there.
+            </p>
+            <p>Use this button first:</p>
+            <p>
+              <a class="btn btn-primary" href="/app?source=pwa">Open the SayIt! App</a>
+            </p>
+          </div>
+
+          <div class="install-simple">
+            <div class="install-simple-card">
+              <div class="install-simple-row">
+                <strong>iPhone / iPad</strong>
+                <span>Open the SayIt! app first, then tap Share and choose “Add to Home Screen”.</span>
+              </div>
+              <div class="install-simple-row">
+                <strong>Android</strong>
+                <span>Open the SayIt! app first, then use Chrome menu → “Install app” or “Add to Home screen”.</span>
+              </div>
+              <div class="install-simple-row">
+                <strong>Desktop</strong>
+                <span>Open the SayIt! app first, then use your browser’s install option in Chrome, Edge, or Safari.</span>
               </div>
             </div>
 
-            <textarea id="result" readonly placeholder=""></textarea>
-
-            <div class="resultActions">
-              <button type="button" id="copy-result" class="ghost-button">
-                Copy
-              </button>
-              <button
-                type="button"
-                id="open-teleprompter"
-                class="ghost-button"
-                hidden
-              >
-                Teleprompter
-              </button>
-            </div>
-          </section>
-        </main>
-      </div>
-    </div>
-
-    <div class="counterBar" aria-live="polite">
-      <span id="counterText"></span>
-    </div>
-
-    <div id="plusModal" class="modalOverlay" hidden>
-      <div
-        class="modalCard"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="plusTitle"
-      >
-        <div class="modalBanner">
-          <div class="modalBannerInner">
-            <div class="modalLogo">
-              <img
-                class="modalLogoImg"
-                src="/assets/sayit-app-icon.png"
-                alt="SayIt!"
-              />
-            </div>
-            <div>
-              <div id="plusTitle" class="modalTitle">Unlock SayIt! Pro</div>
-              <div class="modalSub">
-                Use your email to restore access or start a subscription.
-              </div>
+            <div class="small-note">
+              Installation should happen only from the actual SayIt! app route.
             </div>
           </div>
         </div>
-
-        <div class="modalBody">
-          <ul class="modalList">
-            <li>
-              <strong>Already subscribed?</strong> We’ll unlock this device for
-              your account.
-            </li>
-            <li>
-              <strong>New to Pro?</strong> We’ll send you to Stripe to finish
-              setup.
-            </li>
-          </ul>
-
-          <div class="modalFine">$2/month · Stripe handles billing</div>
-
-          <label class="modalLabel" for="plusEmail">Email</label>
-          <input
-            id="plusEmail"
-            class="modalInput"
-            type="email"
-            placeholder="Email address"
-            autocomplete="email"
-          />
-
-          <div
-            id="deviceLimitMsg"
-            aria-live="polite"
-            style="display: none; margin-top: 12px; font-size: 14px; line-height: 1.35;"
-          ></div>
-
-          <button
-            id="manageDevicesLink"
-            type="button"
-            class="ghost-button"
-            style="display: none; margin-top: 10px; width: 100%;"
-          >
-            Remove oldest device
-          </button>
-        </div>
-
-        <div class="modalActions">
-          <button id="plusCancelBtn" type="button" class="ghost-button">
-            Cancel
-          </button>
-          <button id="plusContinueBtn" type="button" class="primary-button">
-            Continue
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div
-      id="teleprompter-overlay"
-      class="teleprompter-overlay"
-      hidden
-      aria-hidden="true"
-    >
-      <section
-        class="teleprompter-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="teleprompter-overlay-title"
-      >
-        <h2 id="teleprompter-overlay-title" class="visually-hidden">
-          Your message
-        </h2>
-
-        <section class="teleprompter-layout">
-          <aside
-            class="teleprompter-sidebar"
-            aria-label="Teleprompter controls"
-          >
-            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-top">
-              <button
-                id="copy-message"
-                type="button"
-                class="teleprompter-rail-button"
-              >
-                Copy
-              </button>
-              <button
-                id="teleprompter-playback"
-                type="button"
-                class="teleprompter-rail-button"
-              >
-                Pause
-              </button>
-            </div>
-
-            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-middle">
-              <div class="teleprompter-speed-control">
-                <button
-                  id="teleprompter-speed-toggle"
-                  type="button"
-                  class="teleprompter-rail-button teleprompter-speed-toggle"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                  aria-controls="speed-group"
-                >
-                  Speed: Slow
-                </button>
-                <div class="teleprompter-speed-popover" id="speed-group" hidden>
-                  <button
-                    type="button"
-                    data-speed="slow"
-                    class="teleprompter-rail-button speed-button is-active"
-                  >
-                    Slow
-                  </button>
-                  <button
-                    type="button"
-                    data-speed="medium"
-                    class="teleprompter-rail-button speed-button"
-                  >
-                    Medium
-                  </button>
-                  <button
-                    type="button"
-                    data-speed="fast"
-                    class="teleprompter-rail-button speed-button"
-                  >
-                    Fast
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-close">
-              <button
-                id="close-teleprompter"
-                type="button"
-                class="teleprompter-rail-button"
-              >
-                Close
-              </button>
-            </div>
-          </aside>
-
-          <section class="teleprompter-card teleprompter-panel teleprompter-reader">
-            <div id="teleprompter" class="teleprompter">
-              <div class="teleprompter-highlight-guide" aria-hidden="true"></div>
-              <div id="teleprompter-script" class="teleprompter-script">
-                <p class="teleprompter-placeholder">
-                  Generate a translated message to load teleprompter mode.
-                </p>
-              </div>
-            </div>
-          </section>
-        </section>
       </section>
-    </div>
 
-    <script type="module" src="/app.js"></script>
+      <section class="section" id="reviews">
+        <div class="sayit-wrap">
+          <h2 class="section-title">Reviews</h2>
+          <p class="section-sub">The kind of things people say when a communication tool actually helps.</p>
+
+          <div class="reviews-grid">
+            <div class="review"><p>“This helped me say what I meant without starting a fight.”</p><span>— Maya R.</span></div>
+            <div class="review"><p>“I use it before sending anything sensitive at work now.”</p><span>— Jordan P.</span></div>
+            <div class="review"><p>“The spouse-to-boss difference is real. It actually changes the feel.”</p><span>— Sam K.</span></div>
+            <div class="review"><p>“Teleprompter mode is the thing I didn’t know I needed.”</p><span>— Taylor B.</span></div>
+            <div class="review"><p>“It lets me keep my point without sounding like I want war.”</p><span>— Chris L.</span></div>
+            <div class="review"><p>“This is one of those tiny apps that becomes part of life fast.”</p><span>— Nina S.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="final-cta">
+        <div class="sayit-wrap final-cta-inner">
+          <h2>Clearer conversations.</h2>
+          <p>Open the actual SayIt! app first, then add it to your device from there.</p>
+
+          <div class="cta-row">
+            <a class="btn btn-primary" id="downloadButtonBottom" href="/app?source=pwa">Open the App</a>
+            <a class="btn btn-ghost" href="#install">How to install</a>
+          </div>
+
+          <div class="privacy-line">Useful apps. Clean incentives. No surveillance theater.</div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="sayit-footer">
+      <div class="sayit-wrap footer-inner">
+        <div>&copy; <span data-current-year></span> Circle The People Inc.</div>
+        <div class="footer-right">Clearer conversations.</div>
+      </div>
+    </footer>
+
+    <script src="/index.js" defer></script>
   </body>
 </html>

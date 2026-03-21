@@ -24,13 +24,13 @@ async function fetchJson(url, init, label) {
 }
 
 const html = await fetchText(resolveUrl("/"), "Preview HTML");
-assert.match(html, /SayIt! \| Clearer conversations/i, "Preview should render the install title");
-assert.match(html, /This page is the installer and setup guide/i, "Preview should render the installer shell");
+assert.match(html, /SayIt! \| Install the app/i, "Preview should render the install title");
+assert.match(html, /This is the SayIt install surface on the app domain/i, "Preview should render the installer shell");
 assert.match(html, /src="\/index\.js"/i, "Preview should reference the installer entry script");
 assert.doesNotMatch(html, /id="teleprompter-overlay"/i, "Install page should not include the teleprompter overlay shell");
 assert.doesNotMatch(html, /id="plusModal"/i, "Install page should not include the plus upsell modal shell");
 
-const appHtml = await fetchText(resolveUrl("/app.html?preview=app-mobile"), "App preview HTML");
+const appHtml = await fetchText(resolveUrl("/app?preview=app-mobile"), "App preview HTML");
 assert.match(appHtml, /window\.__SAYIT_PREVIEW_MODE__/i, "App preview should include preview bootstrapping");
 assert.match(appHtml, /preview-app-mobile/i, "App preview should include mobile preview mode styling hooks");
 assert.match(appHtml, /id="teleprompter-overlay"/i, "App preview should include the teleprompter shell");

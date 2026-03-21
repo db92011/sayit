@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>SayIt!</title>
+
+    <meta name="theme-color" content="#0b0f14" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="SayIt!" />
+
+    <script>
+      (function () {
+        var url = new URL(window.location.href);
+        var isLocalHost =
+          window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1";
+
+        var isStandalone = false;
+        try {
+          isStandalone =
+            window.matchMedia("(display-mode: standalone)").matches ||
+            window.navigator.standalone === true ||
+            document.referrer.indexOf("android-app://") === 0;
+        } catch (error) {}
+
+        var previewRequested =
+          url.searchParams.get("preview") === "1" ||
+          url.searchParams.get("preview") === "app-mobile";
+
+        if (previewRequested) {
+          try {
+            sessionStorage.setItem("sayit_app_preview", "1");
+          } catch (error) {}
+        }
+
+        var previewGranted = false;
+        try {
+          previewGranted = sessionStorage.getItem("sayit_app_preview") === "1";
+        } catch (error) {}
+
+        var pwaLaunch = url.searchParams.get("source") === "pwa";
+        var allowApp = isLocalHost || isStandalone || pwaLaunch || previewGranted;
+
+        window.__SAYIT_PREVIEW_MODE__ = previewRequested || previewGranted ? "app-mobile" : "";
+        if (window.__SAYIT_PREVIEW_MODE__) {
+          document.documentElement.classList.add("preview-app-mobile");
+        }
+
+        if (!allowApp) {
+          window.location.replace("/");
+        }
+      })();
+    </script>
+
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+
+  <body class="app">
+    <div class="app-install-banner" data-install-banner hidden>
+      <div class="app-install-banner-copy">
+        <strong>You are on the real SayIt! app.</strong>
+        <span>On iPhone, tap Share, then Add to Home Screen.</span>
+      </div>
+      <a class="app-install-banner-link" href="/">Install help</a>
+    </div>
+
+    <div class="page">
+      <div class="shell">
+        <header class="header">
+          <div class="brand">
+            <img
+              class="brand-logo"
+              src="/assets/sayit-app-icon.png"
+              alt="SayIt!"
+            />
+            <div class="brandText">
+              <strong>SayIt!</strong>
+              <p>Clearer conversations, in your own voice.</p>
+            </div>
+          </div>
+
+          <div class="headerActions">
+            <button
+              type="button"
+              id="reset-form"
+              class="ghost-button header-button"
+            >
+              Clear
+            </button>
+          </div>
+        </header>
+
+        <main class="main">
+          <form id="intake-form" class="intake-form">
+            <section class="panel app-section intake-card">
+              <div class="panelHeading">
+                <div class="panelEyebrow">Compose</div>
+                <p class="panelIntro">
+                  Shape the message before it leaves your mouth or your keyboard.
+                </p>
+              </div>
+
+              <label class="field field-short">
+                <span>Who are you talking to?</span>
+                <input
+                  id="recipient"
+                  name="recipient"
+                  type="text"
+                  placeholder="Name"
+                />
+              </label>
+
+              <div class="row2">
+                <label class="field">
+                  <span>Relationship dynamic</span>
+                  <select id="relationship" name="relationship">
+                    <option value="">Select a dynamic</option>
+                    <option>Spouse or partner</option>
+                    <option>Child or teenager</option>
+                    <option>Friend</option>
+                    <option>Coworker</option>
+                    <option>Boss or supervisor</option>
+                    <option>Employee or subordinate</option>
+                    <option>Customer</option>
+                    <option>Client</option>
+                    <option>Stranger</option>
+                    <option>Online conversation</option>
+                    <option>Social media comment</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>Core intent</span>
+                  <select id="intent" name="intent">
+                    <option value="auto">Auto-detect from your message</option>
+                    <option value="explain">Explain a problem</option>
+                    <option value="boundary">Set a boundary</option>
+                    <option value="criticism">Respond to criticism</option>
+                    <option value="correction">Correct someone</option>
+                    <option value="frustration">Express frustration</option>
+                    <option value="help">Ask for help</option>
+                    <option value="clarify">Clarify something</option>
+                  </select>
+                </label>
+              </div>
+
+              <label class="field">
+                <span>How do I want this message to come across?</span>
+                <select id="after-state" name="afterState">
+                  <option value="">Select how I want it to come across</option>
+                  <option>Clear</option>
+                  <option>Respectful</option>
+                  <option>Calm</option>
+                  <option>Smart</option>
+                  <option>Short</option>
+                  <option>Confident</option>
+                  <option>Funny</option>
+                  <option>Easy to understand</option>
+                </select>
+              </label>
+
+              <label class="field field-large">
+                <span>Extra context (optional)</span>
+                <textarea
+                  id="situation"
+                  name="situation"
+                  rows="4"
+                  placeholder="Add more information here."
+                ></textarea>
+              </label>
+
+              <label class="field field-large">
+                <span>What do you want to say?</span>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="7"
+                  placeholder=""
+                ></textarea>
+              </label>
+
+              <p id="voice-preview" class="voice-preview"></p>
+              <p id="voice-status" class="voice-status"></p>
+
+              <div class="voice-actions">
+                <button
+                  type="button"
+                  id="voice-start"
+                  class="ghost-button compact-button"
+                >
+                  Record
+                </button>
+                <button
+                  type="submit"
+                  id="translate-action"
+                  class="primary-button compact-button"
+                >
+                  Generate
+                </button>
+              </div>
+
+              <p id="teleprompter-summary" class="teleprompter-summary"></p>
+            </section>
+          </form>
+
+          <section class="panel resultWrap">
+            <div class="panelHeading resultHeading">
+              <div class="panelEyebrow">Refined draft</div>
+              <p class="panelIntro">
+                Your cleaner version appears here, ready to copy or read aloud.
+              </p>
+            </div>
+
+            <div class="resultTop">
+              <label for="result">Result</label>
+              <div class="badgeCount">
+                <span id="charCount">0</span> chars
+              </div>
+            </div>
+
+            <textarea id="result" readonly placeholder=""></textarea>
+
+            <div class="resultActions">
+              <button type="button" id="copy-result" class="ghost-button">
+                Copy
+              </button>
+              <button
+                type="button"
+                id="open-teleprompter"
+                class="ghost-button"
+                hidden
+              >
+                Teleprompter
+              </button>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="counterBar" aria-live="polite">
+      <span id="counterText"></span>
+    </div>
+
+    <div id="plusModal" class="modalOverlay" hidden>
+      <div
+        class="modalCard"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="plusTitle"
+      >
+        <div class="modalBanner">
+          <div class="modalBannerInner">
+            <div class="modalLogo">
+              <img
+                class="modalLogoImg"
+                src="/assets/sayit-app-icon.png"
+                alt="SayIt!"
+              />
+            </div>
+            <div>
+              <div id="plusTitle" class="modalTitle">Unlock SayIt! Pro</div>
+              <div class="modalSub">
+                Use your email to restore access or start a subscription.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modalBody">
+          <ul class="modalList">
+            <li>
+              <strong>Already subscribed?</strong> We’ll unlock this device for
+              your account.
+            </li>
+            <li>
+              <strong>New to Pro?</strong> We’ll send you to Stripe to finish
+              setup.
+            </li>
+          </ul>
+
+          <div class="modalFine">$2/month · Stripe handles billing</div>
+
+          <label class="modalLabel" for="plusEmail">Email</label>
+          <input
+            id="plusEmail"
+            class="modalInput"
+            type="email"
+            placeholder="Email address"
+            autocomplete="email"
+          />
+
+          <div
+            id="deviceLimitMsg"
+            aria-live="polite"
+            style="display: none; margin-top: 12px; font-size: 14px; line-height: 1.35;"
+          ></div>
+
+          <button
+            id="manageDevicesLink"
+            type="button"
+            class="ghost-button"
+            style="display: none; margin-top: 10px; width: 100%;"
+          >
+            Remove oldest device
+          </button>
+        </div>
+
+        <div class="modalActions">
+          <button id="plusCancelBtn" type="button" class="ghost-button">
+            Cancel
+          </button>
+          <button id="plusContinueBtn" type="button" class="primary-button">
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="teleprompter-overlay"
+      class="teleprompter-overlay"
+      hidden
+      aria-hidden="true"
+    >
+      <section
+        class="teleprompter-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="teleprompter-overlay-title"
+      >
+        <h2 id="teleprompter-overlay-title" class="visually-hidden">
+          Your message
+        </h2>
+
+        <section class="teleprompter-layout">
+          <aside
+            class="teleprompter-sidebar"
+            aria-label="Teleprompter controls"
+          >
+            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-top">
+              <button
+                id="copy-message"
+                type="button"
+                class="teleprompter-rail-button"
+              >
+                Copy
+              </button>
+              <button
+                id="teleprompter-playback"
+                type="button"
+                class="teleprompter-rail-button"
+              >
+                Pause
+              </button>
+            </div>
+
+            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-middle">
+              <div class="teleprompter-speed-control">
+                <button
+                  id="teleprompter-speed-toggle"
+                  type="button"
+                  class="teleprompter-rail-button teleprompter-speed-toggle"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  aria-controls="speed-group"
+                >
+                  Speed: Slow
+                </button>
+                <div class="teleprompter-speed-popover" id="speed-group" hidden>
+                  <button
+                    type="button"
+                    data-speed="slow"
+                    class="teleprompter-rail-button speed-button is-active"
+                  >
+                    Slow
+                  </button>
+                  <button
+                    type="button"
+                    data-speed="medium"
+                    class="teleprompter-rail-button speed-button"
+                  >
+                    Medium
+                  </button>
+                  <button
+                    type="button"
+                    data-speed="fast"
+                    class="teleprompter-rail-button speed-button"
+                  >
+                    Fast
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="teleprompter-sidebar-group teleprompter-sidebar-group-close">
+              <button
+                id="close-teleprompter"
+                type="button"
+                class="teleprompter-rail-button"
+              >
+                Close
+              </button>
+            </div>
+          </aside>
+
+          <section class="teleprompter-card teleprompter-panel teleprompter-reader">
+            <div id="teleprompter" class="teleprompter">
+              <div class="teleprompter-highlight-guide" aria-hidden="true"></div>
+              <div id="teleprompter-script" class="teleprompter-script">
+                <p class="teleprompter-placeholder">
+                  Generate a translated message to load teleprompter mode.
+                </p>
+              </div>
+            </div>
+          </section>
+        </section>
+      </section>
+    </div>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

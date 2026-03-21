@@ -99,11 +99,20 @@ function detectRuntimeMode() {
 
 function refreshRuntimeModeUi() {
   const runtimeMode = detectRuntimeMode();
+  const currentUrl = new URL(window.location.href);
+  const installBanner = document.querySelector("[data-install-banner]");
+  const browserInstallState =
+    runtimeMode !== "standalone" && currentUrl.searchParams.get("source") === "pwa";
+
   document.documentElement.setAttribute(
     "data-standalone",
     runtimeMode === "standalone" ? "yes" : "no"
   );
   document.documentElement.setAttribute("data-native-app", "no");
+
+  if (installBanner) {
+    installBanner.hidden = !browserInstallState;
+  }
 }
 
 function installServiceWorkerRefreshHandler() {
