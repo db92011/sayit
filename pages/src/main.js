@@ -2,7 +2,7 @@ import { createSpeechController } from "./speech.js";
 import { TeleprompterController } from "./teleprompter.js";
 import { requestTranslation } from "./translation-service.js";
 
-const STORAGE_KEY = "sayit-draft-v4";
+const STORAGE_KEY = "sayit-draft-v5";
 const SAYIT_PRO_ACTIVE_KEY = "sayit_pro_active";
 const SAYIT_PRO_EMAIL_KEY = "sayit_pro_email";
 const SAYIT_DEVICE_ID_KEY = "sayit_device_id";
@@ -10,6 +10,16 @@ const DEFAULT_AFTER_STATE = "Clear";
 
 function safeTrim(value = "") {
   return String(value || "").trim();
+}
+
+function getDraftStorage() {
+  try {
+    if (window.sessionStorage) {
+      return window.sessionStorage;
+    }
+  } catch {}
+
+  return window.localStorage;
 }
 
 function stripTrailingSlashes(value = "") {
@@ -31,6 +41,7 @@ const SAYIT_API_BASE = getConfiguredApiBase();
 const SAYIT_PLAN_URL = `${SAYIT_API_BASE}/api/plan`;
 const SAYIT_REMOVE_OLDEST_URL = `${SAYIT_API_BASE}/api/devices/remove-oldest`;
 const SAYIT_CHECKOUT_URL = `${SAYIT_API_BASE}/api/create-checkout-link`;
+const draftStorage = getDraftStorage();
 
 const form = document.querySelector("#intake-form");
 const voicePreview = document.querySelector("#voice-preview");
@@ -739,11 +750,11 @@ function persistDraft() {
     afterState: getSelectedAfterState()
   };
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  draftStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
 
 function hydrateDraft() {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  const raw = draftStorage.getItem(STORAGE_KEY);
   if (!raw) return false;
 
   try {
@@ -775,7 +786,7 @@ function resetForm() {
   fields.message.value = "";
   updateVoicePreview("");
   clearOutputs();
-  localStorage.removeItem(STORAGE_KEY);
+  draftStorage.removeItem(STORAGE_KEY);
 }
 
 async function copyLatestMessage() {
@@ -800,6 +811,10 @@ installServiceWorkerRefreshHandler();
 syncPlusFromServer();
 enforceAccessGate();
 
+try {
+  window.localStorage.removeItem("sayit-draft-v4");
+} catch {}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   persistDraft();
@@ -808,6 +823,15 @@ form.addEventListener("submit", async (event) => {
 
 form.addEventListener("input", persistDraft);
 form.addEventListener("change", persistDraft);
+
+fields.message?.addEventListener("input", async () => {
+  if (!speechController?.isListening?.()) {
+    return;
+  }
+
+  await speechController.stop();
+  setVoiceStatus("Recording stopped because you edited the draft.");
+});
 
 document.querySelector("#reset-form")?.addEventListener("click", resetForm);
 closeTeleprompterButton?.addEventListener("click", closeTeleprompter);
