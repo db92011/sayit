@@ -266,3 +266,13 @@ test("teleprompter lines do not keep dangling commas after clause splitting", ()
     "I do not want this turning into resentment between us.",
   ]);
 });
+
+test("teleprompter keeps question asks together instead of splitting them into fragments", () => {
+  const lines = splitTeleprompterLines(
+    "Can we make cleanup after meals feel more shared so I am not carrying the dishes and stove by myself?"
+  );
+
+  assert.deepEqual(lines, [
+    "Can we make cleanup after meals feel more shared so I am not carrying the dishes and stove by myself?",
+  ]);
+});

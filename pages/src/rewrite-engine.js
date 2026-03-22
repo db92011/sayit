@@ -607,10 +607,10 @@ function buildImpactStatement(input, intentId, tones = []) {
 
     if (input.relationship === "Spouse or partner") {
       if (/(every time|cook|cooking|after you cook|after we cook)/i.test(haystack)) {
-        return "When I end up handling it on my own after we cook, I feel worn down, and I do not want this turning into resentment between us.";
+        return "A lot of it ends up sitting in the sink or on the stove, and I usually end up handling it myself. When that keeps happening, I feel worn down and unappreciated, and I do not want resentment building between us.";
       }
 
-      return "When it keeps falling to me, I feel worn down, and I do not want that frustration building up between us.";
+      return "A lot of the cleanup keeps landing on me, and I usually end up handling it myself. When that keeps happening, I feel worn down and unappreciated, and I do not want resentment building between us.";
     }
 
     if (/(every time|cook|cooking|after you cook|after we cook)/i.test(haystack)) {
@@ -651,6 +651,15 @@ function buildRequestStatement(input, intentId, tones = []) {
   if (isCleanupTopic(haystack)) {
     if (tones.includes("funny")) {
       return "Can we split the dishes and kitchen cleanup more evenly so I am not the only one apparently employed by the sink?";
+    }
+
+    if (
+      input.relationship === "Spouse or partner" &&
+      /(every time|cook|cooking|after you cook|after we cook|stove|sink)/i.test(
+        haystack
+      )
+    ) {
+      return "Can we make cleanup after meals feel more shared so I am not carrying the dishes and stove by myself?";
     }
 
     if (/(wash|rinse|dishwasher|load)/i.test(haystack)) {
@@ -879,7 +888,7 @@ function buildRelationshipSupport(relationship = "", tones = [], shortDraft = fa
 
 export function splitTeleprompterLines(text) {
   const parts = splitSentences(cleanGeneratedDraft(text)).flatMap((part) => {
-    if (part.length <= 120) {
+    if (part.length <= 120 || /\?$/.test(part)) {
       return [part];
     }
 
