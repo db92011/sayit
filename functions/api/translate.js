@@ -7,6 +7,36 @@ import {
 
 const OPENAI_URL = "https://api.openai.com/v1/responses";
 const DEFAULT_OPENAI_MODEL = "gpt-5-mini";
+const OPENAI_TONE_GUIDANCE = {
+  Clear: "Lead with the real point, keep the facts concrete, and make the ask easy to repeat back.",
+  Respectful:
+    "Protect the other person's dignity, remove contempt or score-settling language, and stay considerate without becoming vague.",
+  Calm: "Lower the heat, strip out escalators and absolutes, and make the message sound steady enough to say out loud."
+};
+const OPENAI_RELATIONSHIP_GUIDANCE = {
+  "Spouse or partner":
+    "Sound warm, relational, and shared. Make it clear this is about teamwork and the relationship, not winning a case.",
+  "Child or teenager":
+    "Use simple steady language. Be caring, plain, and easy to understand without sounding shaming or patronizing.",
+  Friend:
+    "Sound candid but caring. Keep it human and direct without turning cold or overly formal.",
+  Coworker:
+    "Sound practical, collaborative, and easy to act on. Favor specifics over emotional framing.",
+  "Boss or supervisor":
+    "Sound concise, professional, and fact-based. Be respectful without burying the real issue or request.",
+  "Employee or subordinate":
+    "Sound clear, direct, and supportive. Name the issue plainly and make the next step easy to follow.",
+  Customer:
+    "Sound helpful, calm, and service-minded. Reduce friction and guide toward a practical next step.",
+  Client:
+    "Sound polished, dependable, and clear. Protect trust while still addressing the real point directly.",
+  Stranger:
+    "Keep it brief, respectful, and boundary-aware. Use plain language and avoid unnecessary detail.",
+  "Online conversation":
+    "Keep it concise, hard to misread, and non-reactive. Avoid sarcasm and make the core point obvious.",
+  "Social media comment":
+    "Keep it short, de-escalating, and pointed enough to land without dragging into a thread fight."
+};
 const DEFAULT_OPENAI_BEHAVIOR = [
   "You rewrite emotionally charged or messy drafts into language a real person can actually say or send.",
   "Preserve the user's core meaning, lower unnecessary heat, and keep the wording natural.",
@@ -191,6 +221,13 @@ function mergeOpenAiTranslation(base, candidate) {
 
 function buildOpenAiPrompt(payload) {
   const context = buildPromptContext(payload);
+  const selectedTone = context.categories.desiredTone;
+  const relationship = context.categories.relationship;
+  const selectedToneGuidance =
+    OPENAI_TONE_GUIDANCE[selectedTone] || OPENAI_TONE_GUIDANCE.Clear;
+  const relationshipGuidance =
+    OPENAI_RELATIONSHIP_GUIDANCE[relationship] ||
+    "Make the relationship dynamic noticeable in the wording, rhythm, and level of emotional detail.";
   return [
     "Create a translation payload for SayIt! using this exact JSON shape:",
     "{",
@@ -208,6 +245,7 @@ function buildOpenAiPrompt(payload) {
     "- Start directly with the actual point. Do not include preambles like 'I care about us', 'Let me say this more clearly', 'I want to say this respectfully', 'What I mean is', or any sentence that explains the tone before the point.",
     "- Preserve the user's concrete facts and examples unless removing one is necessary to reduce unnecessary heat.",
     "- Match the selected relationship dynamic and desired tone closely.",
+    "- Every rewrite should feel clear, respectful, and calm overall, even while the selected desired tone is emphasized most strongly.",
     "- For spouse or partner messages, a brief warm line is welcome only if it feels grounded and specific, not vague or performative.",
     "- For spouse or partner messages, prefer neutral concrete phrasing over blame-heavy lines like 'you leave a mess' when a calmer version would still be truthful.",
     "- If recipient is provided, use the person's name naturally once near the start only if it helps.",
@@ -216,6 +254,15 @@ function buildOpenAiPrompt(payload) {
     "- teleprompterLines must be short enough to read comfortably out loud and must be cut from the same final message in the same order.",
     "- Do not mention being an AI.",
     "- Return valid JSON only.",
+    "",
+    "Delivery guidance:",
+    `- Clear: ${OPENAI_TONE_GUIDANCE.Clear}`,
+    `- Respectful: ${OPENAI_TONE_GUIDANCE.Respectful}`,
+    `- Calm: ${OPENAI_TONE_GUIDANCE.Calm}`,
+    `- Selected desired tone: ${selectedTone}. Emphasize this one most strongly. ${selectedToneGuidance}`,
+    "",
+    "Relationship guidance:",
+    `- ${relationship}: ${relationshipGuidance}`,
     "",
     "SayIt categories and user draft:",
     JSON.stringify(context, null, 2)

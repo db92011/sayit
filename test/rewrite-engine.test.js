@@ -240,6 +240,14 @@ test("translation API returns normalized OpenAI translation when configured", as
     assert.match(authHeader, /Bearer configured-key/);
     assert.match(String(requestBody?.input || ""), /"relationship": "Boss or supervisor"/);
     assert.match(String(requestBody?.input || ""), /"desiredTone": "Clear"/);
+    assert.match(
+      String(requestBody?.input || ""),
+      /Selected desired tone: Clear\. Emphasize this one most strongly\./
+    );
+    assert.match(
+      String(requestBody?.input || ""),
+      /Boss or supervisor: Sound concise, professional, and fact-based\./
+    );
     assert.equal(body.translation.detectedIntent.id, "clarify");
     assert.equal(body.translation.primary, "I want to reset this calmly.");
     assert.deepEqual(body.translation.teleprompterLines, ["I want to reset this calmly."]);

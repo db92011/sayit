@@ -380,7 +380,7 @@ button:disabled {
 .choice-pill {
   position: relative;
   display: flex;
-  min-height: 3.4rem;
+  min-height: 3.3rem;
 }
 
 .choice-pill input {
@@ -395,14 +395,14 @@ button:disabled {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 3.4rem;
-  padding: 0.9rem 1rem;
+  min-height: 3.3rem;
+  padding: 12px 22px;
   border: 1px solid var(--line-strong);
-  border-radius: 16px;
+  border-radius: 999px;
   background: var(--input-bg);
   color: var(--text);
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
   line-height: 1;
   transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease, color 140ms ease;
   margin: 0;
