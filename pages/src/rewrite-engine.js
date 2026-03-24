@@ -604,18 +604,47 @@ function isCleanupTopic(haystack = "") {
   return /(dish|dishes|cleanup|clean up|mess|sink|kitchen)/i.test(haystack);
 }
 
+function hasCleanupWorkdayDetail(haystack = "") {
+  return /(work all day|after work|come home|come back|when i get home|when i come home|walk in)/i.test(
+    haystack
+  );
+}
+
+function hasCleanupAppreciationWound(haystack = "") {
+  return /(take me for granted|taken for granted|unappreciated|appreciated)/i.test(haystack);
+}
+
+function hasCleanupSurfaceDetail(haystack = "") {
+  return /(counter|counters|floor|floors|wall|walls|stove|sink)/i.test(haystack);
+}
+
 function buildConcernStatement(input, intentId, tones = []) {
   const situation = condenseMessage(input.situation || "");
   const messageClauses = extractUsefulClauses(input.message || "");
   const haystack = `${input.message || ""} ${input.situation || ""}`.toLowerCase();
 
   if (isCleanupTopic(haystack)) {
+    const mentionsWorkday = hasCleanupWorkdayDetail(haystack);
+    const mentionsSurfaces = hasCleanupSurfaceDetail(haystack);
+
     if (tones.includes("funny")) {
       return "I need more help with the dishes and kitchen cleanup before the sink starts feeling like full-time employment.";
     }
 
+    if (mentionsWorkday && mentionsSurfaces) {
+      return "I keep coming home from work to dishes, counters, and kitchen cleanup still waiting for me.";
+    }
+
+    if (mentionsWorkday) {
+      return "I keep coming home from work to dishes and kitchen cleanup that still need to be handled.";
+    }
+
     if (/(every time|cook|cooking|after you cook|after we cook)/i.test(haystack)) {
       return "I need more help with the dishes and kitchen cleanup, especially after we cook.";
+    }
+
+    if (mentionsSurfaces) {
+      return "I keep ending up with the dishes, counters, and kitchen cleanup after the fact.";
     }
 
     if (/(dirty|mess|sink|pile|piling|cleanup|kitchen)/i.test(haystack)) {
@@ -655,11 +684,35 @@ function buildImpactStatement(input, intentId, tones = []) {
   const haystack = `${input.message || ""} ${input.situation || ""}`.toLowerCase();
 
   if (isCleanupTopic(haystack)) {
+    const mentionsWorkday = hasCleanupWorkdayDetail(haystack);
+    const mentionsAppreciation = hasCleanupAppreciationWound(haystack);
+    const mentionsSurfaces = hasCleanupSurfaceDetail(haystack);
+
     if (tones.includes("funny")) {
       return "When it keeps falling to me, I stop feeling like your partner and start feeling like support staff.";
     }
 
     if (input.relationship === "Spouse or partner") {
+      if (mentionsWorkday && mentionsAppreciation) {
+        return "By the time I walk in after a full day and see it all still waiting, I feel exhausted, taken for granted, and not very appreciated, and I do not want that turning into resentment between us.";
+      }
+
+      if (mentionsWorkday && mentionsSurfaces) {
+        return "After a full day, walking into dishes, counters, and cleanup still waiting on me leaves me drained, and I do not want that turning into resentment between us.";
+      }
+
+      if (mentionsWorkday) {
+        return "After a full day, seeing that cleanup still waiting on me leaves me drained, and I do not want resentment building between us.";
+      }
+
+      if (mentionsAppreciation) {
+        return "When it keeps falling to me, I feel taken for granted and unappreciated, and I do not want resentment building between us.";
+      }
+
+      if (mentionsSurfaces) {
+        return "When the dishes, counters, and kitchen cleanup are still sitting there for me, I feel worn down and unappreciated, and I do not want resentment building between us.";
+      }
+
       if (/(every time|cook|cooking|after you cook|after we cook)/i.test(haystack)) {
         return "A lot of it ends up sitting in the sink or on the stove, and I usually end up handling it myself. When that keeps happening, I feel worn down and unappreciated, and I do not want resentment building between us.";
       }
@@ -703,8 +756,19 @@ function buildRequestStatement(input, intentId, tones = []) {
   const haystack = `${input.message || ""} ${input.situation || ""}`.toLowerCase();
 
   if (isCleanupTopic(haystack)) {
+    const mentionsWorkday = hasCleanupWorkdayDetail(haystack);
+    const mentionsSurfaces = hasCleanupSurfaceDetail(haystack);
+
     if (tones.includes("funny")) {
       return "Can we split the dishes and kitchen cleanup more evenly so I am not the only one apparently employed by the sink?";
+    }
+
+    if (input.relationship === "Spouse or partner" && mentionsWorkday && mentionsSurfaces) {
+      return "Can you help by cleaning up what you use and pitching in more consistently with the kitchen so I am not coming home to all of it waiting for me?";
+    }
+
+    if (input.relationship === "Spouse or partner" && mentionsWorkday) {
+      return "Can you help me more consistently with the dishes and kitchen so it is not still waiting for me when I get home?";
     }
 
     if (
@@ -718,6 +782,10 @@ function buildRequestStatement(input, intentId, tones = []) {
 
     if (/(wash|rinse|dishwasher|load)/i.test(haystack)) {
       return "Can you wash or at least rinse what you use after you cook so it is not all waiting for me?";
+    }
+
+    if (mentionsSurfaces) {
+      return "Can we make the dishes, counters, and kitchen cleanup feel more shared so it does not keep landing on one person?";
     }
 
     if (/(help|support|work with me|share|pitch in|hand|split|routine|schedule|days)/i.test(haystack)) {

@@ -132,6 +132,20 @@ test("buildTranslation keeps concrete cleanup details from a typed draft", () =>
   assert.doesNotMatch(translation.primary, /I need some support, and I want to ask for it clearly\./i);
 });
 
+test("buildTranslation keeps spouse cleanup context about work and appreciation", () => {
+  const translation = buildTranslation({
+    relationship: "Spouse or partner",
+    message:
+      "Hey honey I am sick of cleaning the dishes all the time. I work all day and come home to dishes on the counters and kitchen mess still waiting for me. I feel taken for granted and not appreciated.",
+    afterState: "Respectful"
+  });
+
+  assert.match(translation.primary, /come home from work|after a full day|when I get home/i);
+  assert.match(translation.primary, /taken for granted|not very appreciated|unappreciated/i);
+  assert.match(translation.primary, /dishes|counters|kitchen/i);
+  assert.match(translation.primary, /I know you do a lot too, and I appreciate what you do handle\./i);
+});
+
 test("translation API returns server metadata and translation payload", async () => {
   const response = await onRequestPost({
     request: new Request("http://localhost/api/translate", {

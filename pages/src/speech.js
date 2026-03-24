@@ -116,7 +116,7 @@ function createNativeSpeechController({ textarea, statusNode, startButton, stopB
             }
 
             if (status === "stopped") {
-              await finishListening("I've got it. Hit Generate when you're ready.");
+              await finishListening("I have your draft. Refine it here, then hit Generate.");
             }
           });
         }
@@ -155,7 +155,7 @@ function createNativeSpeechController({ textarea, statusNode, startButton, stopB
         }
       } catch {}
 
-      await finishListening("I've got it. Hit Generate when you're ready.");
+      await finishListening("I have your draft. Refine it here, then hit Generate.");
     },
 
     isListening() {
@@ -189,7 +189,7 @@ function createBrowserSpeechController({ textarea, statusNode, startButton, stop
 
   recognition.onend = () => {
     listening = false;
-    statusNode.textContent = "I've got it. Hit Generate when you're ready.";
+    statusNode.textContent = "I have your draft. Refine it here, then hit Generate.";
     syncButtons();
   };
 

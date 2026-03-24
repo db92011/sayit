@@ -536,7 +536,7 @@ function updateVoicePreview(text = "", { fromVoice = false } = {}) {
   const nextText = String(text || "").trim();
   const showPreview = fromVoice && Boolean(nextText);
   voicePreview.textContent = showPreview
-    ? "Voice draft captured. You can refine it before you generate."
+    ? "Voice draft captured. You can refine it here before you generate."
     : "";
   voicePreview.classList.toggle("has-content", showPreview);
 }
@@ -675,6 +675,7 @@ function clearOutputs() {
   latestMessageText = "";
   setResultText("");
   setCopyButtonLabel("Copy");
+  setVoiceStatus("");
   setTeleprompterSummary("");
   teleprompter.setLines([]);
   syncTeleprompterReadiness();
@@ -688,14 +689,14 @@ function updateOutputs(translation, meta = {}) {
 
   setResultText(latestMessageText);
   setCopyButtonLabel("Copy");
-  setVoiceStatus("");
+  setVoiceStatus("Your cleaner draft is ready below. Copy and paste it or use teleprompter.");
 
   if (meta.mode === "openai") {
-    setTeleprompterSummary("");
+    setTeleprompterSummary("Ready below. Copy and paste it or use teleprompter.");
   } else if (meta.source === "local" || meta.mode === "rule-based") {
-    setTeleprompterSummary("");
+    setTeleprompterSummary("Ready below. Copy and paste it or use teleprompter.");
   } else {
-    setTeleprompterSummary("");
+    setTeleprompterSummary("Ready below. Copy and paste it or use teleprompter.");
   }
 
   const teleprompterLines = Array.isArray(translation?.teleprompterLines)
@@ -713,6 +714,11 @@ function setGeneratingState(isGenerating) {
   if (!submitButton) return;
   submitButton.disabled = isGenerating;
   submitButton.textContent = isGenerating ? "Working..." : "Generate";
+
+  if (isGenerating) {
+    setVoiceStatus("Working away. Your cleaner draft will appear below, ready to copy and paste or use teleprompter.");
+    setTeleprompterSummary("");
+  }
 }
 
 async function generateTranslation({ openTeleprompterOnComplete = false } = {}) {
