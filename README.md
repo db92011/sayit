@@ -34,4 +34,5 @@ npm test
 - The PWA manifest launches into `/app.html?source=pwa`.
 - Frontend API calls stay same-origin by default.
 - Cloudflare Pages config is intentionally flat: one `wrangler.toml`, one `pages/` output directory, one `functions/` runtime.
-- If `OPENAI_API_KEY` is missing, SayIt falls back to the local rewrite engine in [`pages/src/rewrite-engine.js`](/Users/dannybrooking/Documents/GitHub = master copy/projects/SayIt/pages/src/rewrite-engine.js).
+- If `OPENAI_API_KEY` is missing, SayIt falls back to the local rewrite engine in [`pages/src/rewrite-engine.js`](/Users/dannybrooking/Documents/GitHub = master copy/SayIt/pages/src/rewrite-engine.js).
+- `SAYIT_FREE_ACCESS_EMAILS` can hold a comma/newline-separated pool of approved emails that should unlock SayIt without going through Stripe. Those emails still use the normal device-seat rules.
