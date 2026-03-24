@@ -11,7 +11,7 @@ SayIt! is the standalone SayIt app. It now follows Finch's flat Cloudflare Pages
 ## Product boundaries
 
 - Marketing page: `https://circlethepeople.com/sayit`
-- Standalone app runtime: `https://amp-sayit.pages.dev`
+- Standalone app runtime: `https://sayitapp.pages.dev`
 - SayIt branding, copy, API routes, billing flow, and runtime live in this repo
 - `CircleThePeopleSite` hosts the SayIt marketing page and hands off into the standalone app
 

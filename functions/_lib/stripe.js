@@ -66,7 +66,7 @@ export function getStripeConfig(env) {
     publishableKey: String(env?.STRIPE_PUBLISHABLE_KEY || "").trim(),
     priceId: requireEnv(env, "SAYIT_STRIPE_PRICE_ID"),
     directCheckoutUrl: String(env?.SAYIT_STRIPE_URL || "").trim(),
-    appUrl: String(env?.SAYIT_APP_URL || "https://amp-sayit.pages.dev").trim(),
+    appUrl: String(env?.SAYIT_APP_URL || "https://sayitapp.pages.dev").trim(),
     marketingUrl: String(env?.SAYIT_MARKETING_URL || "https://circlethepeople.com/sayit").trim()
   };
 }
