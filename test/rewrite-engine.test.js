@@ -97,6 +97,7 @@ test("buildTranslation expands short spouse drafts with warmth", () => {
   assert.match(translation.primary, /dishes|cleanup|help/i);
   assert.doesNotMatch(translation.primary, /i care about us|let me say this more clearly/i);
   assert.match(translation.primary, /dishes|cleanup/i);
+  assert.match(translation.primary, /I know you do a lot too, and I appreciate what you do handle\./i);
 });
 
 test("buildTranslation expands short boss drafts with professionalism", () => {
@@ -109,6 +110,7 @@ test("buildTranslation expands short boss drafts with professionalism", () => {
 
   assert.match(translation.primary, /timing|change going forward|next step/i);
   assert.match(translation.primary, /^Mara,/i);
+  assert.match(translation.primary, /I appreciate the work you are doing and the pressure you are carrying\./i);
 });
 
 test("buildTranslation keeps concrete cleanup details from a typed draft", () => {
@@ -248,9 +250,19 @@ test("translation API returns normalized OpenAI translation when configured", as
       String(requestBody?.input || ""),
       /Boss or supervisor: Sound concise, professional, and fact-based\./
     );
+    assert.match(
+      String(requestBody?.input || ""),
+      /include one brief grounded line that acknowledges the other person's effort, work, role, or what they do handle/i
+    );
     assert.equal(body.translation.detectedIntent.id, "clarify");
-    assert.equal(body.translation.primary, "I want to reset this calmly.");
-    assert.deepEqual(body.translation.teleprompterLines, ["I want to reset this calmly."]);
+    assert.equal(
+      body.translation.primary,
+      "I want to reset this calmly. I appreciate the work you are doing and the pressure you are carrying."
+    );
+    assert.deepEqual(body.translation.teleprompterLines, [
+      "I want to reset this calmly.",
+      "I appreciate the work you are doing and the pressure you are carrying."
+    ]);
     assert.equal(body.translation.summary.length, 3);
     assert.equal(body.translation.conversationMap.length, 4);
     assert.equal(body.translation.notes.length, 3);

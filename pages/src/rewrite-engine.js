@@ -110,89 +110,111 @@ const OUTCOME_NOTES = {
 const RELATIONSHIP_GUIDANCE = {
   "Spouse or partner": {
     lead: "I care about us, so I want to say this with love and respect.",
+    appreciation: "I know you do a lot too, and I appreciate what you do handle.",
     notes: [
       "Keep the message warm, respectful, and focused on repair instead of blame.",
-      "Speak to the relationship, not just the problem."
+      "Speak to the relationship, not just the problem.",
+      "Acknowledge what the other person is carrying so the message lands as reciprocal, not one-way."
     ],
     tones: ["gentle", "clear", "calm"]
   },
   "Child or teenager": {
     lead: "I want to be clear and steady so this lands with care.",
+    appreciation: "I see the effort you are making, and I appreciate that.",
     notes: [
       "Use simple language and keep the emotional temperature low.",
-      "Lead with care and keep the boundary easy to understand."
+      "Lead with care and keep the boundary easy to understand.",
+      "Name the effort you do see before you ask for something to change."
     ],
     tones: ["clear", "gentle", "calm"]
   },
   Friend: {
     lead: "I value our friendship, and I want to say this honestly and kindly.",
+    appreciation: "I appreciate the way you show up in this friendship, even when we need to talk through hard things.",
     notes: [
       "Stay direct without sounding cold.",
-      "Make it sound human and easy to hear."
+      "Make it sound human and easy to hear.",
+      "Show appreciation for the friendship so the message does not feel like a one-way critique."
     ],
     tones: ["friendly", "clear", "gentle"]
   },
   Coworker: {
     lead: "I want to keep this clear, respectful, and easy to work from.",
+    appreciation: "I appreciate the work you are doing and what you are carrying on your side.",
     notes: [
       "Keep it constructive and specific.",
-      "Favor clarity over emotional detail."
+      "Favor clarity over emotional detail.",
+      "A brief acknowledgment of the other person's work helps the ask land better."
     ],
     tones: ["professional", "clear", "direct"]
   },
   "Boss or supervisor": {
     lead: "I want to be respectful and clear while still being honest.",
+    appreciation: "I appreciate the work you are doing and the pressure you are carrying.",
     notes: [
       "Keep the point grounded in facts and next steps.",
-      "Be respectful without burying the real concern."
+      "Be respectful without burying the real concern.",
+      "Acknowledge their workload or role so the message feels reciprocal instead of adversarial."
     ],
     tones: ["professional", "clear", "confident"]
   },
   "Employee or subordinate": {
     lead: "I want this to be clear, respectful, and supportive.",
+    appreciation: "I appreciate the effort you are putting in and the work you are doing.",
     notes: [
       "Be direct about the issue and calm about the delivery.",
-      "Make the next step easy to follow."
+      "Make the next step easy to follow.",
+      "Recognition of effort helps the correction feel fair."
     ],
     tones: ["clear", "professional", "gentle"]
   },
   Customer: {
     lead: "I want to keep this clear, helpful, and respectful.",
+    appreciation: "I appreciate your patience and the time you are taking with this.",
     notes: [
       "Reduce friction and guide toward a practical next step.",
-      "Keep the message concise and service-minded."
+      "Keep the message concise and service-minded.",
+      "A small acknowledgment of patience helps it feel less one-sided."
     ],
     tones: ["professional", "friendly", "clear"]
   },
   Client: {
     lead: "I want this to sound thoughtful, clear, and dependable.",
+    appreciation: "I appreciate the work you are doing on your side and the trust you are placing in me.",
     notes: [
       "Keep the message polished and specific.",
-      "Protect trust while addressing the real point."
+      "Protect trust while addressing the real point.",
+      "Name the trust or effort already present so the message stays reciprocal."
     ],
     tones: ["professional", "clear", "confident"]
   },
   Stranger: {
     lead: "I want to keep this simple, respectful, and easy to understand.",
+    appreciation: "I appreciate you taking a minute to hear me out.",
     notes: [
       "Use plain language and avoid extra detail.",
-      "Keep boundaries clear and the message brief."
+      "Keep boundaries clear and the message brief.",
+      "Even with distance, a small acknowledgment can lower defensiveness."
     ],
     tones: ["clear", "direct", "calm"]
   },
   "Online conversation": {
     lead: "I want to keep this grounded, clear, and hard to misread.",
+    appreciation: "I appreciate anyone willing to slow this down enough to hear the point clearly.",
     notes: [
       "Avoid sarcasm and say the point plainly.",
-      "Shorter sentences will travel better here."
+      "Shorter sentences will travel better here.",
+      "A quick acknowledgment of shared effort can soften one-way communication."
     ],
     tones: ["clear", "direct", "calm"]
   },
   "Social media comment": {
     lead: "I want this to be clear, brief, and less reactive.",
+    appreciation: "I appreciate people who are willing to pause and actually hear the point.",
     notes: [
       "Keep it short and do not over-explain.",
-      "Say enough to land the point, then stop."
+      "Say enough to land the point, then stop.",
+      "A small acknowledgment of the other side helps the comment feel less like a drive-by hit."
     ],
     tones: ["direct", "clear", "calm"]
   }
@@ -350,6 +372,23 @@ export function isMetaLeadText(text = "") {
   return isMetaLeadSentence(text);
 }
 
+function isReciprocalAppreciationSentence(sentence = "") {
+  const cleaned = normalizeWhitespace(sentence);
+  if (!cleaned) {
+    return false;
+  }
+
+  return (
+    /\bi appreciate\b/i.test(cleaned) ||
+    /\bi see the effort\b/i.test(cleaned) ||
+    /\bi know you do a lot too\b/i.test(cleaned) ||
+    /\bi know you are carrying\b/i.test(cleaned) ||
+    /\bi appreciate anyone willing\b/i.test(cleaned) ||
+    /\bi appreciate people who are willing\b/i.test(cleaned) ||
+    /\bi value our friendship\b/i.test(cleaned)
+  );
+}
+
 function stripLeadingMetaClause(sentence = "") {
   let next = normalizeWhitespace(sentence);
 
@@ -472,6 +511,21 @@ function buildToneLead(tones, relationship, afterState = "", recipient = "") {
   }
 
   return parts.join(" ");
+}
+
+function buildReciprocalAppreciation(input, tones = []) {
+  const relationship = String(input.relationship || "").trim();
+  const appreciation = RELATIONSHIP_GUIDANCE[relationship]?.appreciation;
+
+  if (!appreciation) {
+    return "";
+  }
+
+  if (tones.includes("funny") && relationship === "Spouse or partner") {
+    return "I know you do a lot too, and I appreciate that, even if the sink and I seem to be in a committed relationship lately.";
+  }
+
+  return appreciation;
 }
 
 function buildOutcomeCloser(outcome = "", afterState = "") {
@@ -886,6 +940,29 @@ function buildRelationshipSupport(relationship = "", tones = [], shortDraft = fa
   return "";
 }
 
+export function injectReciprocalAppreciation(text = "", input = {}, tones = []) {
+  const cleaned = cleanGeneratedDraft(text);
+  if (!cleaned) {
+    return "";
+  }
+
+  const appreciation = ensureSentence(buildReciprocalAppreciation(input, tones));
+  if (!appreciation) {
+    return cleaned;
+  }
+
+  const sentences = splitSentences(cleaned);
+  if (sentences.some((sentence) => isReciprocalAppreciationSentence(sentence))) {
+    return cleaned;
+  }
+
+  if (sentences.length === 1) {
+    return cleanGeneratedDraft([sentences[0], appreciation].join(" "));
+  }
+
+  return cleanGeneratedDraft([sentences[0], appreciation, ...sentences.slice(1)].join(" "));
+}
+
 export function splitTeleprompterLines(text) {
   const parts = splitSentences(cleanGeneratedDraft(text)).flatMap((part) => {
     if (part.length <= 120 || /\?$/.test(part)) {
@@ -915,9 +992,12 @@ export function buildTranslation(input) {
   const intentData = INTENT_COPY[intentId] || INTENT_COPY.explain;
   const tones = chooseTones(input.tones, input.relationship, input.afterState);
   const intensity = detectIntensity(message);
+  const shortDraft = isShortDraft(input);
   const concern = buildConcernStatement(input, intentId, tones);
   const impact = buildImpactStatement(input, intentId, tones);
   const ask = buildRequestStatement(input, intentId, tones);
+  const appreciation = buildReciprocalAppreciation(input, tones);
+  const relationshipSupport = buildRelationshipSupport(input.relationship, tones, shortDraft);
   const proof = buildProof(input.proof, input.outcome, detectedIntent.label);
   const notes = buildNotes({
     barrier: input.barrier,
@@ -930,12 +1010,16 @@ export function buildTranslation(input) {
   const mainParts = uniqueParts([
     prependRecipient(concern, input.recipient),
     impact,
+    appreciation,
+    relationshipSupport,
     ask
   ]);
 
-  const primary = cleanGeneratedDraft(mainParts.join(" "));
-  const concise = cleanGeneratedDraft(
-    uniqueParts([prependRecipient(concern, input.recipient), ask]).join(" ")
+  const primary = injectReciprocalAppreciation(mainParts.join(" "), input, tones);
+  const concise = injectReciprocalAppreciation(
+    uniqueParts([prependRecipient(concern, input.recipient), appreciation, ask]).join(" "),
+    input,
+    tones
   );
   const toneMap = buildToneMap(tones);
   const intentLabel =

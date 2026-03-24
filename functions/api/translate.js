@@ -1,6 +1,7 @@
 import {
   buildTranslation,
   cleanGeneratedDraft,
+  injectReciprocalAppreciation,
   isMetaLeadText,
   splitTeleprompterLines
 } from "../../pages/src/rewrite-engine.js";
@@ -15,27 +16,27 @@ const OPENAI_TONE_GUIDANCE = {
 };
 const OPENAI_RELATIONSHIP_GUIDANCE = {
   "Spouse or partner":
-    "Sound warm, relational, and shared. Make it clear this is about teamwork and the relationship, not winning a case.",
+    "Sound warm, relational, and shared. Make it clear this is about teamwork and the relationship, not winning a case. Include one grounded line that appreciates what the other person is already carrying or doing.",
   "Child or teenager":
-    "Use simple steady language. Be caring, plain, and easy to understand without sounding shaming or patronizing.",
+    "Use simple steady language. Be caring, plain, and easy to understand without sounding shaming or patronizing. Include one brief acknowledgment of the effort you do see.",
   Friend:
-    "Sound candid but caring. Keep it human and direct without turning cold or overly formal.",
+    "Sound candid but caring. Keep it human and direct without turning cold or overly formal. Include a brief line that appreciates the friendship or how the person shows up.",
   Coworker:
-    "Sound practical, collaborative, and easy to act on. Favor specifics over emotional framing.",
+    "Sound practical, collaborative, and easy to act on. Favor specifics over emotional framing. Include a brief acknowledgment of the other person's work or effort.",
   "Boss or supervisor":
-    "Sound concise, professional, and fact-based. Be respectful without burying the real issue or request.",
+    "Sound concise, professional, and fact-based. Be respectful without burying the real issue or request. Include a brief acknowledgment of the work or pressure they are carrying.",
   "Employee or subordinate":
-    "Sound clear, direct, and supportive. Name the issue plainly and make the next step easy to follow.",
+    "Sound clear, direct, and supportive. Name the issue plainly and make the next step easy to follow. Include a brief acknowledgment of effort so the message feels fair.",
   Customer:
-    "Sound helpful, calm, and service-minded. Reduce friction and guide toward a practical next step.",
+    "Sound helpful, calm, and service-minded. Reduce friction and guide toward a practical next step. Include a brief acknowledgment of patience or time.",
   Client:
-    "Sound polished, dependable, and clear. Protect trust while still addressing the real point directly.",
+    "Sound polished, dependable, and clear. Protect trust while still addressing the real point directly. Include a brief acknowledgment of trust or work happening on their side.",
   Stranger:
-    "Keep it brief, respectful, and boundary-aware. Use plain language and avoid unnecessary detail.",
+    "Keep it brief, respectful, and boundary-aware. Use plain language and avoid unnecessary detail. A small acknowledgment of their time can help.",
   "Online conversation":
-    "Keep it concise, hard to misread, and non-reactive. Avoid sarcasm and make the core point obvious.",
+    "Keep it concise, hard to misread, and non-reactive. Avoid sarcasm and make the core point obvious. Include a brief acknowledgment of anyone willing to slow down and listen.",
   "Social media comment":
-    "Keep it short, de-escalating, and pointed enough to land without dragging into a thread fight."
+    "Keep it short, de-escalating, and pointed enough to land without dragging into a thread fight. Include a brief acknowledgment of anyone willing to pause and hear the point."
 };
 const DEFAULT_OPENAI_BEHAVIOR = [
   "You rewrite emotionally charged or messy drafts into language a real person can actually say or send.",
@@ -46,6 +47,8 @@ const DEFAULT_OPENAI_BEHAVIOR = [
   "Adapt the wording to the selected relationship dynamic. A message to a spouse should not sound like a message to a boss, and a message to a child should not sound like a message to a customer.",
   "For spouse or partner messages, a brief heartfelt line is okay when it is grounded in the real issue, such as not wanting resentment to build or wanting the home to feel more like teamwork. Do not make that line a vague preamble.",
   "For spouse or partner messages, prefer neutral concrete phrasing like 'it ends up sitting in the sink and I usually handle it myself' over accusatory phrasing like 'you leave a mess' when both would communicate the same point.",
+  "Across all relationship contexts, include one brief grounded acknowledgment of the other person's effort, work, role, or what they do handle so the message feels reciprocal instead of one-way.",
+  "That appreciation line must be sincere and concise. Do not let it erase the user's point, and do not make it sound gushy, submissive, or therapy-scripted.",
   "If the user provides a recipient name, use that name naturally near the start only when it helps the message land better.",
   "The final draft should usually be 3 to 5 sentences and should sound ready to say out loud.",
   "Teleprompter lines must be cut directly from the same final draft, in order, with no extra intro lines.",
@@ -168,9 +171,14 @@ function normalizeCardList(list, fallback, keys) {
   return normalized.length > 0 ? normalized : fallback;
 }
 
-function mergeOpenAiTranslation(base, candidate) {
+function mergeOpenAiTranslation(base, candidate, payload = {}) {
   const translation = candidate && typeof candidate === "object" ? candidate : {};
-  const primary = cleanGeneratedDraft(String(translation.primary || ""));
+  const baseTones = Array.isArray(base?.tones) ? base.tones : [];
+  const primary = injectReciprocalAppreciation(
+    cleanGeneratedDraft(String(translation.primary || "")),
+    payload,
+    baseTones
+  );
   const detectedIntent =
     translation.detectedIntent &&
     typeof translation.detectedIntent === "object" &&
@@ -187,12 +195,6 @@ function mergeOpenAiTranslation(base, candidate) {
   }
 
   const fallbackTeleprompterLines = splitTeleprompterLines(primary);
-  const teleprompterLines = Array.isArray(translation.teleprompterLines)
-    ? translation.teleprompterLines
-        .map((line) => cleanGeneratedDraft(String(line || "")))
-        .filter((line) => line && !isMetaLeadText(line))
-        .filter(Boolean)
-    : fallbackTeleprompterLines;
 
   return {
     ...base,
@@ -200,11 +202,15 @@ function mergeOpenAiTranslation(base, candidate) {
     detectedIntent,
     intentLabel: String(translation.intentLabel || detectedIntent.label || base.intentLabel || "").trim(),
     primary,
-    concise: cleanGeneratedDraft(String(translation.concise || base.concise || primary)),
+    concise: injectReciprocalAppreciation(
+      cleanGeneratedDraft(String(translation.concise || base.concise || primary)),
+      payload,
+      baseTones
+    ),
     proof: String(translation.proof || base.proof || "").trim(),
     notes: normalizeStringList(translation.notes, base.notes),
     tones: normalizeStringList(translation.tones, base.tones),
-    teleprompterLines: normalizeStringList(teleprompterLines, fallbackTeleprompterLines),
+    teleprompterLines: fallbackTeleprompterLines,
     summary: normalizeCardList(translation.summary, base.summary, ["label", "title", "body"]),
     conversationMap: normalizeCardList(translation.conversationMap, base.conversationMap, [
       "label",
@@ -246,6 +252,8 @@ function buildOpenAiPrompt(payload) {
     "- Preserve the user's concrete facts and examples unless removing one is necessary to reduce unnecessary heat.",
     "- Match the selected relationship dynamic and desired tone closely.",
     "- Every rewrite should feel clear, respectful, and calm overall, even while the selected desired tone is emphasized most strongly.",
+    "- Include one brief grounded line that acknowledges the other person's effort, work, role, or what they do handle so the message feels reciprocal instead of one-way.",
+    "- Keep that appreciation line sincere and specific. Do not let it swallow the user's need or turn into a long preamble.",
     "- For spouse or partner messages, a brief warm line is welcome only if it feels grounded and specific, not vague or performative.",
     "- For spouse or partner messages, prefer neutral concrete phrasing over blame-heavy lines like 'you leave a mess' when a calmer version would still be truthful.",
     "- If recipient is provided, use the person's name naturally once near the start only if it helps.",
@@ -307,7 +315,7 @@ async function translate(payload, env) {
     }
 
     const openAiTranslation = await requestOpenAiTranslation(normalizedPayload, env);
-    const translation = mergeOpenAiTranslation(fallbackTranslation, openAiTranslation);
+    const translation = mergeOpenAiTranslation(fallbackTranslation, openAiTranslation, normalizedPayload);
 
     return {
       translation,
