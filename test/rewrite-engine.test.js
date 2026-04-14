@@ -253,7 +253,7 @@ test("translation API returns normalized OpenAI translation when configured", as
 
     const body = await response.json();
     assert.equal(body.meta.mode, "openai");
-    assert.equal(body.meta.timeoutMs, 3500);
+    assert.equal(body.meta.timeoutMs, 1800);
     assert.match(authHeader, /Bearer configured-key/);
     assert.match(String(requestBody?.input || ""), /"relationship": "Boss or supervisor"/);
     assert.match(String(requestBody?.input || ""), /"desiredTone": "Clear"/);
