@@ -7,12 +7,15 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <title>SayIt!</title>
+    <script>
+      window.SAYIT_ICON_VERSION = "20260416b";
+    </script>
 
     <meta
       name="description"
       content="Install SayIt! on your device. Add it to your Home Screen or desktop and the icon will open the real SayIt! app."
     />
-    <meta name="theme-color" content="#20a8ff" />
+    <meta name="theme-color" content="#1a3660" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
@@ -27,10 +30,10 @@
     />
     <meta property="og:type" content="website" />
 
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="manifest" href="/site.webmanifest?v=20260416b" />
     <link rel="stylesheet" href="/style.css" />
-    <link rel="icon" type="image/png" href="/icons/icon-192.png" />
-    <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+    <link rel="icon" type="image/png" href="/icons/icon-192.png?v=20260416b" />
+    <link rel="apple-touch-icon" href="/icons/icon-180.png?v=20260416b" />
 
     <script>
       (function () {
@@ -66,7 +69,7 @@
         <a class="brand-lockup" href="/" aria-label="SayIt! install home">
           <img
             class="brand-mark"
-            src="/assets/sayit-app-icon.png"
+            src="/assets/sayit-app-icon.png?v=20260416b"
             alt="SayIt!"
             width="44"
             height="44"
@@ -88,7 +91,20 @@
       <section class="hero">
         <div class="sayit-wrap hero-grid">
           <div class="hero-copy">
-            <h1 class="hero-title">Install SayIt</h1>
+            <div class="install-mark-shell">
+              <img
+                class="install-hero-mark"
+                src="/assets/sayit-app-icon.png?v=20260416b"
+                alt="SayIt!"
+                width="124"
+                height="124"
+              />
+              <div class="install-hero-kicker">Clean install. Clearer conversations.</div>
+            </div>
+            <h1 class="hero-title">Install SayIt!</h1>
+            <p class="hero-sub install-hero-sub">
+              Add the real app to your phone or desktop, then open it directly from the new SayIt icon.
+            </p>
           </div>
         </div>
       </section>
