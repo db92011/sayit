@@ -3,3 +3,13 @@ OpenAi_SayIt_Secret_Key=replace-me
 OPENAI_MODEL=gpt-5-mini
 OPENAI_BEHAVIOR=You rewrite emotionally charged or messy drafts into calm, clear, natural communication. Preserve the user's meaning, lower unnecessary heat, and avoid robotic phrasing.
 SAYIT_FREE_ACCESS_EMAILS=founder@example.com,team@example.com
+SAYIT_APP_URL=https://sayitapp.pages.dev
+SAYIT_MARKETING_URL=https://circlethepeople.com/sayit
+SAYIT_STRIPE_PRICE_ID=price_replace_me
+# Use one of the secret keys below for hosted Stripe checkout.
+STRIPE_SECRET_KEY=sk_live_replace_me
+# Stripe_Secret_Key_SayIt=sk_live_replace_me
+# Optional: direct payment link instead of hosted checkout.
+# SAYIT_STRIPE_URL=https://buy.stripe.com/replace-me
+# Optional: publishable key for future client-side billing surfaces.
+# STRIPE_PUBLISHABLE_KEY=pk_live_replace_me

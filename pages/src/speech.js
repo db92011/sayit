@@ -183,13 +183,13 @@ function createBrowserSpeechController({ textarea, statusNode, startButton, stop
   recognition.onstart = () => {
     listening = true;
     baseValue = textarea.value.trim();
-    statusNode.textContent = "I'm listening. Say it naturally.";
+    statusNode.textContent = "Listening now. Say it naturally.";
     syncButtons();
   };
 
   recognition.onend = () => {
     listening = false;
-    statusNode.textContent = "I have your draft. Refine it here, then hit Generate.";
+    statusNode.textContent = "Your draft is here. Adjust anything you want, then hit Refine Draft.";
     syncButtons();
   };
 

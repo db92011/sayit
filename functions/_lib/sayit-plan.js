@@ -1,5 +1,5 @@
 const SEAT_LIMIT = 2;
-const TRIAL_HOURS = 24;
+const TRIAL_HOURS = 72;
 
 function nowIso() {
   return new Date().toISOString();
@@ -59,55 +59,62 @@ export async function ensureSeatTables(db) {
 
   await db
     .prepare(
-      "CREATE TABLE IF NOT EXISTS sayit_trial_devices (device_id TEXT NOT NULL PRIMARY KEY, started_at TEXT NOT NULL, last_seen_at TEXT NOT NULL)"
+      "CREATE TABLE IF NOT EXISTS sayit_trial_access (email TEXT NOT NULL PRIMARY KEY, device_id TEXT NOT NULL, started_at TEXT NOT NULL, last_seen_at TEXT NOT NULL)"
+    )
+    .run();
+
+  await db
+    .prepare(
+      "CREATE INDEX IF NOT EXISTS idx_sayit_trial_access_device_id ON sayit_trial_access(device_id)"
     )
     .run();
 
   return true;
 }
 
-export async function getTrialForDevice(db, deviceId) {
-  const normalizedDeviceId = normalizeDeviceId(deviceId);
-  if (!db || !normalizedDeviceId) {
+export async function getTrialForEmail(db, email) {
+  const normalizedEmail = normalizeEmail(email);
+  if (!db || !normalizedEmail) {
     return null;
   }
 
   await ensureSeatTables(db);
   const result = await db
     .prepare(
-      `SELECT device_id, started_at, last_seen_at
-       FROM sayit_trial_devices
-       WHERE device_id = ?`
+      `SELECT email, device_id, started_at, last_seen_at
+       FROM sayit_trial_access
+       WHERE email = ?`
     )
-    .bind(normalizedDeviceId)
+    .bind(normalizedEmail)
     .first();
 
   return result || null;
 }
 
-export async function ensureTrialAccess(db, deviceId) {
+export async function ensureTrialAccess(db, email, deviceId) {
+  const normalizedEmail = normalizeEmail(email);
   const normalizedDeviceId = normalizeDeviceId(deviceId);
-  if (!db || !normalizedDeviceId) {
+  if (!db || !normalizedEmail || !normalizedDeviceId) {
     return {
-      allowed: true,
+      allowed: false,
       trialStarted: false,
-      trialActive: true,
+      trialActive: false,
       trialHours: TRIAL_HOURS
     };
   }
 
   await ensureSeatTables(db);
 
-  const existing = await getTrialForDevice(db, normalizedDeviceId);
+  const existing = await getTrialForEmail(db, normalizedEmail);
   const timestamp = nowIso();
 
   if (!existing) {
     await db
       .prepare(
-        `INSERT INTO sayit_trial_devices (device_id, started_at, last_seen_at)
-         VALUES (?, ?, ?)`
+        `INSERT INTO sayit_trial_access (email, device_id, started_at, last_seen_at)
+         VALUES (?, ?, ?, ?)`
       )
-      .bind(normalizedDeviceId, timestamp, timestamp)
+      .bind(normalizedEmail, normalizedDeviceId, timestamp, timestamp)
       .run();
 
     return {
@@ -122,11 +129,11 @@ export async function ensureTrialAccess(db, deviceId) {
 
   await db
     .prepare(
-      `UPDATE sayit_trial_devices
-       SET last_seen_at = ?
-       WHERE device_id = ?`
+      `UPDATE sayit_trial_access
+       SET device_id = ?, last_seen_at = ?
+       WHERE email = ?`
     )
-    .bind(timestamp, normalizedDeviceId)
+    .bind(normalizedDeviceId, timestamp, normalizedEmail)
     .run();
 
   const active = isTrialActive(existing.started_at);

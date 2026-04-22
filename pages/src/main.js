@@ -39,6 +39,7 @@ function getConfiguredApiBase() {
 
 const SAYIT_API_BASE = getConfiguredApiBase();
 const SAYIT_PLAN_URL = `${SAYIT_API_BASE}/api/plan`;
+const SAYIT_ACCESS_URL = `${SAYIT_API_BASE}/api/access`;
 const SAYIT_REMOVE_OLDEST_URL = `${SAYIT_API_BASE}/api/devices/remove-oldest`;
 const SAYIT_CHECKOUT_URL = `${SAYIT_API_BASE}/api/create-checkout-link`;
 const draftStorage = getDraftStorage();
@@ -86,6 +87,7 @@ let removeBusy = false;
 let appLocked = false;
 let serviceWorkerRefreshPending = false;
 let teleprompterOpen = false;
+let currentAccessState = null;
 
 const teleprompter = new TeleprompterController({
   container: document.querySelector("#teleprompter"),
@@ -224,7 +226,46 @@ function setSayItProActive(email = "") {
 
 function refreshPlusUi() {
   if (!counterText) return;
-  counterText.textContent = isSayItProActive() ? "Registered" : "";
+  if (isSayItProActive()) {
+    counterText.textContent = "Registered";
+    return;
+  }
+
+  if (currentAccessState?.access === "trial" && currentAccessState?.allowed) {
+    const hours = Number(currentAccessState?.trialHours || 72);
+    const expiresAt = String(currentAccessState?.expiresAt || "").trim();
+    if (expiresAt) {
+      const msLeft = new Date(expiresAt).getTime() - Date.now();
+      const daysLeft = Math.max(1, Math.ceil(msLeft / (24 * 60 * 60 * 1000)));
+      counterText.textContent = daysLeft > 1 ? `${daysLeft} days free` : "Free today";
+      return;
+    }
+    counterText.textContent = `${Math.round(hours / 24)} days free`;
+    return;
+  }
+
+  counterText.textContent = "";
+}
+
+function updatePlusModalCopy() {
+  const titleNode = document.querySelector("#plusTitle");
+  const subNode = plusModal?.querySelector(".modalSub");
+  const continueLabel = plusContinueButton;
+
+  if (!titleNode || !subNode || !continueLabel) return;
+
+  if (currentAccessState?.access === "expired") {
+    titleNode.textContent = "Your SayIt trial ended";
+    subNode.textContent =
+      "Use the same email to restore access or continue into SayIt Pro.";
+    continueLabel.textContent = "Continue with email";
+    return;
+  }
+
+  titleNode.textContent = "Start your free SayIt trial";
+  subNode.textContent =
+    "Use your email to start your 3-day trial now. That same email becomes your restore and login identity later.";
+  continueLabel.textContent = "Start free trial";
 }
 
 function showPlusModal() {
@@ -242,6 +283,7 @@ function showPlusModal() {
   }
 
   resetDeviceLimitUi();
+  updatePlusModalCopy();
 
   window.setTimeout(() => {
     plusEmailInput?.focus();
@@ -260,12 +302,14 @@ function hidePlusModal() {
 }
 
 function enforceAccessGate() {
-  const unlocked = isSayItProActive();
-  setAppLocked(!unlocked);
-
-  if (!unlocked && !isLocalPreviewHost()) {
-    showPlusModal();
+  if (isLocalPreviewHost()) {
+    setAppLocked(false);
+    return;
   }
+
+  const hasAccessIdentity = Boolean(getSayItProEmail());
+  const accessAllowed = Boolean(currentAccessState?.allowed) || isSayItProActive();
+  setAppLocked(!(hasAccessIdentity && accessAllowed));
 }
 
 function resetDeviceLimitUi() {
@@ -343,6 +387,39 @@ async function checkPlan(email) {
     plan: body?.plan === "plus" ? "plus" : "free",
     status: body?.status || "none",
     allowed: body?.allowed !== false
+  };
+}
+
+async function checkAccess(email = "") {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  const deviceId = getOrCreateDeviceId();
+
+  const response = await fetch(SAYIT_ACCESS_URL, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-sayit-device": deviceId,
+      ...(normalizedEmail ? { "x-sayit-email": normalizedEmail } : {})
+    },
+    body: JSON.stringify({
+      email: normalizedEmail,
+      device_id: deviceId
+    })
+  });
+
+  const body = await response.json().catch(() => ({}));
+
+  return {
+    ok: response.ok,
+    allowed: body?.allowed !== false,
+    access: body?.access || "",
+    status: body?.status || "",
+    trialStarted: body?.trialStarted === true,
+    startedAt: body?.startedAt || "",
+    expiresAt: body?.expiresAt || "",
+    trialHours: body?.trialHours || 0,
+    message: body?.message || body?.error || "",
+    body
   };
 }
 
@@ -466,22 +543,94 @@ async function goToStripeCheckout(email) {
 }
 
 async function syncPlusFromServer() {
-  if (!isSayItProActive()) return;
-
   const email = getSayItProEmail();
+
   if (!email) {
+    currentAccessState = {
+      ok: true,
+      allowed: false,
+      access: "missing_email",
+      message: "Enter your email to start your 3-day SayIt! trial."
+    };
     localStorage.removeItem(SAYIT_PRO_ACTIVE_KEY);
     refreshPlusUi();
+    enforceAccessGate();
+    if (!isLocalPreviewHost()) {
+      showPlusModal();
+      setDeviceMessage(
+        "<strong>Start your 3-day trial</strong><br>Enter your email to begin. We’ll also use that same email as your restore login later."
+      );
+    }
     return;
   }
 
   try {
-    const plan = await checkPlan(email);
-    if (plan.plan !== "plus") {
-      localStorage.removeItem(SAYIT_PRO_ACTIVE_KEY);
+    const access = await checkAccess(email);
+    currentAccessState = access;
+
+    const subscribed =
+      access.access === "subscription" ||
+      access.access === "approved_email_pool" ||
+      access.status === "active" ||
+      access.status === "free_access";
+
+    if (subscribed) {
+      if (email) {
+        setSayItProActive(email);
+      } else {
+        localStorage.setItem(SAYIT_PRO_ACTIVE_KEY, "true");
+      }
+      hidePlusModal();
       refreshPlusUi();
+      return;
     }
-  } catch {}
+
+    localStorage.removeItem(SAYIT_PRO_ACTIVE_KEY);
+
+    if (access.allowed) {
+      enforceAccessGate();
+      hidePlusModal();
+      refreshPlusUi();
+      return;
+    }
+
+    refreshPlusUi();
+    enforceAccessGate();
+    if (!isLocalPreviewHost()) {
+      showPlusModal();
+      if (deviceLimitMessage) {
+        if (access.access === "missing_email") {
+          setDeviceMessage(
+            "<strong>Start your 3-day trial</strong><br>Enter your email to begin. We’ll use that same address as your restore login later."
+          );
+        } else {
+          const trialHours = Number(access?.trialHours || 72);
+          setDeviceMessage(
+            `<strong>Your free trial ended</strong><br>${escapeHtml(
+              access.message || `Your ${trialHours}-hour access has ended.`
+            )}<br><br>Use your email to restore a subscription or continue with Pro.`
+          );
+        }
+      }
+    }
+  } catch {
+    currentAccessState = null;
+    setAppLocked(false);
+    refreshPlusUi();
+  }
+}
+
+function syncTrialStateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const trial = params.get("trial");
+  if (trial === "started") {
+    refreshPlusUi();
+  }
+}
+
+async function bootstrapAccess() {
+  syncTrialStateFromUrl();
+  await syncPlusFromServer();
 }
 
 async function handlePlusContinue() {
@@ -495,6 +644,28 @@ async function handlePlusContinue() {
 
   try {
     resetDeviceLimitUi();
+
+    const access = await checkAccess(email);
+    currentAccessState = access;
+
+    if (access.allowed) {
+      if (
+        access.access === "subscription" ||
+        access.access === "approved_email_pool" ||
+        access.status === "active" ||
+        access.status === "free_access"
+      ) {
+        hidePlusModal();
+        setSayItProActive(email);
+        return;
+      }
+
+      localStorage.removeItem(SAYIT_PRO_ACTIVE_KEY);
+      refreshPlusUi();
+      enforceAccessGate();
+      hidePlusModal();
+      return;
+    }
 
     const plan = await checkPlan(email);
 
@@ -689,14 +860,14 @@ function updateOutputs(translation, meta = {}) {
 
   setResultText(latestMessageText);
   setCopyButtonLabel("Copy");
-  setVoiceStatus("Your cleaner draft is ready below. Copy and paste it or use teleprompter.");
+  setVoiceStatus("Your refined draft is ready below.");
 
   if (meta.mode === "openai") {
-    setTeleprompterSummary("Ready below. Copy and paste it or use teleprompter.");
+    setTeleprompterSummary("Ready to copy or open in teleprompter.");
   } else if (meta.source === "local" || meta.mode === "rule-based") {
-    setTeleprompterSummary("Ready below. Copy and paste it or use teleprompter.");
+    setTeleprompterSummary("Ready to copy or open in teleprompter.");
   } else {
-    setTeleprompterSummary("Ready below. Copy and paste it or use teleprompter.");
+    setTeleprompterSummary("Ready to copy or open in teleprompter.");
   }
 
   const teleprompterLines = Array.isArray(translation?.teleprompterLines)
@@ -713,10 +884,10 @@ function updateOutputs(translation, meta = {}) {
 function setGeneratingState(isGenerating) {
   if (!submitButton) return;
   submitButton.disabled = isGenerating;
-  submitButton.textContent = isGenerating ? "Working..." : "Generate";
+  submitButton.textContent = isGenerating ? "Refining..." : "Refine Draft";
 
   if (isGenerating) {
-    setVoiceStatus("Working away. Your cleaner draft will appear below, ready to copy and paste or use teleprompter.");
+    setVoiceStatus("Working on it. Your refined draft will appear below.");
     setTeleprompterSummary("");
   }
 }
@@ -814,8 +985,7 @@ syncPlusStateFromUrl();
 refreshPlusUi();
 refreshRuntimeModeUi();
 installServiceWorkerRefreshHandler();
-syncPlusFromServer();
-enforceAccessGate();
+bootstrapAccess();
 
 try {
   window.localStorage.removeItem("sayit-draft-v4");
@@ -914,18 +1084,18 @@ teleprompterSpeedGroup?.addEventListener("click", (event) => {
 teleprompterPlaybackButton?.addEventListener("click", () => {
   if (teleprompter.isRunning()) {
     teleprompter.pause();
-    setTeleprompterSummary("Teleprompter paused. Tap Run when you want to keep going.");
+    setTeleprompterSummary("Teleprompter paused. Tap Run when you're ready to continue.");
     syncTeleprompterControls();
     return;
   }
 
   if (!teleprompter.start()) {
-    setTeleprompterSummary("Generate a message first to load teleprompter mode.");
+    setTeleprompterSummary("Generate a draft first to open teleprompter.");
     syncTeleprompterControls();
     return;
   }
 
-  setTeleprompterSummary("Teleprompter is live. You can pause or change speed any time.");
+  setTeleprompterSummary("Teleprompter is ready. You can pause or change speed any time.");
   syncTeleprompterControls();
 });
 
