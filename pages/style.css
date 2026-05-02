@@ -140,9 +140,10 @@ main,
 }
 
 .brand-mark {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  opacity: 0.94;
 }
 
 .brand-name {
@@ -247,8 +248,16 @@ body.sayit-install .pill {
 }
 
 body.sayit-install .hero-logo {
-  width: min(250px, 62vw);
+  width: min(188px, 48vw);
   margin: 0 auto 18px;
+  opacity: 0.94;
+}
+
+.install-hero-mark {
+  width: min(96px, 28vw);
+  height: auto;
+  border-radius: 22px;
+  opacity: 0.94;
 }
 
 body.sayit-install .hero-title {
@@ -648,7 +657,7 @@ body.sayit-install .hero-card {
   }
 
   body.sayit-install .hero-logo {
-    width: min(210px, 24vw);
+    width: min(164px, 20vw);
     margin: 0 0 22px;
   }
 
@@ -699,7 +708,7 @@ body.sayit-install .hero-card {
   }
 
   .hero-logo {
-    width: min(184px, 46vw);
+    width: min(152px, 40vw);
     margin-bottom: 12px;
   }
 
