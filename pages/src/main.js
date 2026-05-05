@@ -294,9 +294,9 @@ function showPlusModal() {
   }, 30);
 }
 
-function hidePlusModal() {
+function hidePlusModal({ force = false } = {}) {
   if (!plusModal) return;
-  if (appLocked && !isSayItProActive()) return;
+  if (!force && appLocked && !isSayItProActive()) return;
 
   plusModal.hidden = true;
   plusModal.setAttribute("hidden", "");
@@ -1203,7 +1203,11 @@ openTeleprompterButton?.addEventListener("click", () => {
   openTeleprompter({ autoStart: false });
 });
 
-plusCancelButton?.addEventListener("click", hidePlusModal);
+plusCancelButton?.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  hidePlusModal({ force: true });
+});
 plusContinueButton?.addEventListener("click", handlePlusContinue);
 
 teleprompterOverlay?.addEventListener("click", (event) => {
@@ -1214,14 +1218,14 @@ teleprompterOverlay?.addEventListener("click", (event) => {
 
 plusModal?.addEventListener("click", (event) => {
   if (event.target === plusModal || (plusModalCard && !plusModalCard.contains(event.target))) {
-    hidePlusModal();
+    hidePlusModal({ force: true });
   }
 });
 
 document.addEventListener("keydown", (event) => {
   if (plusModal && !plusModal.hidden) {
     if (event.key === "Escape") {
-      hidePlusModal();
+      hidePlusModal({ force: true });
       return;
     }
 
